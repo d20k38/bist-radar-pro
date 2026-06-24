@@ -1,9 +1,20 @@
-# BIST Radar Pro v11.3 Güvenli Tarama
+# BIST Radar Pro v11.4 Portföy Yönetimi
 
-Bu sürüm `Failed to fetch` ve Vercel timeout sorunlarını azaltmak için tüm BIST taramasını 6 hisselik küçük parçalar halinde yapar.
+Bu sürüm v11.3 güvenli tarama üzerine portföy yönetimi ekler.
 
-- `/api/scan?limit=6&offset=0&concurrency=2`
-- Tarama sırasında hata olursa ekranda gösterir, sayfa kilitlenmez.
-- Vercel Hobby planında tek istekte çok sayıda Yahoo Finance çağrısı zaman aşımına düşebildiği için küçük parçalı tarama kullanılmıştır.
+## Yeni özellikler
+- Portföyden hisse ekle / güncelle / sil
+- Lot ve maliyet düzenleme
+- Tarayıcı LocalStorage otomatik kayıt
+- JSON dışa aktar / JSON içe aktar
+- Toplam maliyet hesabı
 
-Kurulum: ZIP içindeki dosyaları repo köküne yükleyin, eski `public/index.html` varsa silin veya aynı dosyayla değiştirin, Vercel'de redeploy yapın ve build cache kullanmayın.
+## Not
+Portföy verisi sadece kullanılan tarayıcıda saklanır. Telefon ve bilgisayar arasında taşımak için JSON indir/yükle kullanılabilir.
+
+Kurulum: ZIP içindeki dosyaları repo köküne yükleyin. Eski `public/index.html` varsa silin veya aynı dosyayla değiştirin. Vercel redeploy yaparken build cache kullanmayın.
+
+
+## v11.5 Grafik Güncellemesi
+- Grafik başlığı “Fiyat Grafiği ve Teknik Göstergeler” olarak değiştirildi.
+- Grafiğe EMA20, EMA50 ve EMA200 çizgileri eklendi.
