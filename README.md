@@ -1,31 +1,17 @@
-# BIST Radar Pro v13
+# BIST Radar Pro v16.5 - Backtest + İstatistik
 
-Mobil uyumlu, hata yakalayan, karar destek odaklı temiz ön yüz.
+Bu sürüm V16.4 üzerine backtest ve sinyal istatistiklerini ekler.
 
-## Kurulum
+## Eklenenler
+- Backtest sekmesi
+- Seçili hisse için 5 yıllık örneklemli 30 günlük ileri test
+- Karar türüne göre başarı oranı: GÜÇLÜ AL, AL, İZLE, BEKLE, RİSKLİ
+- Ortalama getiri, en iyi / en kötü sonuç
+- Portföy hisseleri için toplu backtest
+- AI backtest yorumu
 
-GitHub repo köküne bu ZIP içindeki tüm dosya ve klasörleri yükleyin:
+## Not
+Backtest geçmiş veriye dayanır; geleceği garanti etmez. Sistem yatırım tavsiyesi değildir.
 
-- `index.html`
-- `api/`
-- `lib/`
-- `data/`
-- `package.json`
-- `vercel.json`
-
-Vercel'de redeploy yaparken build cache kullanmayın.
-
-## Özellikler
-
-- Mobil uyumlu arayüz
-- API bağlantı testleri
-- Net hata gösterimi
-- Fiyat grafiği + EMA20/50/200
-- Uzman motor özeti
-- ADX / DI / SuperTrend detayları
-- En Güçlü 20, Güvenli Kazanç, Fırsat Avcısı
-- Parçalı BIST tarama
-- Portföy ekle/güncelle/sil ve localStorage kayıt
-- Backtest sonucu
-
-Not: Eğitim/araştırma amaçlıdır; yatırım tavsiyesi değildir.
+## Yayınlama
+ZIP içeriğini GitHub reposunun kök dizinine yükleyin ve Vercel'de redeploy yapın.
