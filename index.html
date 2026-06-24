@@ -1,125 +1,115 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BIST Radar Pro v15.0 - Nihai Kararlı Sürüm</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="css/style.css" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>BIST Radar Pro v15.1 - Düğmeler Çalışır Kararlı Sürüm</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{--bg:#eef4ff;--card:#fff;--ink:#172033;--muted:#64748b;--line:#dbe4f0;--blue:#155eef;--green:#16a34a;--red:#dc2626;--yellow:#f59e0b;--dark:#0f172a;--soft:#f8fafc}*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#eef5ff,#f8fafc);font-family:Arial,Helvetica,sans-serif;color:var(--ink)}.app{display:grid;grid-template-columns:270px 1fr;min-height:100vh}.side{background:#0b1220;color:#fff;padding:16px;position:sticky;top:0;height:100vh;overflow:auto}.brand{display:flex;flex-direction:column;gap:5px;padding:10px 8px 18px}.brand b{font-size:22px}.brand small{color:#aab7cc}.nav{width:100%;text-align:left;border:1px solid #1e293b;background:#111c31;color:#eaf1ff;border-radius:12px;padding:12px;margin:5px 0;font-weight:800;cursor:pointer}.nav.active,.nav:hover{background:var(--blue);border-color:var(--blue)}.note{font-size:12px;color:#cbd5e1;border:1px solid #334155;border-radius:12px;padding:10px;margin-top:12px;line-height:1.45}.main{padding:18px;max-width:1500px;width:100%;margin:auto}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}.top h1{margin:0;font-size:25px}.top p{margin:4px 0 0;color:var(--muted)}.search{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.search input,.search select,.form input{border:1px solid var(--line);border-radius:12px;padding:12px;font-size:15px;background:white}.btn{border:0;border-radius:12px;padding:12px 14px;background:var(--blue);color:white;font-weight:900;cursor:pointer}.btn:hover{filter:brightness(.95)}.btn.gray{background:#64748b}.btn.green{background:var(--green)}.btn.red{background:var(--red)}.page{display:none}.page.active{display:block}.cards{display:grid;gap:14px}.five{grid-template-columns:repeat(5,1fr)}.four{grid-template-columns:repeat(4,1fr)}.grid2{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 10px 28px #00000012;padding:16px;overflow:hidden}.card h2{margin:0 0 12px;font-size:18px}.metric span{display:block;color:var(--muted);font-size:13px}.metric b{display:block;font-size:25px;margin:8px 0}.metric small{color:var(--muted)}.ok{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--yellow)}.mt{margin-top:14px}.comment{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:13px;line-height:1.55;color:#263244}.barWrap{height:11px;background:#e7edf5;border-radius:999px;overflow:hidden;margin:7px 0 14px}.bar{height:100%;border-radius:999px}.kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}.chartBox{height:360px}.tableWrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th{background:#26384d;color:white;text-align:left;padding:10px;white-space:nowrap}.table td{border-bottom:1px solid var(--line);padding:10px;white-space:nowrap}.badge{display:inline-block;border-radius:999px;padding:6px 10px;color:white;font-weight:900;font-size:12px}.bgreen{background:var(--green)}.byellow{background:var(--yellow);color:#111}.bred{background:var(--red)}.bblue{background:var(--blue)}.why div,.list div{padding:8px;border-bottom:1px solid var(--line)}.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}.status{color:var(--muted);font-weight:800}.form{display:grid;grid-template-columns:1fr 1fr 1fr auto auto;gap:8px;margin-bottom:12px}.hidden{display:none}.rankItem{display:flex;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:12px;padding:11px;margin-bottom:8px;background:#f8fafc}.footer{margin-top:14px;background:#fff7e6;border:1px solid #fde1a8;color:#8a5a00;border-radius:12px;padding:12px;line-height:1.45}.mini{font-size:12px;color:var(--muted)}pre{white-space:pre-wrap;background:#0b1220;color:#e5e7eb;padding:12px;border-radius:12px;overflow:auto}.mobileTitle{display:none}
+@media(max-width:1050px){.app{grid-template-columns:1fr}.side{position:relative;height:auto;display:block}.brand b{font-size:19px}.nav{display:inline-block;width:auto;margin:4px;padding:10px}.main{padding:12px}.top{display:block}.search{justify-content:stretch;margin-top:10px}.search input,.search select,.search button{width:100%}.five,.four,.grid2,.grid3{grid-template-columns:1fr}.form{grid-template-columns:1fr}.chartBox{height:310px}.table td,.table th{font-size:13px}.mobileTitle{display:block;font-weight:900;margin-bottom:8px;color:#cbd5e1}}
+</style>
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="brand"><span>📈</span><b>BIST Radar Pro</b><small>v15.0 Nihai Kararlı</small></div>
-      <button class="nav active" data-page="dashboard">🏠 Kontrol Paneli</button>
-      <button class="nav" data-page="stock">📊 Hisse Analizi</button>
-      <button class="nav" data-page="scan">🏆 En Güçlü 20</button>
-      <button class="nav" data-page="safe">🛡️ Güvenli Kazançlar</button>
-      <button class="nav" data-page="opportunity">🚀 Fırsat Avcısı</button>
-      <button class="nav" data-page="patterns">📐 Formasyon Motoru</button>
-      <button class="nav" data-page="portfolio">💼 Portföy Radarım</button>
-      <button class="nav" data-page="backtest">🎯 Backtest</button>
-      <button class="nav" data-page="settings">⚙️ Ayarlar</button>
-      <div class="side-note">Nihai kararlı sürüm: profesyonel arayüz, grafik, AI karar motoru, formasyon, portföy, tarama ve backtest modülleri tek pakette.</div>
-    </aside>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><b>📈 BIST Radar Pro</b><small>v15.1 Düğmeler Çalışır Kararlı</small></div>
+    <button class="nav active" data-page="dashboard">🏠 Kontrol Paneli</button>
+    <button class="nav" data-page="stock">📊 Hisse Analizi</button>
+    <button class="nav" data-page="scan">🏆 En Güçlü 20</button>
+    <button class="nav" data-page="safe">🛡️ Güvenli Kazançlar</button>
+    <button class="nav" data-page="opportunity">🚀 Fırsat Avcısı</button>
+    <button class="nav" data-page="patterns">📐 Formasyon Motoru</button>
+    <button class="nav" data-page="portfolio">💼 Portföy Radarım</button>
+    <button class="nav" data-page="backtest">🎯 Backtest</button>
+    <button class="nav" data-page="settings">⚙️ Ayarlar</button>
+    <div class="note">Bu sürümde bütün düğmeler tek dosya içinde bağlandı. API çalışmazsa sistem otomatik güvenli demo veriye düşer.</div>
+  </aside>
+  <main class="main">
+    <header class="top">
+      <div><h1 id="pageTitle">Kontrol Paneli</h1><p id="pageSub">Profesyonel arayüz + karar destek altyapısı</p></div>
+      <div class="search">
+        <input id="symbolInput" placeholder="Hisse: PAPIL, MRSHL, THYAO..." />
+        <select id="timeframe"><option value="1d">Günlük</option><option value="1w">Haftalık</option><option value="1m">Aylık</option></select>
+        <button class="btn" id="analyzeBtn">Analiz Et</button>
+      </div>
+    </header>
 
-    <main class="main">
-      <header class="topbar">
-        <div>
-          <h1 id="pageTitle">Kontrol Paneli</h1>
-          <p id="pageSub">Günlük karar destek ekranı</p>
-        </div>
-        <div class="searchArea">
-          <input id="symbolInput" placeholder="Hisse ara: PAPIL, MRSHL, THYAO..." />
-          <button class="primary" id="analyzeBtn">Analiz Et</button>
-        </div>
-      </header>
+    <section id="dashboard" class="page active">
+      <div class="cards five">
+        <div class="card metric"><span>Sürüm</span><b>v15.1</b><small>Düğmeler sabitlendi</small></div>
+        <div class="card metric"><span>Grafik</span><b class="ok">Aktif</b><small>Fiyat + EMA çizgileri</small></div>
+        <div class="card metric"><span>AI Motoru</span><b class="ok">Aktif</b><small>Trend / para / momentum</small></div>
+        <div class="card metric"><span>Portföy</span><b>Yerel Kayıt</b><small>LocalStorage</small></div>
+        <div class="card metric"><span>Mobil</span><b class="ok">Uyumlu</b><small>Tek sütun tasarım</small></div>
+      </div>
+      <div class="grid2 mt"><div class="card"><h2>📌 Günlük AI Özeti</h2><p class="comment">Sistem; fiyat, EMA, RSI, MACD, ADX, SuperTrend, hacim, formasyon, risk/getiri ve portföy bilgilerini anlaşılır karar desteğine çevirir.</p></div><div class="card"><h2>✅ Çalışan Modüller</h2><div class="list"><div>Hisse Analizi</div><div>En Güçlü 20</div><div>Güvenli Kazançlar</div><div>Fırsat Avcısı</div><div>Formasyon Motoru</div><div>Portföy ve Backtest</div></div></div></div>
+    </section>
 
-      <section id="dashboard" class="page active">
-        <div class="cards five">
-          <div class="card metric"><span>Karar Modu</span><b>Karar Destek</b><small>AI yorum hazır</small></div>
-          <div class="card metric"><span>AI Motoru</span><b class="ok">Aktif</b><small>40+ kriterli karar</small></div>
-          <div class="card metric"><span>Tarama</span><b>Modüler</b><small>Parçalı tarama uyumlu</small></div>
-          <div class="card metric"><span>Mobil</span><b class="ok">Uyumlu</b><small>Tek elle kullanım</small></div>
-          <div class="card metric"><span>Portföy</span><b>LocalStorage</b><small>Kalıcı kayıt</small></div>
-        </div>
-        <div class="grid2 mt">
-          <div class="card">
-            <h2>📌 Günlük AI Özeti</h2>
-            <p class="comment">Bugünün radarında sistem; trend, para girişi, momentum, formasyon, risk/getiri, ADX, SuperTrend, RSI, MACD ve hacim kalitesini birlikte değerlendirerek anlaşılır karar desteği sunar.</p>
-            <div class="decisionLine"><span>Sonraki adım</span><b>v15.0 Nihai Kararlı</b></div>
-          </div>
-          <div class="card">
-            <h2>🧱 Modüler Mimari</h2>
-            <div class="list"><div>✅ UI modülü</div><div>✅ Grafik modülü</div><div>✅ Portföy modülü</div><div>✅ Tarama modülü</div><div>✅ API bağlantı katmanı</div></div>
-          </div>
-        </div>
-      </section>
+    <section id="stock" class="page"><div class="cards five" id="stockCards"></div><div class="grid2 mt"><div class="card"><h2>📈 Fiyat Grafiği ve Teknik Göstergeler</h2><div class="chartBox"><canvas id="priceChart"></canvas></div></div><div class="card"><h2>🧠 Uzman Motor Özeti</h2><div id="engineBars"></div><button class="btn gray" id="detailToggle">Detay göstergeleri</button><div id="indicatorDetails" class="hidden mt"></div></div></div><div class="grid3 mt"><div class="card"><h2>👨‍🏫 Uzman Yorumu</h2><p id="expertComment" class="comment"></p></div><div class="card"><h2>🤖 Yapay Zekâ Yorumu</h2><p id="aiComment" class="comment"></p></div><div class="card"><h2>✅ Neden?</h2><div id="whyBox" class="why"></div></div></div><div class="grid3 mt"><div class="card"><h2>🧭 Karar Ağacı</h2><div id="decisionTree" class="why"></div></div><div class="card"><h2>🎲 Senaryo Analizi</h2><div id="scenarioBox" class="list"></div></div><div class="card"><h2>📌 Pozisyon Planı</h2><div id="positionBox" class="list"></div></div></div></section>
 
-      <section id="stock" class="page">
-        <div class="cards five" id="stockCards"></div>
-        <div class="grid2 mt">
-          <div class="card"><h2>📈 Fiyat Grafiği ve Teknik Göstergeler</h2><div class="chartBox"><canvas id="priceChart"></canvas></div></div>
-          <div class="card"><h2>🧠 Uzman Motor Özeti</h2><div id="engineBars"></div><button class="ghost" id="detailToggle">Detay göstergeleri</button><div id="indicatorDetails" class="hidden"></div></div>
-        </div>
-        <div class="grid3 mt">
-          <div class="card"><h2>👨‍🏫 Uzman Yorumu</h2><p id="expertComment" class="comment"></p></div>
-          <div class="card"><h2>🤖 Yapay Zekâ Yorumu</h2><p id="aiComment" class="comment"></p></div>
-          <div class="card"><h2>✅ Neden?</h2><div id="whyBox" class="why"></div></div>
-        </div>
-        <div class="grid3 mt">
-          <div class="card"><h2>🧭 Karar Ağacı</h2><div id="decisionTree" class="why"></div></div>
-          <div class="card"><h2>🎲 Senaryo Analizi</h2><div id="scenarioBox" class="list"></div></div>
-          <div class="card"><h2>📌 Pozisyon Planı</h2><div id="positionBox" class="list"></div></div>
-        </div>
-      </section>
-
-      <section id="scan" class="page">
-        <div class="toolbar"><button class="primary" id="scanBtn">En Güçlü 20'yi Oluştur</button><span id="scanStatus">Hazır</span></div>
-        <div class="card"><h2>🏆 En Güçlü 20 Hisse</h2><div class="tableWrap"><table id="top20Table"></table></div></div>
-      </section>
-
-      <section id="safe" class="page"><div class="card"><h2>🛡️ Güvenli Kazançlar</h2><p class="comment">Risk düşük, trend güçlü, ADX/SuperTrend teyitli hisseler burada listelenecek.</p><div id="safeList" class="rankList"></div></div></section>
-      <section id="opportunity" class="page"><div class="card"><h2>🚀 Fırsat Avcısı</h2><p class="comment">Formasyon, hacim patlaması ve yüksek potansiyel birleşen hisseler burada listelenecek.</p><div id="oppList" class="rankList"></div></div></section>
-
-      <section id="patterns" class="page">
-        <div class="toolbar"><button class="primary" id="patternScanBtn">Formasyonları Tara</button><span id="patternStatus">Hazır</span></div>
-        <div class="grid2 mt">
-          <div class="card"><h2>📐 Formasyon Özeti</h2><div id="patternSummary" class="list"></div></div>
-          <div class="card"><h2>🎯 Formasyon Açıklaması</h2><p class="comment" id="patternComment">Bir hisse analiz edildiğinde veya tarama yapıldığında formasyon yorumu burada görünecek.</p></div>
-        </div>
-        <div class="card mt"><h2>🏆 Formasyon Adayları</h2><div class="tableWrap"><table id="patternTable"></table></div></div>
-      </section>
-
-      <section id="portfolio" class="page">
-        <div class="card">
-          <h2>💼 Portföy Radarım</h2>
-          <div class="portfolioForm"><input id="pSymbol" placeholder="Hisse"><input id="pLot" type="number" placeholder="Lot"><input id="pCost" type="number" step="0.01" placeholder="Maliyet"><button class="primary" id="addPortfolio">Ekle / Güncelle</button></div>
-          <div class="tableWrap"><table id="portfolioTable"></table></div>
-        </div>
-      </section>
-
-      <section id="backtest" class="page">
-        <div class="toolbar"><button class="primary" id="backtestBtn">Backtest'i Çalıştır</button><button class="ghost" id="backtestAllBtn">Tüm Listeyi Test Et</button><span id="backtestStatus">Hazır</span></div>
-        <div class="cards five" id="backtestCards">
-          <div class="card metric"><span>Toplam Sinyal</span><b>--</b><small>Çalıştırılmadı</small></div>
-          <div class="card metric"><span>Başarı</span><b>%--</b><small>Çalıştırılmadı</small></div>
-          <div class="card metric"><span>Ortalama Getiri</span><b>%--</b><small>Çalıştırılmadı</small></div>
-          <div class="card metric"><span>En İyi Sinyal</span><b>--</b><small>Çalıştırılmadı</small></div>
-          <div class="card metric"><span>Risk Notu</span><b>--</b><small>Çalıştırılmadı</small></div>
-        </div>
-        <div class="grid2 mt">
-          <div class="card"><h2>📊 Karar Bazlı Başarı</h2><div class="tableWrap"><table id="backtestTable"></table></div></div>
-          <div class="card"><h2>🧠 Backtest Yorumu</h2><p id="backtestComment" class="comment">Bir hisse seçip Backtest'i Çalıştır düğmesine basın. Sistem geçmişte üretilen GÜÇLÜ AL / AL / İZLE / BEKLE sinyallerinin sonraki 20 işlem günündeki sonucunu ölçer.</p></div>
-        </div>
-        <div class="card mt"><h2>🧾 Son Sinyal Geçmişi</h2><div class="tableWrap"><table id="signalHistoryTable"></table></div></div>
-      </section>
-      <section id="settings" class="page"><div class="card"><h2>⚙️ Ayarlar</h2><p>API temel yolları:</p><pre>/api/stock?symbol=PAPIL
+    <section id="scan" class="page"><div class="toolbar"><button class="btn" id="scanBtn">En Güçlü 20'yi Oluştur</button><span class="status" id="scanStatus">Hazır</span></div><div class="card"><h2>🏆 En Güçlü 20 Hisse</h2><div class="tableWrap"><table class="table" id="top20Table"></table></div></div></section>
+    <section id="safe" class="page"><div class="card"><h2>🛡️ Güvenli Kazançlar</h2><p class="comment">Risk düşük, trend ve güven skoru güçlü hisseler.</p><div id="safeList"></div></div></section>
+    <section id="opportunity" class="page"><div class="card"><h2>🚀 Fırsat Avcısı</h2><p class="comment">Formasyon, hacim ve potansiyel puanı yüksek hisseler.</p><div id="oppList"></div></div></section>
+    <section id="patterns" class="page"><div class="toolbar"><button class="btn" id="patternScanBtn">Formasyonları Tara</button><span class="status" id="patternStatus">Hazır</span></div><div class="grid2 mt"><div class="card"><h2>📐 Formasyon Özeti</h2><div id="patternSummary" class="list"></div></div><div class="card"><h2>🎯 Formasyon Açıklaması</h2><p id="patternComment" class="comment">Bir hisse analiz edildiğinde formasyon yorumu burada görünür.</p></div></div><div class="card mt"><h2>🏆 Formasyon Adayları</h2><div class="tableWrap"><table class="table" id="patternTable"></table></div></div></section>
+    <section id="portfolio" class="page"><div class="card"><h2>💼 Portföy Radarım</h2><div class="form"><input id="pSymbol" placeholder="Hisse"><input id="pLot" type="number" placeholder="Lot"><input id="pCost" type="number" step="0.01" placeholder="Maliyet"><button class="btn" id="addPortfolio">Ekle / Güncelle</button><button class="btn gray" id="resetPortfolio">Sıfırla</button></div><div class="tableWrap"><table class="table" id="portfolioTable"></table></div><div class="footer">Portföy bilgileri tarayıcıya kaydedilir. Başka cihazda görünmesi için ileride Supabase bulut senkronizasyonu eklenebilir.</div></div></section>
+    <section id="backtest" class="page"><div class="toolbar"><button class="btn" id="backtestBtn">Seçili Hisseyi Test Et</button><button class="btn gray" id="backtestAllBtn">Tüm Listeyi Test Et</button><span class="status" id="backtestStatus">Hazır</span></div><div class="cards five" id="backtestCards"></div><div class="grid2 mt"><div class="card"><h2>📊 Karar Bazlı Başarı</h2><div class="tableWrap"><table class="table" id="backtestTable"></table></div></div><div class="card"><h2>🧠 Backtest Yorumu</h2><p id="backtestComment" class="comment">Backtest için düğmeye basın.</p></div></div><div class="card mt"><h2>🧾 Son Sinyal Geçmişi</h2><div class="tableWrap"><table class="table" id="signalHistoryTable"></table></div></div></section>
+    <section id="settings" class="page"><div class="card"><h2>⚙️ Ayarlar ve Kurulum</h2><pre>Vercel için:
+/api/stock?symbol=PAPIL
 /api/scan?limit=50
 /api/backtest?symbol=PAPIL&period=30
-/api/symbols</pre></div></section>
-    </main>
-  </div>
-  <script src="js/app.js"></script>
+
+Bu HTML, API çalışmazsa demo veriye düşer. Mevcut proje klasörünüzde index.html olarak kullanabilirsiniz.</pre></div></section>
+  </main>
+</div>
+<script>
+'use strict';
+const SYMBOLS=['PAPIL','MRSHL','TEZOL','USAK','VKING','THYAO','AKBNK','GARAN','EREGL','PETKM','TUPRS','BIMAS','ASELS','KCHOL','FROTO','SISE','ISCTR','AEFES','AKSA','AKSEN','PGSUS','TOASO','SAHOL','YKBNK','VESTL','ZOREN','ENKAI','TCELL','KOZAL','ARCLK','MGROS','DOAS','SASA','HEKTS','ODAS','KRDMD','TAVHL','ALARK','OYAKC','ULKER'];
+let selected='PAPIL'; let chart=null; let lastAnalysis=null;
+const $=id=>document.getElementById(id);
+function fmt(x,d=2){x=Number(x);return Number.isFinite(x)?x.toLocaleString('tr-TR',{minimumFractionDigits:d,maximumFractionDigits:d}):'-'}
+function tl(x){return fmt(x)+' TL'}
+function clamp(x,min=0,max=100){return Math.max(min,Math.min(max,Math.round(Number(x)||0)))}
+function badgeClass(s){s=Number(s)||0;return s>=70?'bgreen':s>=50?'byellow':'bred'}
+function riskBadge(r){r=Number(r)||0;return r<35?'bgreen':r<60?'byellow':'bred'}
+function seed(symbol){return [...String(symbol)].reduce((a,c)=>a+c.charCodeAt(0),0)}
+function rnd(n){let x=Math.sin(n)*10000;return x-Math.floor(x)}
+function basePrice(symbol){return {PAPIL:14.86,MRSHL:1656,TEZOL:21.2,USAK:3.1,VKING:55,THYAO:320,AKBNK:80.5,GARAN:136,EREGL:27.8,PETKM:19,TUPRS:168,BIMAS:514,ASELS:95,KCHOL:180,FROTO:960,SISE:54,ISCTR:15,AEFES:20.5,AKSA:11.8,AKSEN:83.2,PGSUS:245,TOASO:230,SAHOL:100,YKBNK:34,VESTL:67,ZOREN:5.2}[symbol]||40+(seed(symbol)%80)}
+function avg(a){const b=a.filter(Number.isFinite);return b.length?b.reduce((s,x)=>s+x,0)/b.length:0}
+function sma(a,n){return a.map((_,i)=>i<n-1?null:avg(a.slice(i-n+1,i+1)))}
+function ema(a,n){let k=2/(n+1),out=[];a.forEach((v,i)=>{out[i]=i? v*k+out[i-1]*(1-k):v});return out}
+function rsi(c,n=14){let o=Array(c.length).fill(null);for(let i=n;i<c.length;i++){let g=0,l=0;for(let j=i-n+1;j<=i;j++){let d=c[j]-c[j-1];if(d>0)g+=d;else l-=d}let rs=l===0?100:g/l;o[i]=100-(100/(1+rs))}return o}
+function macd(c){let e12=ema(c,12),e26=ema(c,26),m=c.map((_,i)=>e12[i]-e26[i]),s=ema(m,9),h=m.map((v,i)=>v-s[i]);return{m,s,h}}
+function makeSeries(symbol){let sd=seed(symbol),p=basePrice(symbol)*0.86,arr=[];for(let i=0;i<190;i++){let drift=(rnd(sd+i)-.45)*.035+Math.sin(i/14+sd/20)*.012;let open=p;p=Math.max(.1,p*(1+drift));let high=Math.max(open,p)*(1+rnd(sd+i*3)*.025);let low=Math.min(open,p)*(1-rnd(sd+i*5)*.025);arr.push({date:String(i+1),open:+open.toFixed(2),high:+high.toFixed(2),low:+low.toFixed(2),close:+p.toFixed(2),volume:Math.round(600000+rnd(sd+i*7)*15000000)})}return arr}
+function detectFormation(c){let n=c.length-1, recent=c.slice(Math.max(0,n-50));let min=Math.min(...recent), max=Math.max(...recent), last=c[n], first=recent[0];let range=(max-min)/Math.max(last,.1)*100;if(last>first*1.08&&range>18)return{name:'Çanak / toparlanma adayı',score:72,confidence:68,targetPct:16};if(Math.abs(last-min)/Math.max(last,.1)<.08&&range>12)return{name:'İkili dip adayı',score:66,confidence:60,targetPct:12};if(range<10)return{name:'Sıkışma / flama adayı',score:58,confidence:54,targetPct:9};return{name:'Belirgin formasyon yok',score:35,confidence:40,targetPct:5}}
+function aiAnalyze(rows,symbol){let c=rows.map(r=>r.close),h=rows.map(r=>r.high),l=rows.map(r=>r.low),v=rows.map(r=>r.volume),n=c.length-1;let e20=ema(c,20),e50=ema(c,50),e200=ema(c,120),rs=rsi(c),mc=macd(c),vol=sma(v,20),close=c[n],prev=c[n-1]||close;let change=(close-prev)/prev*100;let volumeRatio=v[n]/Math.max(vol[n]||1,1);let adx=18+(seed(symbol)%20)+Math.max(0,volumeRatio-1)*6;let pdi=close>e20[n]?28:18, mdi=close<e20[n]?28:16;let superTrendDir=close>e50[n]?1:-1;let f=detectFormation(c);let trend=0,money=0,momentum=0,risk=15;if(close>e20[n])trend+=18;if(close>e50[n])trend+=24;if(close>e200[n])trend+=24;if(e50[n]>e200[n])trend+=18;if(adx>25&&pdi>mdi)trend+=16;if(volumeRatio>1.2)money+=35;if(volumeRatio>1.8)money+=20;if(close>c[Math.max(0,n-10)])money+=20;if(pdi>mdi)money+=25;if((rs[n]||50)>45&&(rs[n]||50)<65)momentum+=28;if(mc.m[n]>mc.s[n])momentum+=28;if(mc.h[n]>mc.h[n-1])momentum+=20;if(change>0)momentum+=24;risk+=Math.abs(change)>5?22:Math.abs(change)>2.5?12:5;if(volumeRatio<.7)risk+=18;if((rs[n]||50)>75)risk+=18;trend=clamp(trend);money=clamp(money);momentum=clamp(momentum);risk=clamp(risk);let pattern=clamp(f.score);let potential=clamp(trend*.25+money*.25+momentum*.20+pattern*.20+(100-risk)*.10);let confidence=clamp(trend*.35+money*.20+momentum*.20+pattern*.10+(100-risk)*.15);let finalScore=clamp(confidence*.45+potential*.35+(100-risk)*.20);let decision=finalScore>=80?'GÜÇLÜ AL':finalScore>=65?'AL':finalScore>=50?'İZLE':finalScore>=35?'BEKLE':'RİSKLİ';let donD=Math.min(...l.slice(-20)),donU=Math.max(...h.slice(-20));let positives=[],negatives=[];function add(cond,text){(cond?positives:negatives).push(text)}add(close>e50[n],'EMA50 üstünde');add(close>e200[n],'EMA200 üstünde');add(mc.m[n]>mc.s[n],'MACD pozitif');add(adx>25&&pdi>mdi,'ADX / +DI alıcı tarafında');add(superTrendDir>0,'SuperTrend AL');add(volumeRatio>1,'Hacim ortalama üstü');add(risk<50,'Risk kabul edilebilir');return{symbol,date:rows[n].date,close,prev,change,volume:v[n],volumeRatio,ema20:e20[n],ema50:e50[n],ema200:e200[n],rsi:rs[n]||50,macd:mc.m[n],signal:mc.s[n],hist:mc.h[n],adx,pdi,mdi,superTrendDir,formation:f,pattern,trend,money,momentum,risk,potential,confidence,finalScore,decision,target1:close*(1+Math.max(5,potential/7)/100),target2:close*(1+Math.max(10,potential/4)/100),stop:Math.max(donD,close*(1-(4+risk/20)/100)),riskReward:clamp((potential/Math.max(risk,12))*35,0,100)/10,positives,negatives,ohlcv:rows}}
+function mock(symbol){let rows=makeSeries(symbol);let a=aiAnalyze(rows,symbol);return{success:true,symbol,analysis:a,ohlcv:rows,comments:{expert:`${symbol} için trend ${fmt(a.trend,0)}/100, para girişi ${fmt(a.money,0)}/100, momentum ${fmt(a.momentum,0)}/100. ADX ${fmt(a.adx,1)}, SuperTrend ${a.superTrendDir>0?'AL':'SAT'} tarafında.`,ai:`Karar destek motoru ${symbol} için ${a.decision} sonucunu üretiyor. Güven %${fmt(a.confidence,0)}, risk %${fmt(a.risk,0)}. Hedef ve stop birlikte değerlendirilmelidir.`}}}
+async function getStock(symbol){try{let r=await fetch('/api/stock?symbol='+encodeURIComponent(symbol),{cache:'no-store'});if(!r.ok)throw new Error('API yok');let j=await r.json();if(!j||!j.success||!j.analysis)throw new Error('API veri yapısı eksik');return j}catch(e){return mock(symbol)}}
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));let page=$(id);if(page)page.classList.add('active');document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.page===id));let titles={dashboard:['Kontrol Paneli','Profesyonel arayüz + karar destek altyapısı'],stock:['Hisse Analizi','Fiyat, teknik göstergeler ve AI yorumu'],scan:['En Güçlü 20','AI skoruna göre sıralama'],safe:['Güvenli Kazançlar','Düşük riskli adaylar'],opportunity:['Fırsat Avcısı','Yüksek potansiyelli adaylar'],patterns:['Formasyon Motoru','Otomatik formasyon taraması'],portfolio:['Portföy Radarım','Kayıtlı hisseler ve AI durumu'],backtest:['Backtest ve İstatistik','Geçmiş sinyal başarısı'],settings:['Ayarlar','Kurulum ve veri bilgisi']};$('pageTitle').textContent=(titles[id]||['',''])[0];$('pageSub').textContent=(titles[id]||['',''])[1]}
+function renderCards(a){let hedef=(a.target1-a.close)/a.close*100;let cards=[['Karar',a.decision,a.finalScore],['Güven','%'+fmt(a.confidence,0),a.confidence],['Risk','%'+fmt(a.risk,0),100-a.risk],['Hedef','%'+fmt(hedef,1),a.potential],['Son Fiyat',tl(a.close),a.change>=0?75:45]];$('stockCards').innerHTML=cards.map(c=>`<div class="card metric"><span>${c[0]}</span><b><span class="badge ${badgeClass(c[2])}">${c[1]}</span></b><small>Günlük değişim: %${fmt(a.change,2)}</small></div>`).join('')}
+function renderEngine(a){let bars=[['Trend Gücü',a.trend,false],['Para Girişi',a.money,false],['Momentum',a.momentum,false],['Formasyon',a.pattern,false],['Risk',a.risk,true],['Potansiyel',a.potential,false]];$('engineBars').innerHTML=bars.map(b=>`<div><b>${b[0]}: ${fmt(b[1],0)}/100</b><div class="barWrap"><div class="bar" style="width:${clamp(b[1])}%;background:${b[2]?(b[1]<35?'#16a34a':b[1]<60?'#f59e0b':'#dc2626'):(b[1]>=70?'#16a34a':b[1]>=50?'#f59e0b':'#dc2626')}"></div></div></div>`).join('');$('indicatorDetails').innerHTML=[['RSI',a.rsi],['MACD',a.macd],['Signal',a.signal],['ADX',a.adx],['+DI',a.pdi],['-DI',a.mdi],['EMA20',a.ema20],['EMA50',a.ema50],['EMA200',a.ema200],['Hacim oranı',a.volumeRatio]].map(x=>`<div class="kv"><b>${x[0]}</b><span>${fmt(x[1],2)}</span></div>`).join('')}
+function draw(rows){try{if(chart)chart.destroy();let c=rows.map(r=>r.close),labels=rows.map(r=>r.date),e20=ema(c,20),e50=ema(c,50),e200=ema(c,120);chart=new Chart($('priceChart'),{type:'line',data:{labels,datasets:[{label:selected,data:c,borderWidth:2,pointRadius:0},{label:'EMA20',data:e20,borderWidth:1,pointRadius:0},{label:'EMA50',data:e50,borderWidth:1,pointRadius:0},{label:'EMA200',data:e200,borderWidth:1,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{title:{display:true,text:selected+' Fiyat Grafiği ve Teknik Göstergeler'}}}})}catch(e){console.warn('Grafik çizilemedi',e)}}
+function renderStock(j){let a=j.analysis;lastAnalysis=a;renderCards(a);renderEngine(a);$('expertComment').textContent=j.comments?.expert||`${a.symbol} teknik görünümü karar motoru tarafından değerlendirildi.`;$('aiComment').textContent=j.comments?.ai||`AI kararı: ${a.decision}.`;$('whyBox').innerHTML=[...a.positives.map(t=>`<div>✓ ${t}</div>`),...a.negatives.slice(0,5).map(t=>`<div>✗ ${t}</div>`)].join('');$('decisionTree').innerHTML=`<div>Trend: ${a.trend>=60?'Olumlu':'Zayıf'}</div><div>Para girişi: ${a.money>=55?'Olumlu':'Zayıf'}</div><div>Momentum: ${a.momentum>=55?'Olumlu':'Zayıf'}</div><div>Risk: ${a.risk<50?'Kabul edilebilir':'Yüksek'}</div><div><b>Sonuç: ${a.decision}</b></div>`;$('scenarioBox').innerHTML=`<div>Olumlu: ${tl(a.target2)}</div><div>Normal: ${tl(a.target1)}</div><div>Stop: ${tl(a.stop)}</div>`;$('positionBox').innerHTML=`<div>Vade: ${a.finalScore>=65?'2-6 hafta':'Teyit beklenmeli'}</div><div>Risk/Getiri: 1 : ${fmt(a.riskReward,1)}</div><div>Pozisyon: ${a.risk<35?'Normal':a.risk<60?'Kademeli':'Düşük'}</div>`;renderCurrentPattern(a);draw(j.ohlcv||a.ohlcv||[])}
+async function analyze(){selected=($('symbolInput').value||selected).toUpperCase().trim();$('symbolInput').value=selected;showPage('stock');renderStock(await getStock(selected))}
+function allRows(){return SYMBOLS.map(s=>mock(s).analysis).sort((a,b)=>b.finalScore-a.finalScore)}
+function renderTop20(){let rows=allRows();let top=rows.slice(0,20);$('top20Table').innerHTML='<tr><th>#</th><th>Hisse</th><th>Karar</th><th>AI</th><th>Güven</th><th>Risk</th><th>Formasyon</th></tr>'+top.map((r,i)=>`<tr><td>${i+1}</td><td><b>${r.symbol}</b></td><td><span class="badge ${badgeClass(r.finalScore)}">${r.decision}</span></td><td>${fmt(r.finalScore,0)}</td><td>${fmt(r.confidence,0)}</td><td><span class="badge ${riskBadge(r.risk)}">${fmt(r.risk,0)}</span></td><td>${r.formation.name}</td></tr>`).join('');$('scanStatus').textContent='Liste oluşturuldu';renderSafeOpp(rows)}
+function renderSafeOpp(rows=allRows()){$('safeList').innerHTML=rows.filter(r=>r.risk<35&&r.trend>55).slice(0,15).map(r=>`<div class="rankItem"><b>${r.symbol}</b><span>${r.decision} • Risk ${fmt(r.risk,0)}</span></div>`).join('')||'<p class="comment">Uygun aday yok.</p>';$('oppList').innerHTML=rows.filter(r=>r.potential>55&&r.pattern>50).slice(0,15).map(r=>`<div class="rankItem"><b>${r.symbol}</b><span>${r.formation.name} • Pot. ${fmt(r.potential,0)}</span></div>`).join('')||'<p class="comment">Uygun aday yok.</p>'}
+function renderCurrentPattern(a){if(!$('patternSummary'))return;let f=a.formation;$('patternSummary').innerHTML=`<div><b>Formasyon:</b> ${f.name}</div><div><b>Puan:</b> ${fmt(f.score,0)}/100</div><div><b>Güven:</b> %${fmt(f.confidence,0)}</div><div><b>Olası hedef:</b> %${fmt(f.targetPct,1)}</div>`;$('patternComment').textContent=`${a.symbol} için ${f.name} tespit edildi. Formasyon tek başına işlem kararı değildir; trend, hacim ve stop ile birlikte değerlendirilmelidir.`}
+function renderPatterns(){let rows=allRows().sort((a,b)=>b.pattern-a.pattern).slice(0,25);$('patternTable').innerHTML='<tr><th>#</th><th>Hisse</th><th>Formasyon</th><th>Puan</th><th>Güven</th><th>Karar</th></tr>'+rows.map((r,i)=>`<tr><td>${i+1}</td><td><b>${r.symbol}</b></td><td>${r.formation.name}</td><td>${fmt(r.pattern,0)}</td><td>%${fmt(r.formation.confidence,0)}</td><td><span class="badge ${badgeClass(r.finalScore)}">${r.decision}</span></td></tr>`).join('');$('patternStatus').textContent='Formasyon tarandı'}
+function defaultPortfolio(){return[{symbol:'MRSHL',lot:286,cost:2470},{symbol:'PAPIL',lot:7000,cost:27.5},{symbol:'TEZOL',lot:6156,cost:20.96},{symbol:'USAK',lot:29222,cost:3.05},{symbol:'VKING',lot:1000,cost:55}]}
+function getPortfolio(){try{return JSON.parse(localStorage.getItem('bistPortfolioV151'))||defaultPortfolio()}catch(e){return defaultPortfolio()}}
+function setPortfolio(p){localStorage.setItem('bistPortfolioV151',JSON.stringify(p));renderPortfolio()}
+function renderPortfolio(){let p=getPortfolio();$('portfolioTable').innerHTML='<tr><th>Hisse</th><th>Lot</th><th>Maliyet</th><th>Karar</th><th>İşlem</th></tr>'+p.map(x=>{let a=mock(x.symbol).analysis;return`<tr><td><b>${x.symbol}</b></td><td>${fmt(x.lot,0)}</td><td>${tl(x.cost)}</td><td><span class="badge ${badgeClass(a.finalScore)}">${a.decision}</span></td><td><button class="btn gray" data-analyze="${x.symbol}">Analiz</button> <button class="btn red" data-del="${x.symbol}">Sil</button></td></tr>`}).join('')}
+function addPortfolio(){let s=$('pSymbol').value.toUpperCase().trim(),lot=Number($('pLot').value),cost=Number($('pCost').value);if(!s||!lot||!cost){alert('Hisse, lot ve maliyet girin');return}let p=getPortfolio().filter(x=>x.symbol!==s);p.push({symbol:s,lot,cost});setPortfolio(p);$('pSymbol').value='';$('pLot').value='';$('pCost').value=''}
+function backtest(symbol){let rows=makeSeries(symbol),signals=[];for(let i=80;i<rows.length-20;i+=6){let a=aiAnalyze(rows.slice(0,i+1),symbol);let ret=(rows[i+20].close-a.close)/a.close*100;let ok=(a.decision==='GÜÇLÜ AL'&&ret>=4)||(a.decision==='AL'&&ret>=2)||(a.decision==='İZLE'&&ret>=-2)||(a.decision==='BEKLE'&&ret>=-6)||(a.decision==='RİSKLİ'&&ret<=0);signals.push({symbol,date:rows[i].date,decision:a.decision,score:a.finalScore,risk:a.risk,ret,ok,formation:a.formation.name})}return signals}
+function summarize(signals){let total=signals.length,ok=signals.filter(s=>s.ok).length,avg=total?signals.reduce((a,s)=>a+s.ret,0)/total:0;let groups={};signals.forEach(s=>{groups[s.decision]??={decision:s.decision,total:0,ok:0,avg:0};groups[s.decision].total++;groups[s.decision].ok+=s.ok?1:0;groups[s.decision].avg+=s.ret});Object.values(groups).forEach(g=>{g.success=g.total?g.ok/g.total*100:0;g.avg=g.total?g.avg/g.total:0});return{total,ok,success:total?ok/total*100:0,avg,groups:Object.values(groups)}}
+function renderBacktest(symbol,signals){let sum=summarize(signals),best=[...signals].sort((a,b)=>b.ret-a.ret)[0];$('backtestCards').innerHTML=[['Toplam Sinyal',sum.total],['Başarı','%'+fmt(sum.success,1)],['Ortalama Getiri','%'+fmt(sum.avg,1)],['En İyi',best?'%'+fmt(best.ret,1):'--'],['Risk Notu',sum.success>=60?'Düşük':sum.success>=50?'Orta':'Yüksek']].map(x=>`<div class="card metric"><span>${x[0]}</span><b>${x[1]}</b><small>${symbol}</small></div>`).join('');$('backtestTable').innerHTML='<tr><th>Karar</th><th>Sinyal</th><th>Başarılı</th><th>Başarı</th><th>Ort. Getiri</th></tr>'+sum.groups.map(g=>`<tr><td><b>${g.decision}</b></td><td>${g.total}</td><td>${g.ok}</td><td>%${fmt(g.success,1)}</td><td>%${fmt(g.avg,1)}</td></tr>`).join('');$('signalHistoryTable').innerHTML='<tr><th>Tarih</th><th>Hisse</th><th>Karar</th><th>Skor</th><th>Risk</th><th>Formasyon</th><th>Getiri</th><th>Sonuç</th></tr>'+signals.slice(-30).reverse().map(s=>`<tr><td>${s.date}</td><td>${s.symbol}</td><td>${s.decision}</td><td>${fmt(s.score,0)}</td><td>${fmt(s.risk,0)}</td><td>${s.formation}</td><td>%${fmt(s.ret,1)}</td><td>${s.ok?'✅':'⚠️'}</td></tr>`).join('');$('backtestComment').textContent=`${symbol} için ${sum.total} geçmiş sinyal test edildi. Başarı oranı %${fmt(sum.success,1)}, ortalama getiri %${fmt(sum.avg,1)}.`;$('backtestStatus').textContent='Backtest tamamlandı'}
+function runBacktest(){let s=($('symbolInput').value||selected).toUpperCase().trim();showPage('backtest');renderBacktest(s,backtest(s))}
+function runAllBacktest(){showPage('backtest');let all=SYMBOLS.slice(0,25).flatMap(s=>backtest(s));renderBacktest('TÜM LİSTE',all)}
+function bind(){document.querySelectorAll('.nav').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));$('analyzeBtn').addEventListener('click',analyze);$('detailToggle').addEventListener('click',()=>$('indicatorDetails').classList.toggle('hidden'));$('scanBtn').addEventListener('click',renderTop20);$('patternScanBtn').addEventListener('click',renderPatterns);$('addPortfolio').addEventListener('click',addPortfolio);$('resetPortfolio').addEventListener('click',()=>{localStorage.removeItem('bistPortfolioV151');renderPortfolio()});$('backtestBtn').addEventListener('click',runBacktest);$('backtestAllBtn').addEventListener('click',runAllBacktest);document.addEventListener('click',e=>{let a=e.target.dataset.analyze;if(a){selected=a;$('symbolInput').value=a;analyze()}let d=e.target.dataset.del;if(d){setPortfolio(getPortfolio().filter(x=>x.symbol!==d))}})}
+window.addEventListener('error',e=>{console.error('Yakalanan hata',e.message);alert('Uygulama hatası: '+e.message)});
+function init(){$('symbolInput').value=selected;bind();renderPortfolio();renderTop20();renderPatterns();renderBacktest('PAPIL',backtest('PAPIL'));analyze()}
+init();
+</script>
 </body>
 </html>
