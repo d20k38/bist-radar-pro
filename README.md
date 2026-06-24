@@ -1,17 +1,9 @@
-# BIST Radar Pro v11.2 - Parçalı Tüm BIST Tarama
+# BIST Radar Pro v11.3 Güvenli Tarama
 
-Bu sürümde `Failed to fetch` hatasına yol açan tek seferde tüm BIST taraması kaldırıldı.
+Bu sürüm `Failed to fetch` ve Vercel timeout sorunlarını azaltmak için tüm BIST taramasını 6 hisselik küçük parçalar halinde yapar.
 
-## Değişiklikler
-- `/api/scan` artık `offset` destekler.
-- Arayüz tüm BIST'i 35 hisselik parçalar halinde tarar.
-- Vercel 60 saniye sınırına takılma riski azalır.
-- Tarama ilerleme bilgisini ekranda gösterir.
+- `/api/scan?limit=6&offset=0&concurrency=2`
+- Tarama sırasında hata olursa ekranda gösterir, sayfa kilitlenmez.
+- Vercel Hobby planında tek istekte çok sayıda Yahoo Finance çağrısı zaman aşımına düşebildiği için küçük parçalı tarama kullanılmıştır.
 
-## API örnekleri
-- `/api/scan?limit=35&offset=0`
-- `/api/scan?limit=35&offset=35`
-- `/api/scan?limit=35&offset=70`
-
-## Yayınlama
-ZIP içindeki tüm dosyaları GitHub reposuna yükleyin. Eski `public/index.html` varsa silin veya bu sürümle değiştirin. Vercel'de cache kapalı redeploy yapın.
+Kurulum: ZIP içindeki dosyaları repo köküne yükleyin, eski `public/index.html` varsa silin veya aynı dosyayla değiştirin, Vercel'de redeploy yapın ve build cache kullanmayın.

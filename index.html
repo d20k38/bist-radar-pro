@@ -12,7 +12,7 @@
 <body>
 <div class="wrap">
   <div class="top">
-    <div class="brand">📈 BIST Radar Pro v11.2 TÜM BIST</div>
+    <div class="brand">📈 BIST Radar Pro v11.3 GÜVENLİ TARAMA</div>
     <div class="pill">En Güçlü 20 • ADX/SuperTrend • Backtest Başarı • Risk/Getiri</div>
   </div>
 
@@ -97,12 +97,20 @@ function renderRows(tableId,rows){let t=document.getElementById(tableId);t.inner
 async function scanAll(limit='all',target='radar'){
   let status=document.getElementById('scanStatus');
   if(status)status.textContent='Tüm BIST parça parça taranıyor...';
-  const chunkSize = limit==='all' ? 35 : Number(limit||35);
+  const chunkSize = limit==='all' ? 6 : Math.min(Number(limit||6), 12);
   let offset=0, allRows=[], total=0, totalErrors=0;
   try{
     while(true){
-      const url='/api/scan?limit='+encodeURIComponent(chunkSize)+'&offset='+encodeURIComponent(offset)+'&concurrency=6';
-      let r=await fetch(url);
+      const url='/api/scan?limit='+encodeURIComponent(chunkSize)+'&offset='+encodeURIComponent(offset)+'&concurrency=2';
+      let r;
+      try{
+        const controller = new AbortController();
+        const tm = setTimeout(()=>controller.abort(), 18000);
+        r = await fetch(url, {signal: controller.signal, cache:'no-store'});
+        clearTimeout(tm);
+      }catch(fetchErr){
+        throw new Error('Bu parça alınamadı. İnternet/Vercel zaman aşımı: '+fetchErr.message);
+      }
       if(!r.ok) throw new Error('API cevap vermedi: '+r.status);
       let j=await r.json();
       let rows=Array.isArray(j.data)?j.data.map(safeObj):[];
@@ -119,14 +127,14 @@ async function scanAll(limit='all',target='radar'){
       if(document.getElementById('oppTable'))renderRows('oppTable',opp);
       if(status)status.textContent=`${allRows.length}/${total} hisse analiz edildi... Hatalı/verisiz: ${totalErrors}`;
       if(!j.hasMore || limit!=='all') break;
-      await new Promise(resolve=>setTimeout(resolve,120));
+      await new Promise(resolve=>setTimeout(resolve,250));
     }
     if(status)status.textContent=`${allRows.length} hisse analiz edildi. Toplam sembol: ${total}. Hatalı/verisiz: ${totalErrors}. En güçlü 20 hazır.`;
     if(target==='safe')showPage('safe',document.querySelectorAll('.tab')[2]);
     if(target==='opportunity')showPage('opportunity',document.querySelectorAll('.tab')[3]);
   }catch(e){
     if(status)status.textContent='Tarama hatası: '+e.message+' — Not: Tek seferde tüm BIST yerine parça parça tarama kullanılıyor.';
-    alert('Tarama hatası: '+e.message);
+    console.error('Tarama hatası:', e);
   }
 }
 async function runBacktest(){try{let r=await fetch('/api/backtest?symbol='+encodeURIComponent(selected)+'&period=30');let j=await r.json();if(!j.success)throw new Error(j.error);document.getElementById('btMiniBox').innerHTML=`<p><b>${selected}</b> ${j.period} gün backtest</p><p>Geçmiş karar: <b>${j.past?.decision||'-'}</b></p><p>Getiri: <b class="${num(j.returnPct)>=0?'positive':'negative'}">%${j.returnPct}</b></p><p>Sonuç: <b>${j.result}</b></p>`;alert(`${selected} backtest\n${j.period} gün önce karar: ${(j.past&&j.past.decision)||'-'}\nO gün fiyat: ${tl((j.past&&j.past.price))}\nBugün fiyat: ${tl((j.now&&j.now.price))}\nGetiri: %${j.returnPct}\nSonuç: ${j.result}`)}catch(e){alert('Backtest hatası: '+e.message)}}
