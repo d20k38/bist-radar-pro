@@ -1,15 +1,30 @@
-# BIST Radar Pro v8 - Gerçek Veri
+# BIST Radar Pro v9 - Veri Kaynak Dosyaları
 
-Bu sürüm demo veri üretmez. Vercel API route'ları üzerinden Yahoo Finance chart endpointinden BIST sembollerinin gerçek geçmiş fiyat/hacim verisini çeker ve teknik analiz üretir.
+Bu paket, HTML ekranının gerçek veri ile çalışması için Vercel API route iskeletini içerir.
 
-## API
-- `/api/stock?symbol=PAPIL&range=1y`
-- `/api/scan?limit=120`
-- `/api/backtest?symbol=PAPIL&days=30`
-- `/api/portfolio`
-- `/api/symbols`
+## Klasörler
 
-## Vercel
-ZIP'i açın, GitHub'a yükleyin, Vercel'de import edin. Build command boş kalabilir.
+- `api/scan.js` : Tüm BIST tarama API route'u
+- `api/stock.js` : Tek hisse analiz API route'u
+- `api/backtest.js` : Backtest API route'u
+- `api/kap.js` : KAP haber/duyuru route'u
+- `lib/data-provider.js` : Veri sağlayıcı yardımcı fonksiyonları
+- `data/bist_symbols.json` : Örnek BIST hisse listesi
+- `data/sample_ohlcv.csv` : Örnek OHLCV veri formatı
 
-Not: Yahoo Finance resmi yatırım veri API'si değildir; veri sürekliliği için ileride ücretli/resmi kaynak veya CollectAPI eklenebilir.
+## Vercel Kullanımı
+
+Bu dosyaları mevcut Vercel projenize aynı klasör yapısıyla ekleyin.
+
+HTML tarafında örnek çağrılar:
+
+```js
+fetch('/api/stock?symbol=PAPIL')
+fetch('/api/scan')
+fetch('/api/backtest?symbol=PAPIL&period=30')
+fetch('/api/kap?symbol=PAPIL')
+```
+
+## Not
+
+Bu paket canlı veri bağlantısı için iskelet hazırlar. Gerçek kaynak olarak TradingView, Mynet, İş Yatırım, CollectAPI veya KAP bağlantıları `lib/data-provider.js` içine eklenmelidir.
