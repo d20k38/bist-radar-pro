@@ -1,15 +1,11 @@
-# BIST Radar Pro v15.1
+# BIST Radar Pro v16 - Gerçek Proje Temeli
 
-Düğmeleri çalışan, mobil uyumlu, tek HTML kararlı sürüm.
+Vercel üzerinde çalışan modüler proje.
 
-- Hisse Analizi
-- Grafik + EMA çizgileri
-- AI karar motoru
-- Formasyon motoru
-- En Güçlü 20
-- Güvenli Kazançlar
-- Fırsat Avcısı
-- Portföy yönetimi
-- Backtest
+## Kurulum
+1. Bu klasördeki tüm dosyaları GitHub repo köküne yükleyin.
+2. Vercel'e bağlayın.
+3. Deploy edin.
 
-Not: API mevcutsa `/api/stock` kullanır; yoksa güvenli demo veriye düşer.
+## Not
+Fiyat ve OHLC verisi Yahoo Finance grafik endpointinden alınır. Mynet kazıma kapalıdır.
