@@ -1,8 +1,1 @@
-{
-  "name": "bist-radar-pro-v8-real-data",
-  "version": "8.0.0",
-  "private": true,
-  "type": "module",
-  "scripts": {"dev":"vercel dev"},
-  "engines": {"node":"20.x"}
-}
+{"name":"bist-radar-pro-v9-1","version":"9.1.0","type":"module","scripts":{"dev":"vercel dev"},"dependencies":{}}

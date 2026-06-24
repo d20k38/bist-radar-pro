@@ -1,8 +1,1 @@
-{
-  "functions": {
-    "api/*.js": {"maxDuration": 60}
-  },
-  "headers": [
-    {"source":"/api/(.*)","headers":[{"key":"Cache-Control","value":"s-maxage=900, stale-while-revalidate=1800"}]}
-  ]
-}
+{"functions":{"api/*.js":{"maxDuration":10}}}
