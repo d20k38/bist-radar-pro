@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro v16.5 - Backtest ve İstatistik</title>
+<title>BIST Radar Pro v16.7 - Portföy Radarım ve Günlük AI Raporu</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro v16.5</div><div class="pill">Backtest • İstatistik • Sinyal Başarı Oranı • Karar Kalitesi</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro v16.7</div><div class="pill">Portföy Radarım • Günlük AI Raporu • KAP/Haber Alanı • Kararlı Sürüm</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -30,6 +30,7 @@
     <button class="tab" data-page="patterns">🔎 Formasyonlar</button>
     <button class="tab" data-page="backtestPage">📊 Backtest</button>
     <button class="tab" data-page="portfolio">💼 Portföy</button>
+    <button class="tab" data-page="dailyReport">📰 Günlük AI Raporu</button>
   </div>
   <div id="status" class="status">Hazır.</div>
 
@@ -81,17 +82,50 @@
       <div class="card"><div class="head green">📈 İstatistik ve Yorum</div><div class="body"><div id="btAiComment" class="comment">Sinyal başarı oranı, ortalama getiri ve karar türlerine göre dağılım burada gösterilecek.</div><br><table id="btPortfolioTable" class="table"></table></div></div>
     </div>
   </section>
-  <section id="portfolio" class="hidden"><div class="card"><div class="head">💼 Portföy Radarım</div><div class="body"><div id="portfolioBox" class="comment"></div><br><table id="portfolioTable" class="table"></table></div></div></section>
+  <section id="portfolio" class="hidden">
+    <div class="grid g2">
+      <div class="card"><div class="head">💼 Portföy Radarım</div><div class="body">
+        <div id="portfolioBox" class="comment"></div><br>
+        <div class="quickFilters">
+          <input id="pfSymbol" placeholder="Hisse" style="padding:12px;border:1px solid var(--line);border-radius:12px;max-width:120px">
+          <input id="pfLot" type="number" placeholder="Lot" style="padding:12px;border:1px solid var(--line);border-radius:12px;max-width:120px">
+          <input id="pfCost" type="number" step="0.01" placeholder="Maliyet" style="padding:12px;border:1px solid var(--line);border-radius:12px;max-width:140px">
+          <button class="btn green" id="pfAddBtn">Ekle / Güncelle</button>
+          <button class="btn gray" id="pfSaveBtn">Kaydet</button>
+        </div>
+        <table id="portfolioTable" class="table"></table>
+      </div></div>
+      <div class="card"><div class="head green">🤖 Portföy AI Yorumu</div><div class="body"><div id="portfolioAi" class="comment">Portföy taraması sonrası güçlü/zayıf hisseler ve öneriler burada görünecek.</div></div></div>
+    </div>
+  </section>
+
+  <section id="dailyReport" class="hidden">
+    <div class="grid g2">
+      <div class="card"><div class="head dark">📰 Günlük AI Raporu</div><div class="body">
+        <div class="quickFilters"><button class="btn" id="dailyReportBtn">Raporu Güncelle</button><button class="btn gray" id="kapRefreshBtn">KAP/Haber Alanını Yenile</button></div>
+        <div id="dailyReportBox" class="comment">Tüm BIST taraması sonrası günlük rapor üretilecek.</div>
+      </div></div>
+      <div class="card"><div class="head yellow">📢 KAP / Haber Alanı</div><div class="body"><div id="kapNewsBox" class="comment">Bu alan şimdilik manuel/yer tutucu haber özetidir. Sonraki sürümde KAP API veya güvenilir haber kaynağı bağlanabilir.</div></div></div>
+    </div><br>
+    <div class="grid g4">
+      <div class="card"><div class="head green">🔥 En Güçlü 10</div><div class="body"><div id="reportStrong" class="dashList"></div></div></div>
+      <div class="card"><div class="head red">⚠️ En Riskli 10</div><div class="body"><div id="reportRisk" class="dashList"></div></div></div>
+      <div class="card"><div class="head cyan">🔎 Yeni Formasyonlar</div><div class="body"><div id="reportPatterns" class="dashList"></div></div></div>
+      <div class="card"><div class="head yellow">💥 Hacim / Para Girişi</div><div class="body"><div id="reportMoney" class="dashList"></div></div></div>
+    </div>
+  </section>
 </div>
 <script>
-let chart, candleChart, candleSeries, lineSeries=[], lastRows=[], syms=[],scanCache=[],portfolio=[{symbol:'MRSHL',lot:286,cost:2470},{symbol:'PAPIL',lot:7000,cost:27.50},{symbol:'TEZOL',lot:6156,cost:20.96},{symbol:'USAK',lot:29222,cost:3.05},{symbol:'VKING',lot:1000,cost:55}];
+let chart, candleChart, candleSeries, lineSeries=[], lastRows=[], syms=[],scanCache=[];
+const defaultPortfolio=[{symbol:'MRSHL',lot:286,cost:2470},{symbol:'PAPIL',lot:7000,cost:27.50},{symbol:'TEZOL',lot:6156,cost:20.96},{symbol:'USAK',lot:29222,cost:3.05},{symbol:'VKING',lot:1000,cost:55}];
+let portfolio=loadPortfolioLocal();
 const $=id=>document.getElementById(id);const fmt=(x,d=2)=>Number.isFinite(Number(x))?Number(x).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';const tl=x=>fmt(x)+' TL';
 function setStatus(t){$('status').textContent=t}
-function showPage(id,btn){['dashboard','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','portfolio'].forEach(x=>$(x).classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active')}
+function showPage(id,btn){['dashboard','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','portfolio','dailyReport'].forEach(x=>$(x).classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active')}
 function badgeClass(score,risk=false){score=Number(score)||0;if(risk)return score<35?'bgreen':score<60?'byellow':'bred';return score>=65?'bgreen':score>=50?'byellow':'bred'}
 function decisionClass(d){return d==='GÜÇLÜ AL'||d==='AL'?'bgreen':d==='İZLE'?'byellow':d==='BEKLE'?'bblue':'bred'}
 async function init(){wire();await loadSymbols();renderPortfolio();await loadStock(false);await scanAll(true)}
-function wire(){document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page,b)));$('analyzeBtn').addEventListener('click',()=>{showPage('analysis',document.querySelector('[data-page="analysis"]'));loadStock(true)});$('backtestBtn').addEventListener('click',()=>{showPage('backtestPage',document.querySelector('[data-page=\"backtestPage\"]'));runBacktest()});$('scanBtn1').addEventListener('click',()=>scanAll(false)); setTimeout(()=>{const b=$('runBtBtn'); if(b)b.addEventListener('click',runBacktest); const p=$('runPortfolioBtBtn'); if(p)p.addEventListener('click',runPortfolioBacktest);},0);$('search').addEventListener('keydown',e=>{if(e.key==='Enter'){$('analyzeBtn').click()}});['showEma20','showEma50','showEma200','showBB','showVWAP'].forEach(id=>{setTimeout(()=>{const el=$(id); if(el) el.addEventListener('change',()=>draw(lastRows));},0)})}
+function wire(){document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page,b)));$('analyzeBtn').addEventListener('click',()=>{showPage('analysis',document.querySelector('[data-page="analysis"]'));loadStock(true)});$('backtestBtn').addEventListener('click',()=>{showPage('backtestPage',document.querySelector('[data-page=\"backtestPage\"]'));runBacktest()});$('scanBtn1').addEventListener('click',()=>scanAll(false)); setTimeout(()=>{const b=$('runBtBtn'); if(b)b.addEventListener('click',runBacktest); const p=$('runPortfolioBtBtn'); if(p)p.addEventListener('click',runPortfolioBacktest); const pa=$('pfAddBtn'); if(pa)pa.addEventListener('click',addOrUpdatePortfolio); const ps=$('pfSaveBtn'); if(ps)ps.addEventListener('click',()=>{savePortfolio();setStatus('Portföy kaydedildi.')}); const dr=$('dailyReportBtn'); if(dr)dr.addEventListener('click',renderDailyReport); const kr=$('kapRefreshBtn'); if(kr)kr.addEventListener('click',renderKapNews);},0);$('search').addEventListener('keydown',e=>{if(e.key==='Enter'){$('analyzeBtn').click()}});['showEma20','showEma50','showEma200','showBB','showVWAP'].forEach(id=>{setTimeout(()=>{const el=$(id); if(el) el.addEventListener('change',()=>draw(lastRows));},0)})}
 async function loadSymbols(){try{const j=await (await fetch('/api/symbols')).json();syms=j.symbols||[]}catch(e){syms=[]}if(!syms.length)syms=['PAPIL','MRSHL','TEZOL','USAK','VKING','THYAO','AKBNK','GARAN'];$('symbol').innerHTML=syms.map(s=>`<option>${s}</option>`).join('');$('symbol').onchange=e=>{$('search').value=e.target.value;loadStock(true)}}
 async function loadStock(verbose=true){const s=$('search').value.toUpperCase().trim()||'PAPIL';$('search').value=s;if(verbose)setStatus(s+' verisi alınıyor...');try{const j=await (await fetch('/api/stock?symbol='+encodeURIComponent(s))).json();if(!j.success)throw new Error(j.error||'Veri yok');renderStock(j);if(verbose)setStatus(s+' Yahoo Finance son verisi ile analiz edildi.')}catch(e){setStatus('Veri alınamadı: '+e.message)}}
 function renderStock(j){const a=j.analysis||{},c=j.comments||{};const cards=[['Karar',a.decision,a.finalScore>=65?'ok':a.finalScore>=50?'warn':'bad'],['Güven','%'+fmt(a.confidence,0),'ok'],['Risk','%'+fmt(a.risk,0),a.risk<50?'ok':'bad'],['Hedef','%'+fmt(((a.target1-a.close)/a.close)*100,1),'ok'],['Son Fiyat',tl(a.close),a.change>=0?'ok':'bad']];$('cards').innerHTML=cards.map(x=>`<div class="card metric"><div class="body"><div class="muted">${x[0]}</div><div class="v ${x[2]}">${x[1]}</div><small>Değişim: ${fmt(a.change)}%</small></div></div>`).join('');$('engine').innerHTML=['trend','money','momentum','pattern','confidence','risk'].map(k=>{const v=a[k]||0;return `<b>${label(k)}: ${fmt(v,0)}/100</b><div class="barw"><div class="bar" style="width:${Math.max(0,Math.min(100,v))}%;background:${k==='risk'?(v<50?'#16a34a':'#dc2626'):(v>65?'#16a34a':v>50?'#f59e0b':'#dc2626')}"></div></div><br>`}).join('')+`<div class="comment"><b>Formasyon:</b> ${a.formation?.name||'-'}<br><b>ADX:</b> ${fmt(a.adx)} | <b>SuperTrend:</b> ${a.superTrendDir===1?'AL':'SAT'}<br><b>Stop:</b> ${tl(a.stop)} | <b>Hedef:</b> ${tl(a.target1)}</div>`;$('expert').textContent=c.expert||aiExpert(a);$('ai').textContent=c.ai||aiComment(a);renderAIEngine(a);draw(a.ohlcv||j.ohlcv||[])}
@@ -172,13 +206,21 @@ async function scanAll(silent=false){setStatus('BIST listesi taranıyor...');doc
 function renderDashboard(){const n=scanCache.length,avg=n?scanCache.reduce((s,x)=>s+(x.finalScore||0),0)/n:0;const safe=safeList(),opp=oppList();$('mCount').textContent=n;$('mAvg').textContent=fmt(avg,0);$('mSafe').textContent=safe.length;$('mOpp').textContent=opp.length;renderMini('dashLeaders',leaderList().slice(0,6));renderMini('dashSafe',safe.slice(0,6));renderMini('dashOpp',opp.slice(0,6));renderMini('dashRisk',riskList().slice(0,6));}
 function renderMini(id,rows){$(id).innerHTML=rows.length?rows.map((r,i)=>`<div class="dashItem" onclick="openSymbol('${r.symbol}')"><div class="rank">#${i+1}</div><div><div class="symbol">${r.symbol}</div><div class="mini">${r.decision||'-'} • Risk ${fmt(r.risk,0)}</div></div><div class="score">${fmt(r.finalScore,0)}</div></div>`).join(''):'<div class="comment">Veri bekleniyor.</div>'}
 function tableRows(rows){return '<tr><th>#</th><th>Hisse</th><th>Karar</th><th>Skor</th><th>Güven</th><th>Risk</th><th>Trend</th><th>Para</th><th>Momentum</th></tr>'+rows.map((r,i)=>`<tr onclick="openSymbol('${r.symbol}')" style="cursor:pointer"><td>${i+1}</td><td><b>${r.symbol}</b></td><td><span class="badge ${decisionClass(r.decision)}">${r.decision||'-'}</span></td><td>${fmt(r.finalScore,0)}</td><td>${fmt(r.confidence,0)}</td><td><span class="badge ${badgeClass(r.risk,true)}">${fmt(r.risk,0)}</span></td><td>${fmt(r.trend,0)}</td><td>${fmt(r.money,0)}</td><td>${fmt(r.momentum,0)}</td></tr>`).join('')}
-function renderTables(){$('leaderTable').innerHTML=tableRows(leaderList());$('safeTable').innerHTML=tableRows(safeList());$('oppTable').innerHTML=tableRows(oppList());$('riskTable').innerHTML=tableRows(riskList());$('patternTable').innerHTML=tableRows(patternList());renderPortfolio()}
+function renderTables(){$('leaderTable').innerHTML=tableRows(leaderList());$('safeTable').innerHTML=tableRows(safeList());$('oppTable').innerHTML=tableRows(oppList());$('riskTable').innerHTML=tableRows(riskList());$('patternTable').innerHTML=tableRows(patternList());renderPortfolio();renderDailyReport()}
 function leaderList(){return [...scanCache].sort((a,b)=>(b.finalScore||0)-(a.finalScore||0)).slice(0,20)}
 function safeList(){return [...scanCache].filter(x=>(x.risk||100)<45&&(x.confidence||0)>=55&&(x.finalScore||0)>=50).sort((a,b)=>(b.confidence-b.risk)-(a.confidence-a.risk)).slice(0,20)}
 function oppList(){return [...scanCache].filter(x=>(x.finalScore||0)>=45&&((x.money||0)>=45||(x.momentum||0)>=50||(x.pattern||0)>=55)).sort((a,b)=>((b.finalScore||0)+(b.money||0)+(b.momentum||0))-((a.finalScore||0)+(a.money||0)+(a.momentum||0))).slice(0,20)}
 function riskList(){return [...scanCache].filter(x=>(x.risk||0)>=55||(x.finalScore||0)<35).sort((a,b)=>(b.risk||0)-(a.risk||0)).slice(0,20)}
 function openSymbol(s){$('search').value=s;showPage('analysis',document.querySelector('[data-page="analysis"]'));loadStock(true)}
-function renderPortfolio(){const rows=portfolio.map(p=>{const live=scanCache.find(x=>x.symbol===p.symbol)||{};return {...p,...live}});const health=rows.length?rows.reduce((s,x)=>s+(x.finalScore||45),0)/rows.length:0;$('portfolioBox').innerHTML=`<b>Portföy Sağlık Skoru:</b> ${fmt(health,0)}/100<br><span class="mini">V16.1 yerel portföy radar özeti. V16.6’da ekle/sil/güncelle ve bulut senkronizasyonu eklenecek.</span>`;$('portfolioTable').innerHTML='<tr><th>Hisse</th><th>Lot</th><th>Maliyet</th><th>Karar</th><th>Skor</th><th>Risk</th></tr>'+rows.map(r=>`<tr onclick="openSymbol('${r.symbol}')" style="cursor:pointer"><td><b>${r.symbol}</b></td><td>${fmt(r.lot,0)}</td><td>${tl(r.cost)}</td><td>${r.decision||'Taranmadı'}</td><td>${fmt(r.finalScore,0)}</td><td>${fmt(r.risk,0)}</td></tr>`).join('')}
+
+function loadPortfolioLocal(){try{const raw=localStorage.getItem('bistRadarPortfolio');const arr=raw?JSON.parse(raw):null;return Array.isArray(arr)&&arr.length?arr:defaultPortfolio}catch(e){return defaultPortfolio}}
+function savePortfolio(){localStorage.setItem('bistRadarPortfolio',JSON.stringify(portfolio))}
+function addOrUpdatePortfolio(){const sym=($('pfSymbol').value||'').toUpperCase().trim();if(!sym){setStatus('Hisse kodu girin.');return;}const lot=Number($('pfLot').value||0), cost=Number($('pfCost').value||0);const i=portfolio.findIndex(p=>p.symbol===sym);const item={symbol:sym,lot:lot||0,cost:cost||0};if(i>=0)portfolio[i]=item;else portfolio.push(item);savePortfolio();renderPortfolio();setStatus(sym+' portföye eklendi/güncellendi.')}
+function removePortfolio(sym){portfolio=portfolio.filter(p=>p.symbol!==sym);savePortfolio();renderPortfolio();setStatus(sym+' portföyden çıkarıldı.')}
+function renderPortfolio(){const rows=portfolio.map(p=>{const live=scanCache.find(x=>x.symbol===p.symbol)||{};return {...p,...live}});const health=rows.length?rows.reduce((s,x)=>s+(x.finalScore||45),0)/rows.length:0;const best=[...rows].sort((a,b)=>(b.finalScore||0)-(a.finalScore||0))[0]||{};const weakest=[...rows].sort((a,b)=>(a.finalScore||0)-(b.finalScore||0))[0]||{};$('portfolioBox').innerHTML=`<b>Portföy Sağlık Skoru:</b> ${fmt(health,0)}/100<br><b>En güçlü:</b> ${best.symbol||'-'} (${fmt(best.finalScore,0)})<br><b>En zayıf halka:</b> ${weakest.symbol||'-'} (${fmt(weakest.finalScore,0)})<br><span class="mini">Veriler tarama yapıldıkça güncellenir. Portföy tarayıcı hafızasına kaydedilir.</span>`;$('portfolioTable').innerHTML='<tr><th>Hisse</th><th>Lot</th><th>Maliyet</th><th>Karar</th><th>Skor</th><th>Risk</th><th>İşlem</th></tr>'+rows.map(r=>`<tr><td onclick="openSymbol('${r.symbol}')" style="cursor:pointer"><b>${r.symbol}</b></td><td>${fmt(r.lot,0)}</td><td>${tl(r.cost)}</td><td>${r.decision||'Taranmadı'}</td><td>${fmt(r.finalScore,0)}</td><td>${fmt(r.risk,0)}</td><td><button class="btn red" onclick="removePortfolio('${r.symbol}')">Sil</button></td></tr>`).join('');$('portfolioAi').innerHTML=`${health>=70?'Portföy genel görünümü güçlü.':'Portföy için seçici davranmak gerekir.'} ${weakest.symbol?`Zayıf halka ${weakest.symbol}; risk/karar teyidi izlenmeli.`:''} ${best.symbol?`En güçlü aday ${best.symbol}.`:''}`;}
+function renderKapNews(){const t=new Date().toLocaleString('tr-TR');$('kapNewsBox').innerHTML=`<b>Son kontrol:</b> ${t}<br>Bu sürümde KAP/Haber alanı güvenli yer tutucu olarak çalışır. V16.8'de KAP entegrasyonu bağlanabilir. Şimdilik önemli haberleri manuel not alanı gibi kullanabilirsiniz.`}
+function renderDailyReport(){if(!scanCache.length){$('dailyReportBox').innerHTML='Önce tarama yapın. Ana kontrol panelindeki tarama tamamlanınca rapor otomatik oluşur.';return;}const strong=leaderList().slice(0,10), risk=riskList().slice(0,10), pats=patternList().slice(0,10), money=[...scanCache].sort((a,b)=>(b.money||0)-(a.money||0)).slice(0,10);const mini=rows=>rows.length?rows.map((r,i)=>`<div class="dashItem" onclick="openSymbol('${r.symbol}')"><div class="rank">#${i+1}</div><div><div class="symbol">${r.symbol}</div><div class="mini">${r.decision||'-'} • Skor ${fmt(r.finalScore,0)} • Risk ${fmt(r.risk,0)}</div></div><div class="score">${fmt(r.confidence||r.money||0,0)}</div></div>`).join(''):'<div class="comment">Veri yok.</div>';$('reportStrong').innerHTML=mini(strong);$('reportRisk').innerHTML=mini(risk);$('reportPatterns').innerHTML=mini(pats);$('reportMoney').innerHTML=mini(money);const avg=scanCache.reduce((s,x)=>s+(x.finalScore||0),0)/scanCache.length;$('dailyReportBox').innerHTML=`<b>Bugünün AI Özeti:</b><br>${scanCache.length} hisse tarandı. Ortalama piyasa skoru ${fmt(avg,0)}/100. En güçlü adaylar ${strong.slice(0,3).map(x=>x.symbol).join(', ')||'-'}. Riskli tarafta ${risk.slice(0,3).map(x=>x.symbol).join(', ')||'-'} öne çıkıyor.<br><br><b>Yorum:</b> Güvenli kazanç için risk düşük, trend ve güven skoru yüksek hisseler; fırsat avcısı için para girişi ve formasyon skoru yüksek hisseler izlenmeli.`;renderKapNews();}
+
 
 function renderBacktest(j){
   if(!j||!j.success){$('btSummary').textContent='Backtest hatası: '+(j&&j.error?j.error:'Veri alınamadı');return;}
