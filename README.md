@@ -1,20 +1,19 @@
-# BIST Radar Pro v9.1
+# BIST Radar Pro v9.4 Temiz Kurulum
 
-Bu sürüm, hisse seçimi + Uzman Motor Özeti + Uzman Yorumu + Yapay Zeka Yorumu + Neden? kutusu ile düzenlendi.
+Bu sürüm `Cannot read properties of undefined (reading 'change')` hatasına karşı korumalıdır.
 
-## Vercel kurulum
-1. ZIP'i açın.
-2. Klasörü GitHub'a yükleyin.
-3. Vercel → New Project → repo seç → Deploy.
+## Çok önemli kurulum
 
-## API route'ları
-- `/api/symbols`
-- `/api/stock?symbol=PAPIL`
-- `/api/scan?limit=50`
-- `/api/backtest?symbol=PAPIL&period=30`
-- `/api/portfolio`
+Vercel'de eski v8 dosyaları kalırsa tarayıcı yine v8'i açar. Bu yüzden:
 
-## Veri kaynağı
-İlk veri kaynağı olarak halka açık Yahoo Finance chart endpoint'i denenir (`PAPIL.IS` gibi). Kaynak cevap vermezse sistem ekranda veri bulunamadı mesajı gösterir; sahte sinyal üretmez.
+1. GitHub reposundaki eski dosyaların tamamını silin.
+2. Bu ZIP'in içindeki dosyaları doğrudan repo kök dizinine yükleyin.
+   - `index.html` kökte olmalı.
+   - `api/` kökte olmalı.
+   - `lib/` kökte olmalı.
+   - `data/` kökte olmalı.
+3. Commit edin.
+4. Vercel → Deployments → Redeploy seçin.
+5. Sayfayı Ctrl+F5 ile yenileyin.
 
-Not: Eğitim ve araştırma amaçlıdır, yatırım tavsiyesi değildir.
+Açıldığında başlıkta `BIST Radar Pro v9.4 TEMİZ` yazmalıdır. Hâlâ v8 yazıyorsa eski sürüm yayındadır.
