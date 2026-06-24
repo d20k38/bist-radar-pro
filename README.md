@@ -1,31 +1,23 @@
-# BIST Radar Pro v13
+# BIST Radar Pro v15.0 - Nihai Kararlı Sürüm
 
-Mobil uyumlu, hata yakalayan, karar destek odaklı temiz ön yüz.
+Bu paket, önceki sürümlerde geliştirilen ana modülleri tek kararlı yapıda toplar.
+
+## İçerik
+- Profesyonel ve mobil uyumlu arayüz
+- Hisse analiz ekranı
+- Fiyat grafiği ve EMA teknik göstergeleri
+- Yapay zekâ karar motoru
+- Uzman yorumu ve AI yorumu
+- En Güçlü 20 Hisse
+- Güvenli Kazançlar
+- Fırsat Avcısı
+- Formasyon motoru
+- Portföy yönetimi ve LocalStorage kalıcı kayıt
+- Backtest ve istatistik ekranı
+- Vercel uyumlu temel API yapısı
 
 ## Kurulum
+ZIP içeriğini GitHub reposuna yükleyin ve Vercel üzerinden deploy edin.
 
-GitHub repo köküne bu ZIP içindeki tüm dosya ve klasörleri yükleyin:
-
-- `index.html`
-- `api/`
-- `lib/`
-- `data/`
-- `package.json`
-- `vercel.json`
-
-Vercel'de redeploy yaparken build cache kullanmayın.
-
-## Özellikler
-
-- Mobil uyumlu arayüz
-- API bağlantı testleri
-- Net hata gösterimi
-- Fiyat grafiği + EMA20/50/200
-- Uzman motor özeti
-- ADX / DI / SuperTrend detayları
-- En Güçlü 20, Güvenli Kazanç, Fırsat Avcısı
-- Parçalı BIST tarama
-- Portföy ekle/güncelle/sil ve localStorage kayıt
-- Backtest sonucu
-
-Not: Eğitim/araştırma amaçlıdır; yatırım tavsiyesi değildir.
+## Not
+API veya canlı veri alınamadığında arayüz güvenli şekilde demo/fallback veriyle çalışır. Gerçek veri bağlantısı için API klasörü ve veri sağlayıcı katmanı genişletilebilir.
