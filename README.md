@@ -1,19 +1,12 @@
-# BIST Radar Pro v9.4 Temiz Kurulum
+# BIST Radar Pro v10 Profesyonel
 
-Bu sürüm `Cannot read properties of undefined (reading 'change')` hatasına karşı korumalıdır.
+Bu sürümde eklenenler:
+- Yeni dengeli final skor formülü
+- ADX, +DI, -DI hesaplama
+- SuperTrend yön teyidi
+- Çanak / ikili dip / kırılım / sıkışma formasyon motoru
+- Hacim patlaması kademeli skoru
+- Güvenli Skor, Fırsat Skor, Risk/Getiri Skoru
+- Uzman ve yapay zeka yorumlarında ADX, SuperTrend ve formasyon bilgisi
 
-## Çok önemli kurulum
-
-Vercel'de eski v8 dosyaları kalırsa tarayıcı yine v8'i açar. Bu yüzden:
-
-1. GitHub reposundaki eski dosyaların tamamını silin.
-2. Bu ZIP'in içindeki dosyaları doğrudan repo kök dizinine yükleyin.
-   - `index.html` kökte olmalı.
-   - `api/` kökte olmalı.
-   - `lib/` kökte olmalı.
-   - `data/` kökte olmalı.
-3. Commit edin.
-4. Vercel → Deployments → Redeploy seçin.
-5. Sayfayı Ctrl+F5 ile yenileyin.
-
-Açıldığında başlıkta `BIST Radar Pro v9.4 TEMİZ` yazmalıdır. Hâlâ v8 yazıyorsa eski sürüm yayındadır.
+Not: Yatırım tavsiyesi değildir. Karar destek ve eğitim amaçlıdır.
