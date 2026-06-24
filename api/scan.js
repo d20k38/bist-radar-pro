@@ -10,4 +10,9 @@ export default async function handler(req,res){
   }
   data.sort((a,b)=>(b.finalScore||0)-(a.finalScore||0));
   res.status(200).json({success:true,count:data.length,data});
-}
+res.status(200).json({
+  success: true,
+  count: data.length,
+  symbols,
+  data
+});
