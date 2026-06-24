@@ -16,9 +16,10 @@ async function mapLimit(items, limit, fn){
 
 export default async function handler(req,res){
   const allSymbols = await getSymbols();
-  const rawLimit = String(req.query.limit || 'all').toLowerCase();
-  const limit = rawLimit === 'all' ? allSymbols.length : Math.min(Math.max(Number(rawLimit)||allSymbols.length,1), allSymbols.length);
-  const symbols = allSymbols.slice(0, limit);
+  const rawLimit = String(req.query.limit || '40').toLowerCase();
+  const offset = Math.max(Number(req.query.offset || 0), 0);
+  const limit = rawLimit === 'all' ? allSymbols.length : Math.min(Math.max(Number(rawLimit)||40,1), allSymbols.length);
+  const symbols = allSymbols.slice(offset, Math.min(offset + limit, allSymbols.length));
   const concurrency = Math.min(Math.max(Number(req.query.concurrency || 10), 1), 25);
   const data = await mapLimit(symbols, concurrency, async (symbol)=>{
     try{
@@ -32,5 +33,5 @@ export default async function handler(req,res){
   const ok = data.filter(x=>!x.error);
   ok.sort((a,b)=>(b.finalScore||0)-(a.finalScore||0));
   const errors = data.filter(x=>x.error);
-  res.status(200).json({success:true,totalSymbols:allSymbols.length,requested:symbols.length,count:ok.length,errorCount:errors.length,data:ok,errors:errors.slice(0,25)});
+  res.status(200).json({success:true,totalSymbols:allSymbols.length,offset,limit,requested:symbols.length,count:ok.length,errorCount:errors.length,hasMore:(offset+limit)<allSymbols.length,nextOffset:Math.min(offset+limit, allSymbols.length),data:ok,errors:errors.slice(0,25)});
 }

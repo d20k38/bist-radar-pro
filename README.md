@@ -1,13 +1,17 @@
-# BIST Radar Pro v11.1 Tüm BIST
+# BIST Radar Pro v11.2 - Parçalı Tüm BIST Tarama
 
-Bu sürümde tarama 46 sembolle sınırlı değildir.
+Bu sürümde `Failed to fetch` hatasına yol açan tek seferde tüm BIST taraması kaldırıldı.
 
 ## Değişiklikler
-- `/api/symbols` artık önce Mynet Finans “Borsa İstanbul’da İşlem Gören Tüm Hisseler” sayfasından sembolleri dinamik almaya çalışır.
-- Mynet erişilemezse `data/symbols.json` yedek liste olarak kullanılır.
-- `/api/scan?limit=all` tüm bulunan sembolleri tarar.
-- `/api/scan` seri çalışmaz; 10 paralel istekle daha hızlı tarama yapar.
-- Arayüzde “Tüm BIST Tara” düğmesi artık `/api/scan?limit=all` çağırır.
+- `/api/scan` artık `offset` destekler.
+- Arayüz tüm BIST'i 35 hisselik parçalar halinde tarar.
+- Vercel 60 saniye sınırına takılma riski azalır.
+- Tarama ilerleme bilgisini ekranda gösterir.
 
-## Not
-Tüm BIST taraması çok sayıda Yahoo Finance isteği yaptığı için Vercel planına ve ağ hızına bağlı olarak zaman aşımı yaşanabilir. Bu durumda `/api/scan?limit=200` gibi kademeli tarama kullanılabilir.
+## API örnekleri
+- `/api/scan?limit=35&offset=0`
+- `/api/scan?limit=35&offset=35`
+- `/api/scan?limit=35&offset=70`
+
+## Yayınlama
+ZIP içindeki tüm dosyaları GitHub reposuna yükleyin. Eski `public/index.html` varsa silin veya bu sürümle değiştirin. Vercel'de cache kapalı redeploy yapın.
