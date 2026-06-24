@@ -1,1 +1,0 @@
-export default async function handler(req,res){res.status(200).json({success:true,sources:['TradingView teknik tarama','Mynet fiyat/hacim doğrulama','CollectAPI opsiyonel canlı veri','KAP haber/risk tarama'],routes:['/api/scan','/api/stock?symbol=PAPIL','/api/portfolio','/api/kap']});}
