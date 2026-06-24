@@ -1,11 +1,31 @@
-# BIST Radar Pro v16 - Gerçek Proje Temeli
+# BIST Radar Pro v13
 
-Vercel üzerinde çalışan modüler proje.
+Mobil uyumlu, hata yakalayan, karar destek odaklı temiz ön yüz.
 
 ## Kurulum
-1. Bu klasördeki tüm dosyaları GitHub repo köküne yükleyin.
-2. Vercel'e bağlayın.
-3. Deploy edin.
 
-## Not
-Fiyat ve OHLC verisi Yahoo Finance grafik endpointinden alınır. Mynet kazıma kapalıdır.
+GitHub repo köküne bu ZIP içindeki tüm dosya ve klasörleri yükleyin:
+
+- `index.html`
+- `api/`
+- `lib/`
+- `data/`
+- `package.json`
+- `vercel.json`
+
+Vercel'de redeploy yaparken build cache kullanmayın.
+
+## Özellikler
+
+- Mobil uyumlu arayüz
+- API bağlantı testleri
+- Net hata gösterimi
+- Fiyat grafiği + EMA20/50/200
+- Uzman motor özeti
+- ADX / DI / SuperTrend detayları
+- En Güçlü 20, Güvenli Kazanç, Fırsat Avcısı
+- Parçalı BIST tarama
+- Portföy ekle/güncelle/sil ve localStorage kayıt
+- Backtest sonucu
+
+Not: Eğitim/araştırma amaçlıdır; yatırım tavsiyesi değildir.
