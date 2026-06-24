@@ -1,22 +1,13 @@
-# BIST Radar Pro v11 Karar Destek
+# BIST Radar Pro v11.1 Tüm BIST
 
-Bu paket Vercel'e yüklenebilir tam proje sürümüdür.
+Bu sürümde tarama 46 sembolle sınırlı değildir.
 
-## İçerik
-- `index.html` — v11 karar destek arayüzü
-- `api/` — Vercel API route dosyaları
-- `lib/` — teknik analiz ve veri sağlayıcı motoru
-- `data/symbols.json` — BIST sembol listesi
-- `package.json`, `vercel.json` — Vercel yapılandırması
+## Değişiklikler
+- `/api/symbols` artık önce Mynet Finans “Borsa İstanbul’da İşlem Gören Tüm Hisseler” sayfasından sembolleri dinamik almaya çalışır.
+- Mynet erişilemezse `data/symbols.json` yedek liste olarak kullanılır.
+- `/api/scan?limit=all` tüm bulunan sembolleri tarar.
+- `/api/scan` seri çalışmaz; 10 paralel istekle daha hızlı tarama yapar.
+- Arayüzde “Tüm BIST Tara” düğmesi artık `/api/scan?limit=all` çağırır.
 
-## Kurulum
-1. ZIP'i açın.
-2. Dosyaları GitHub reposuna yükleyin.
-3. Vercel'de redeploy yapın.
-4. Eski `public/index.html` veya eski kök `index.html` dosyası kalmadığından emin olun.
-
-## Test URL'leri
-- `/api/symbols`
-- `/api/stock?symbol=PAPIL`
-- `/api/scan?limit=120`
-- `/api/backtest?symbol=PAPIL&period=30`
+## Not
+Tüm BIST taraması çok sayıda Yahoo Finance isteği yaptığı için Vercel planına ve ağ hızına bağlı olarak zaman aşımı yaşanabilir. Bu durumda `/api/scan?limit=200` gibi kademeli tarama kullanılabilir.
