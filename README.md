@@ -1,15 +1,26 @@
-# BIST Radar Pro V16.14 - Tüm Hisse Tarama
+# BIST Radar Pro v16.15 - Portföy Öneri Motoru
 
-Bu sürüm, son çalışan V16.13 AI Karar Motoru projesi temel alınarak hazırlanmıştır.
+Bu sürüm, son çalışan v16.14 tüm hisse tarama projesi üzerine portföy öneri motorunu ekler.
 
-## Değişiklikler
-- `data/symbols.json` genişletildi.
-- Toplam sembol sayısı: 527
-- Tarama 4'er hisselik parçalara bölündü.
-- Frontend güvenlik sınırı tüm listeyi tarayacak şekilde artırıldı.
-- En Güçlü 20, Güvenli Kazançlar, Fırsat Avcısı ve Portföy Radarım tüm sembol listesinden beslenir.
+## Yeni eklenenler
 
-## Vercel'e yükleme
-ZIP içeriğini GitHub repo ana dizinine çıkarın ve Vercel'de yeniden deploy edin.
+- ⚡ Günlük / anlık trade adayları
+- 📅 Haftalık portföy önerisi
+- 🧺 Aylık portföy önerisi
+- 💼 Mevcut portföy revizyonu
+- 📊 Önerilen ağırlık dağılımı
+- 🤖 AI Portföy Koçu
+- `/api/portfolio-advice` endpoint iskeleti
 
-Not: Yahoo Finance bazı BIST sembollerinde veri döndürmeyebilir; bu hisseler "VERİ YOK" olarak listelenir fakat tarama durmaz.
+## Çalıştırma
+
+```bash
+npm install
+vercel dev
+```
+
+veya GitHub üzerinden Vercel'e deploy edin.
+
+## Not
+
+Bu sistem yatırım tavsiyesi değildir. Teknik göstergelere, risk/getiri oranına ve tarama sonuçlarına dayalı karar destek/simülasyon aracıdır.
