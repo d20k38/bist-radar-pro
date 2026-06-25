@@ -30,7 +30,9 @@ export default async function handler(req,res){
           pattern:Number(a?.pattern)||0,
           formation:a?.formation?.name||'Belirgin formasyon yok',
           formationConfidence:Number(a?.formation?.confidence)||0,
-          targetPct:Number(a?.formation?.targetPct)||0
+          targetPct:Number(a?.formation?.targetPct)||0,
+          multiLayer:a?.multiLayer||null,
+          aiGeneral:Number(a?.multiLayer?.aiGeneral)||Number(a?.finalScore)||0
         });
       }catch(e){
         data.push({symbol,decision:'VERİ YOK',error:e.message,finalScore:0,confidence:0,risk:100,pattern:0,formation:'Veri yok',change:0});

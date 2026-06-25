@@ -1,14 +1,18 @@
-# BIST Radar Pro v16.10 - KAP/Haber AI
+# BIST Radar Pro v16.11 - Çok Katmanlı Güven Puanı
 
-Bu sürüm v16.9 Öğrenen AI üzerine KAP/Haber katmanı ekler.
+Bu sürüm v16.10 KAP/Haber AI üzerine inşa edilmiştir.
 
 ## Eklenenler
-- `/api/kap` endpointi
-- `lib/news-engine.js` duyarlılık ve etki puanlama motoru
-- `data/kap-news.json` güvenli örnek veri deposu
-- Arayüzde `📢 KAP/Haber AI` sekmesi
-- Günlük AI raporunda KAP/Haber etki özeti
-- Hisse bazlı ve genel haber filtreleme
+- Çok Katmanlı Güven Puanı
+- `/api/confidence?symbol=PAPIL`
+- Trend, Momentum, Para Girişi, Formasyon, Haber/KAP, Backtest, AI Genel tablosu
+- Hisse analiz ekranında şeffaf karar katmanı
+- KAP/Haber etkisi ve Öğrenen AI başarı oranı çok katmanlı puana dahil edilir
 
-## Not
-Bu paket canlı KAP kazıma yapmaz. KAP/Haber verileri `data/kap-news.json` içinden okunur. Canlı KAP veya güvenilir haber API anahtarı eklendiğinde `/api/kap` aynı JSON sözleşmesiyle genişletilebilir.
+## Kullanım
+1. Projeyi GitHub'a yükleyin.
+2. Vercel'e deploy edin.
+3. Hisse seçip `Analiz Et` düğmesine basın.
+4. `🧩 Güven Katmanları` sekmesinden ayrıntılı tabloyu inceleyin.
+
+> Not: Yatırım tavsiyesi değildir. Eğitim ve karar destek amaçlıdır.
