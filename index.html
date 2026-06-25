@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro v16.7 - Portföy Radarım ve Günlük AI Raporu</title>
+<title>BIST Radar Pro v16.9 - Öğrenen AI</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro v16.7</div><div class="pill">Portföy Radarım • Günlük AI Raporu • KAP/Haber Alanı • Kararlı Sürüm</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro v16.9</div><div class="pill">Öğrenen AI • Geçmiş Sinyal Hafızası • Kararlı Tarama • Vercel API</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -29,6 +29,7 @@
     <button class="tab" data-page="risky">⚠️ Riskli Hisseler</button>
     <button class="tab" data-page="patterns">🔎 Formasyonlar</button>
     <button class="tab" data-page="backtestPage">📊 Backtest</button>
+    <button class="tab" data-page="learningPage">🧠 Öğrenen AI</button>
     <button class="tab" data-page="portfolio">💼 Portföy</button>
     <button class="tab" data-page="dailyReport">📰 Günlük AI Raporu</button>
   </div>
@@ -50,7 +51,7 @@
     <br>
     <div class="grid g2">
       <div class="card"><div class="head red">⚠️ Riskli Hisseler</div><div class="body"><div id="dashRisk" class="dashList"></div></div></div>
-      <div class="card"><div class="head dark">📢 KAP / Haber Alanı</div><div class="body"><div class="comment">V16.4: Formasyon motoru eklendi. Çanak, çanak-kulp, ikili dip/tepe, TOBO/OBO, flama, bayrak, üçgen ve kama adayları puanlanır.</div></div></div>
+      <div class="card"><div class="head dark">📢 KAP / Haber Alanı</div><div class="body"><div class="comment">V16.9: Öğrenen AI eklendi. Sistem geçmiş yıllardaki sinyal performansını ölçer ve hangi kuralların daha başarılı çalıştığını gösterir.</div></div></div>
     </div>
   </section>
 
@@ -82,6 +83,23 @@
       <div class="card"><div class="head green">📈 İstatistik ve Yorum</div><div class="body"><div id="btAiComment" class="comment">Sinyal başarı oranı, ortalama getiri ve karar türlerine göre dağılım burada gösterilecek.</div><br><table id="btPortfolioTable" class="table"></table></div></div>
     </div>
   </section>
+
+  <section id="learningPage" class="hidden">
+    <div class="grid g3">
+      <div class="card metric"><div class="body"><div class="muted">Örnek Sinyal</div><div id="learnSamples" class="v">-</div><div class="muted">geçmiş test sayısı</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Genel Başarı</div><div id="learnSuccess" class="v ok">-</div><div class="muted">30 günlük sonuç</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Ortalama Getiri</div><div id="learnAvg" class="v warn">-</div><div class="muted">sinyal sonrası</div></div></div>
+    </div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head dark">🧠 Öğrenen AI Özeti</div><div class="body"><div class="quickFilters"><button class="btn" id="runLearningBtn">Seçili hisseyi öğren</button></div><div id="learningComment" class="comment">Öğrenen AI için hisse seçip düğmeye basın. Sistem geçmiş yıllarda hangi kuralların daha başarılı olduğunu hesaplar.</div><br><table id="learnYearTable" class="table"></table></div></div>
+      <div class="card"><div class="head green">🏆 En İyi Çalışan Kurallar</div><div class="body"><table id="learnRuleTable" class="table"></table></div></div>
+    </div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head yellow">📅 Karar Türüne Göre Başarı</div><div class="body"><table id="learnDecisionTable" class="table"></table></div></div>
+      <div class="card"><div class="head red">⚠️ Zayıf Kurallar ve Uyarılar</div><div class="body"><table id="learnWeakTable" class="table"></table></div></div>
+    </div>
+  </section>
+
   <section id="portfolio" class="hidden">
     <div class="grid g2">
       <div class="card"><div class="head">💼 Portföy Radarım</div><div class="body">
@@ -121,11 +139,11 @@ const defaultPortfolio=[{symbol:'MRSHL',lot:286,cost:2470},{symbol:'PAPIL',lot:7
 let portfolio=loadPortfolioLocal();
 const $=id=>document.getElementById(id);const fmt=(x,d=2)=>Number.isFinite(Number(x))?Number(x).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';const tl=x=>fmt(x)+' TL';
 function setStatus(t){$('status').textContent=t}
-function showPage(id,btn){['dashboard','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','portfolio','dailyReport'].forEach(x=>$(x).classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active')}
+function showPage(id,btn){['dashboard','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','portfolio','dailyReport'].forEach(x=>$(x).classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active')}
 function badgeClass(score,risk=false){score=Number(score)||0;if(risk)return score<35?'bgreen':score<60?'byellow':'bred';return score>=65?'bgreen':score>=50?'byellow':'bred'}
 function decisionClass(d){return d==='GÜÇLÜ AL'||d==='AL'?'bgreen':d==='İZLE'?'byellow':d==='BEKLE'?'bblue':'bred'}
 async function init(){wire();await loadSymbols();renderPortfolio();await loadStock(false);await scanAll(true)}
-function wire(){document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page,b)));$('analyzeBtn').addEventListener('click',()=>{showPage('analysis',document.querySelector('[data-page="analysis"]'));loadStock(true)});$('backtestBtn').addEventListener('click',()=>{showPage('backtestPage',document.querySelector('[data-page=\"backtestPage\"]'));runBacktest()});$('scanBtn1').addEventListener('click',()=>scanAll(false)); setTimeout(()=>{const b=$('runBtBtn'); if(b)b.addEventListener('click',runBacktest); const p=$('runPortfolioBtBtn'); if(p)p.addEventListener('click',runPortfolioBacktest); const pa=$('pfAddBtn'); if(pa)pa.addEventListener('click',addOrUpdatePortfolio); const ps=$('pfSaveBtn'); if(ps)ps.addEventListener('click',()=>{savePortfolio();setStatus('Portföy kaydedildi.')}); const dr=$('dailyReportBtn'); if(dr)dr.addEventListener('click',renderDailyReport); const kr=$('kapRefreshBtn'); if(kr)kr.addEventListener('click',renderKapNews);},0);$('search').addEventListener('keydown',e=>{if(e.key==='Enter'){$('analyzeBtn').click()}});['showEma20','showEma50','showEma200','showBB','showVWAP'].forEach(id=>{setTimeout(()=>{const el=$(id); if(el) el.addEventListener('change',()=>draw(lastRows));},0)})}
+function wire(){document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page,b)));$('analyzeBtn').addEventListener('click',()=>{showPage('analysis',document.querySelector('[data-page="analysis"]'));loadStock(true)});$('backtestBtn').addEventListener('click',()=>{showPage('backtestPage',document.querySelector('[data-page=\"backtestPage\"]'));runBacktest()});$('scanBtn1').addEventListener('click',()=>scanAll(false)); setTimeout(()=>{const b=$('runBtBtn'); if(b)b.addEventListener('click',runBacktest); const p=$('runPortfolioBtBtn'); if(p)p.addEventListener('click',runPortfolioBacktest); const pa=$('pfAddBtn'); if(pa)pa.addEventListener('click',addOrUpdatePortfolio); const ps=$('pfSaveBtn'); if(ps)ps.addEventListener('click',()=>{savePortfolio();setStatus('Portföy kaydedildi.')}); const dr=$('dailyReportBtn'); if(dr)dr.addEventListener('click',renderDailyReport); const kr=$('kapRefreshBtn'); if(kr)kr.addEventListener('click',renderKapNews); const la=$('runLearningBtn'); if(la)la.addEventListener('click',runLearning);},0);$('search').addEventListener('keydown',e=>{if(e.key==='Enter'){$('analyzeBtn').click()}});['showEma20','showEma50','showEma200','showBB','showVWAP'].forEach(id=>{setTimeout(()=>{const el=$(id); if(el) el.addEventListener('change',()=>draw(lastRows));},0)})}
 async function loadSymbols(){try{const j=await (await fetch('/api/symbols')).json();syms=j.symbols||[]}catch(e){syms=[]}if(!syms.length)syms=['PAPIL','MRSHL','TEZOL','USAK','VKING','THYAO','AKBNK','GARAN'];$('symbol').innerHTML=syms.map(s=>`<option>${s}</option>`).join('');$('symbol').onchange=e=>{$('search').value=e.target.value;loadStock(true)}}
 async function loadStock(verbose=true){const s=$('search').value.toUpperCase().trim()||'PAPIL';$('search').value=s;if(verbose)setStatus(s+' verisi alınıyor...');try{const j=await (await fetch('/api/stock?symbol='+encodeURIComponent(s))).json();if(!j.success)throw new Error(j.error||'Veri yok');renderStock(j);if(verbose)setStatus(s+' Yahoo Finance son verisi ile analiz edildi.')}catch(e){setStatus('Veri alınamadı: '+e.message)}}
 function renderStock(j){const a=j.analysis||{},c=j.comments||{};const cards=[['Karar',a.decision,a.finalScore>=65?'ok':a.finalScore>=50?'warn':'bad'],['Güven','%'+fmt(a.confidence,0),'ok'],['Risk','%'+fmt(a.risk,0),a.risk<50?'ok':'bad'],['Hedef','%'+fmt(((a.target1-a.close)/a.close)*100,1),'ok'],['Son Fiyat',tl(a.close),a.change>=0?'ok':'bad']];$('cards').innerHTML=cards.map(x=>`<div class="card metric"><div class="body"><div class="muted">${x[0]}</div><div class="v ${x[2]}">${x[1]}</div><small>Değişim: ${fmt(a.change)}%</small></div></div>`).join('');$('engine').innerHTML=['trend','money','momentum','pattern','confidence','risk'].map(k=>{const v=a[k]||0;return `<b>${label(k)}: ${fmt(v,0)}/100</b><div class="barw"><div class="bar" style="width:${Math.max(0,Math.min(100,v))}%;background:${k==='risk'?(v<50?'#16a34a':'#dc2626'):(v>65?'#16a34a':v>50?'#f59e0b':'#dc2626')}"></div></div><br>`}).join('')+`<div class="comment"><b>Formasyon:</b> ${a.formation?.name||'-'}<br><b>ADX:</b> ${fmt(a.adx)} | <b>SuperTrend:</b> ${a.superTrendDir===1?'AL':'SAT'}<br><b>Stop:</b> ${tl(a.stop)} | <b>Hedef:</b> ${tl(a.target1)}</div>`;$('expert').textContent=c.expert||aiExpert(a);$('ai').textContent=c.ai||aiComment(a);renderAIEngine(a);draw(a.ohlcv||j.ohlcv||[])}
@@ -276,6 +294,35 @@ function renderBacktest(j){
   const good=(s.successRate||0)>=65, mid=(s.successRate||0)>=52;
   $('btAiComment').innerHTML=`<b>AI Backtest Yorumu:</b><br>${good?'Bu sinyal yapısı geçmiş örneklerde güçlü performans göstermiş.':mid?'Bu sinyal yapısı orta düzeyde tutarlı. Ek teyitlerle kullanılmalı.':'Bu sinyal yapısı geçmişte zayıf kalmış. Tek başına kullanılmamalı.'}<br><br><b>Not:</b> Backtest geçmiş veriye dayanır; geleceği garanti etmez. Kapanış teyidi, stop ve pozisyon büyüklüğü ile birlikte değerlendirilmelidir.`;
 }
+
+function renderLearning(j){
+  const l=j&&j.learning?j.learning:null;
+  if(!l||!j.success){$('learningComment').textContent='Öğrenen AI hatası: '+(j&&j.error?j.error:'Veri alınamadı');return;}
+  $('learnSamples').textContent=fmt(l.summary.totalSamples||l.summary.count||0,0);
+  $('learnSuccess').textContent='%'+fmt(l.summary.successRate,1);
+  $('learnAvg').textContent='%'+fmt(l.summary.avgReturn,2);
+  $('learningComment').innerHTML='<b>'+j.symbol+' Öğrenen AI:</b><br>'+l.comment+'<br><br><b>Yorum:</b> Bu modül, geçmiş yıllarda üretilen sinyalleri değerlendirerek hangi kuralların daha güvenilir çalıştığını gösterir. Geçmiş performans geleceği garanti etmez.';
+  const yearly=Object.entries(l.yearly||{}).sort((a,b)=>a[0].localeCompare(b[0]));
+  $('learnYearTable').innerHTML='<tr><th>Yıl</th><th>Sinyal</th><th>Başarı</th><th>Ort. Getiri</th></tr>'+yearly.map(([y,r])=>`<tr><td><b>${y}</b></td><td>${r.count}</td><td>%${fmt(r.successRate,1)}</td><td>%${fmt(r.avgReturn,2)}</td></tr>`).join('');
+  $('learnRuleTable').innerHTML='<tr><th>Kural</th><th>Örnek</th><th>Başarı</th><th>Ort. Getiri</th></tr>'+(l.topRules||[]).map(r=>`<tr><td><b>${r.name}</b></td><td>${r.count}</td><td>%${fmt(r.successRate,1)}</td><td>%${fmt(r.avgReturn,2)}</td></tr>`).join('');
+  $('learnWeakTable').innerHTML='<tr><th>Zayıf Kural</th><th>Örnek</th><th>Başarı</th><th>Uyarı</th></tr>'+(l.weakRules||[]).map(r=>`<tr><td><b>${r.name}</b></td><td>${r.count}</td><td>%${fmt(r.successRate,1)}</td><td>Tek başına kullanılmamalı</td></tr>`).join('');
+  const dec=Object.entries(l.decisions||{}).sort((a,b)=>(b[1].successRate||0)-(a[1].successRate||0));
+  $('learnDecisionTable').innerHTML='<tr><th>Karar</th><th>Sinyal</th><th>Başarı</th><th>Ort. Getiri</th></tr>'+dec.map(([d,r])=>`<tr><td><span class="badge ${decisionClass(d)}">${d}</span></td><td>${r.count}</td><td>%${fmt(r.successRate,1)}</td><td>%${fmt(r.avgReturn,2)}</td></tr>`).join('');
+}
+async function runLearning(){
+  const s=$('search').value.toUpperCase().trim()||'PAPIL';
+  showPage('learningPage',document.querySelector('[data-page="learningPage"]'));
+  $('learningComment').textContent=s+' için Öğrenen AI geçmiş sinyalleri inceliyor...';
+  try{
+    const j=await fetchJsonSafe('/api/learning?symbol='+encodeURIComponent(s)+'&period=30&t='+Date.now());
+    renderLearning(j);
+    setStatus(s+' Öğrenen AI analizi tamamlandı.');
+  }catch(e){
+    $('learningComment').textContent='Öğrenen AI hatası: '+e.message;
+    setStatus('Öğrenen AI hatası: '+e.message);
+  }
+}
+
 async function runBacktest(){
   const s=$('search').value.toUpperCase().trim()||'PAPIL';
   showPage('backtestPage',document.querySelector('[data-page="backtestPage"]'));
