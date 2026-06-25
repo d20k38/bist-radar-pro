@@ -1,27 +1,14 @@
-# BIST Radar Pro v16.9 - Öğrenen AI
+# BIST Radar Pro v16.10 - KAP/Haber AI
 
-Bu sürüm v16.8.2 kararlı tarama projesi üzerine eklendi.
+Bu sürüm v16.9 Öğrenen AI üzerine KAP/Haber katmanı ekler.
 
-## Eklenen yeni modül
-
-### Öğrenen AI
-- Seçili hissenin son 5 yıllık geçmiş sinyallerini inceler.
-- 2023, 2024, 2025 gibi yıllara göre başarı oranlarını çıkarır.
-- Hangi teknik kuralların daha başarılı çalıştığını hesaplar.
-- Hangi kuralların zayıf kaldığını gösterir.
-- AI karar motoruna “geçmiş performans hafızası” katmanı ekler.
-
-## Yeni endpoint
-
-`/api/learning?symbol=PAPIL&period=30`
-
-Dönen veri:
-- yearly: yıllara göre başarı
-- decisions: karar türlerine göre başarı
-- topRules: en iyi çalışan kurallar
-- weakRules: zayıf kurallar
-- recentSamples: son örnek sinyaller
+## Eklenenler
+- `/api/kap` endpointi
+- `lib/news-engine.js` duyarlılık ve etki puanlama motoru
+- `data/kap-news.json` güvenli örnek veri deposu
+- Arayüzde `📢 KAP/Haber AI` sekmesi
+- Günlük AI raporunda KAP/Haber etki özeti
+- Hisse bazlı ve genel haber filtreleme
 
 ## Not
-
-Bu modül yatırım tavsiyesi üretmez. Geçmiş performans geleceği garanti etmez.
+Bu paket canlı KAP kazıma yapmaz. KAP/Haber verileri `data/kap-news.json` içinden okunur. Canlı KAP veya güvenilir haber API anahtarı eklendiğinde `/api/kap` aynı JSON sözleşmesiyle genişletilebilir.
