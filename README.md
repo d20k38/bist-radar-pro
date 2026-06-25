@@ -1,11 +1,15 @@
-# BIST Radar Pro v16.13 - AI Karar Motoru
+# BIST Radar Pro V16.14 - Tüm Hisse Tarama
 
-Bu sürüm V16.12 üzerine geliştirilmiştir.
+Bu sürüm, son çalışan V16.13 AI Karar Motoru projesi temel alınarak hazırlanmıştır.
 
-Eklenenler:
-- AI karar motoru geliştirildi.
-- Her hisse için güven puanı, risk puanı, olasılık, beklenen getiri, stop, hedef ve açıklamalı yorum üretir.
-- `/api/decision?symbol=PAPIL` endpoint'i eklendi.
-- Arayüzde AI karar kartı daha şeffaf hale getirildi.
+## Değişiklikler
+- `data/symbols.json` genişletildi.
+- Toplam sembol sayısı: 527
+- Tarama 4'er hisselik parçalara bölündü.
+- Frontend güvenlik sınırı tüm listeyi tarayacak şekilde artırıldı.
+- En Güçlü 20, Güvenli Kazançlar, Fırsat Avcısı ve Portföy Radarım tüm sembol listesinden beslenir.
 
-Not: Bu uygulama yatırım tavsiyesi değildir; karar destek ve eğitim amaçlıdır.
+## Vercel'e yükleme
+ZIP içeriğini GitHub repo ana dizinine çıkarın ve Vercel'de yeniden deploy edin.
+
+Not: Yahoo Finance bazı BIST sembollerinde veri döndürmeyebilir; bu hisseler "VERİ YOK" olarak listelenir fakat tarama durmaz.
