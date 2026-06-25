@@ -76,10 +76,12 @@
   <section id="risky" class="hidden"><div class="card"><div class="head red">⚠️ Riskli Hisseler</div><div class="body"><div class="comment">Risk yüksek, güven düşük veya karar zayıf olan hisseler burada izlenir.</div><br><table id="riskTable" class="table"></table></div></div></section>
   <section id="patterns" class="hidden"><div class="card"><div class="head cyan">🔎 Formasyon Radar</div><div class="body"><div class="comment">Kriter: formasyon puanı yüksek, hedef/stop planı üretilebilen hisseler. Önce tarama yapın.</div><br><table id="patternTable" class="table"></table></div></div></section>
   <section id="backtestPage" class="hidden">
-    <div class="grid g3">
-      <div class="card metric"><div class="body"><div class="muted">Sinyal Sayısı</div><div id="btSignals" class="v">-</div><div class="muted">son 5 yıl örneklem</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Başarı Oranı</div><div id="btSuccess" class="v ok">-</div><div class="muted">30 günlük test</div></div></div>
+    <div class="grid g5">
+      <div class="card metric"><div class="body"><div class="muted">Sinyal Sayısı</div><div id="btSignals" class="v">-</div><div class="muted">son 5-10 yıl örneklem</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Başarı Oranı</div><div id="btSuccess" class="v ok">-</div><div class="muted">ileri test sonucu</div></div></div>
       <div class="card metric"><div class="body"><div class="muted">Ortalama Getiri</div><div id="btAvg" class="v warn">-</div><div class="muted">sinyal sonrası</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Ort. Bekleme</div><div id="btHold" class="v">-</div><div class="muted">gün</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Risk/Getiri</div><div id="btRR" class="v ok">-</div><div class="muted">ortalama oran</div></div></div>
     </div><br>
     <div class="grid g2">
       <div class="card"><div class="head dark">📊 Backtest Özeti</div><div class="body"><div class="quickFilters"><button class="btn" id="runBtBtn">Seçili hisseyi test et</button><button class="btn gray" id="runPortfolioBtBtn">Portföyü test et</button></div><div id="btSummary" class="comment">Backtest için hisse seçip düğmeye basın.</div><br><table id="btDecisionTable" class="table"></table></div></div>
@@ -379,14 +381,27 @@ function renderDailyReport(){if(!scanCache.length){$('dailyReportBox').innerHTML
 
 function renderBacktest(j){
   if(!j||!j.success){$('btSummary').textContent='Backtest hatası: '+(j&&j.error?j.error:'Veri alınamadı');return;}
-  const s=j.summary||{}, by=j.byDecision||{};
+  const s=j.summary||{}, by=j.byDecision||{}, yy=j.byYear||{};
   $('btSignals').textContent=fmt(s.totalSignals||0,0);
   $('btSuccess').textContent='%'+fmt(s.successRate||0,1);
   $('btAvg').textContent='%'+fmt(s.avgReturn||0,2);
-  $('btSummary').innerHTML=`<b>${j.symbol}</b> için ${j.period} günlük ileri test.<br>Toplam sinyal: <b>${fmt(s.totalSignals,0)}</b><br>Başarılı: <b>${fmt(s.successCount,0)}</b><br>Başarı oranı: <b>%${fmt(s.successRate,1)}</b><br>Ortalama getiri: <b>%${fmt(s.avgReturn,2)}</b><br>En iyi / en kötü: <b>%${fmt(s.bestReturn,2)} / %${fmt(s.worstReturn,2)}</b>`;
-  $('btDecisionTable').innerHTML='<tr><th>Karar</th><th>Sinyal</th><th>Başarı</th><th>Başarı %</th><th>Ort. Getiri</th></tr>'+Object.keys(by).map(k=>`<tr><td><b>${k}</b></td><td>${fmt(by[k].count,0)}</td><td>${fmt(by[k].success,0)}</td><td>%${fmt(by[k].successRate,1)}</td><td>%${fmt(by[k].avgReturn,2)}</td></tr>`).join('');
+  if($('btHold'))$('btHold').textContent=fmt(s.avgHoldingDays||0,1);
+  if($('btRR'))$('btRR').textContent=fmt(s.riskReward||0,2);
+  $('btSummary').innerHTML=`<b>${j.symbol}</b> için ${j.period} günlük ileri test.<br>
+  Test aralığı: <b>${s.startDate||'-'} / ${s.endDate||'-'}</b><br>
+  Toplam sinyal: <b>${fmt(s.totalSignals,0)}</b><br>
+  Başarılı: <b>${fmt(s.successCount,0)}</b><br>
+  Başarı oranı: <b>%${fmt(s.successRate,1)}</b><br>
+  Ortalama getiri: <b>%${fmt(s.avgReturn,2)}</b><br>
+  Ortalama bekleme süresi: <b>${fmt(s.avgHoldingDays,1)} gün</b><br>
+  Maksimum düşüş: <b>%${fmt(s.maxDrawdown,2)}</b><br>
+  Ortalama risk/getiri: <b>${fmt(s.riskReward,2)}</b><br>
+  En iyi / en kötü: <b>%${fmt(s.bestReturn,2)} / %${fmt(s.worstReturn,2)}</b>`;
+  $('btDecisionTable').innerHTML='<tr><th>Karar</th><th>Sinyal</th><th>Başarı</th><th>Başarı %</th><th>Ort. Getiri</th><th>Ort. Bekleme</th><th>Max DD</th><th>Risk/Getiri</th></tr>'+Object.keys(by).map(k=>`<tr><td><b>${k}</b></td><td>${fmt(by[k].count,0)}</td><td>${fmt(by[k].success,0)}</td><td>%${fmt(by[k].successRate,1)}</td><td>%${fmt(by[k].avgReturn,2)}</td><td>${fmt(by[k].avgHoldingDays,1)} gün</td><td>%${fmt(by[k].avgDrawdown,2)}</td><td>${fmt(by[k].avgRiskReward,2)}</td></tr>`).join('')+
+  '<tr><th colspan="8">Yıllara Göre Özet</th></tr>'+Object.keys(yy).sort().map(y=>`<tr><td><b>${y}</b></td><td>${fmt(yy[y].count,0)}</td><td>${fmt(yy[y].success,0)}</td><td>%${fmt(yy[y].successRate,1)}</td><td>%${fmt(yy[y].avgReturn,2)}</td><td>${fmt(yy[y].avgHoldingDays,1)} gün</td><td>%${fmt(yy[y].avgDrawdown,2)}</td><td>${fmt(yy[y].avgRiskReward,2)}</td></tr>`).join('');
   const good=(s.successRate||0)>=65, mid=(s.successRate||0)>=52;
-  $('btAiComment').innerHTML=`<b>AI Backtest Yorumu:</b><br>${good?'Bu sinyal yapısı geçmiş örneklerde güçlü performans göstermiş.':mid?'Bu sinyal yapısı orta düzeyde tutarlı. Ek teyitlerle kullanılmalı.':'Bu sinyal yapısı geçmişte zayıf kalmış. Tek başına kullanılmamalı.'}<br><br><b>Not:</b> Backtest geçmiş veriye dayanır; geleceği garanti etmez. Kapanış teyidi, stop ve pozisyon büyüklüğü ile birlikte değerlendirilmelidir.`;
+  const rrGood=(s.riskReward||0)>=1.5;
+  $('btAiComment').innerHTML=`<b>AI Backtest Yorumu:</b><br>${good?'Bu sinyal yapısı geçmiş örneklerde güçlü başarı oranı göstermiş.':mid?'Bu sinyal yapısı orta düzeyde tutarlı. Ek teyitlerle kullanılmalı.':'Bu sinyal yapısı geçmişte zayıf kalmış. Tek başına kullanılmamalı.'}<br><br>${rrGood?'Risk/getiri oranı kabul edilebilir seviyede.':'Risk/getiri oranı düşük; hedef/stop dengesi iyileştirilmeli.'}<br><br><b>Not:</b> Backtest geçmiş veriye dayanır; geleceği garanti etmez. Kapanış teyidi, stop ve pozisyon büyüklüğü ile birlikte değerlendirilmelidir.`;
 }
 
 function renderLearning(j){
@@ -421,14 +436,14 @@ async function runBacktest(){
   const s=$('search').value.toUpperCase().trim()||'PAPIL';
   showPage('backtestPage',document.querySelector('[data-page="backtestPage"]'));
   $('btSummary').textContent=s+' backtest yapılıyor...';
-  try{const j=await (await fetch('/api/backtest?symbol='+encodeURIComponent(s)+'&period=30&mode=stats')).json();renderBacktest(j)}catch(e){$('btSummary').textContent='Backtest hatası: '+e.message}
+  try{const j=await (await fetch('/api/backtest?symbol='+encodeURIComponent(s)+'&period=30&years=10&mode=stats')).json();renderBacktest(j)}catch(e){$('btSummary').textContent='Backtest hatası: '+e.message}
 }
 async function runPortfolioBacktest(){
   showPage('backtestPage',document.querySelector('[data-page="backtestPage"]'));
   $('btPortfolioTable').innerHTML='<tr><td>Portföy backtest yapılıyor...</td></tr>';
   const out=[];
   for(const p of portfolio){
-    try{const j=await (await fetch('/api/backtest?symbol='+encodeURIComponent(p.symbol)+'&period=30&mode=stats')).json();out.push({symbol:p.symbol,success:j.summary?.successRate||0,avg:j.summary?.avgReturn||0,signals:j.summary?.totalSignals||0})}catch(e){out.push({symbol:p.symbol,error:e.message,success:0,avg:0,signals:0})}
+    try{const j=await (await fetch('/api/backtest?symbol='+encodeURIComponent(p.symbol)+'&period=30&years=10&mode=stats')).json();out.push({symbol:p.symbol,success:j.summary?.successRate||0,avg:j.summary?.avgReturn||0,signals:j.summary?.totalSignals||0})}catch(e){out.push({symbol:p.symbol,error:e.message,success:0,avg:0,signals:0})}
   }
   $('btPortfolioTable').innerHTML='<tr><th>Hisse</th><th>Sinyal</th><th>Başarı %</th><th>Ort. Getiri</th></tr>'+out.map(x=>`<tr><td><b>${x.symbol}</b></td><td>${fmt(x.signals,0)}</td><td>%${fmt(x.success,1)}</td><td>%${fmt(x.avg,2)}</td></tr>`).join('');
   const avg=out.length?out.reduce((s,x)=>s+x.success,0)/out.length:0;

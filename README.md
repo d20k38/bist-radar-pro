@@ -1,18 +1,17 @@
-# BIST Radar Pro v16.11 - Çok Katmanlı Güven Puanı
+# BIST Radar Pro V16.12 - Gelişmiş Backtest ve İstatistik
 
-Bu sürüm v16.10 KAP/Haber AI üzerine inşa edilmiştir.
+Bu sürüm V16.11 Çok Katmanlı Güven Puanı üzerine geliştirilmiştir.
 
 ## Eklenenler
-- Çok Katmanlı Güven Puanı
-- `/api/confidence?symbol=PAPIL`
-- Trend, Momentum, Para Girişi, Formasyon, Haber/KAP, Backtest, AI Genel tablosu
-- Hisse analiz ekranında şeffaf karar katmanı
-- KAP/Haber etkisi ve Öğrenen AI başarı oranı çok katmanlı puana dahil edilir
+- Son 5-10 yıl aralığı için istatistiksel backtest altyapısı
+- Başarı oranı
+- Ortalama getiri
+- Ortalama bekleme süresi
+- Maksimum düşüş / max drawdown
+- Risk/getiri oranı
+- Karar türüne göre başarı tablosu
+- Portföy backtest ortalaması
+- API JSON güvenliği ve hata toleransı
 
-## Kullanım
-1. Projeyi GitHub'a yükleyin.
-2. Vercel'e deploy edin.
-3. Hisse seçip `Analiz Et` düğmesine basın.
-4. `🧩 Güven Katmanları` sekmesinden ayrıntılı tabloyu inceleyin.
-
-> Not: Yatırım tavsiyesi değildir. Eğitim ve karar destek amaçlıdır.
+## Önemli not
+Backtest geçmiş veriye dayanır; geleceği garanti etmez. Yatırım tavsiyesi değildir.
