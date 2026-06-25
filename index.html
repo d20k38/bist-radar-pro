@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro v16.11 - Çok Katmanlı Güven</title>
+<title>BIST Radar Pro v16.13 - Çok Katmanlı Güven</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro v16.11</div><div class="pill">Öğrenen AI • KAP/Haber AI • Duyarlılık Analizi • Vercel API</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro v16.13</div><div class="pill">AI Karar Motoru • Güven/Risk/Olasılık • Hedef/Stop • Vercel API</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -196,8 +196,23 @@ function aiDecisionPack(a){
 function reasonLine(ok,text){return `<div class="kpi"><span>${ok?'✅':'❌'} ${text}</span></div>`}
 function renderAIEngine(a){
   a=a||{}; const p=aiDecisionPack(a); const close=nval(a.close), stop=nval(a.stop), t1=nval(a.target1), t2=nval(a.target2);
+  const risk=nval(a.risk,60), conf=nval(a.confidence), final=nval(a.finalScore), potential=nval(a.potential);
+  const probability=Math.max(5,Math.min(95,Math.round(final*.45+conf*.30+(100-risk)*.15+potential*.10)));
+  const expectedReturn=close&&t1?((t1-close)/close)*100:0;
   const rr = (close&&stop&&t1&&close>stop) ? ((t1-close)/(close-stop)) : 0;
-  $('aiDecision').innerHTML=`<div style="text-align:center"><span class="badge ${p.cls}" style="font-size:18px;padding:10px 14px">${p.decision}</span><div class="metric"><div class="v ${p.score>=68?'ok':p.score>=52?'warn':'bad'}">${fmt(p.score,0)}/100</div><div class="muted">AI güven skoru</div></div></div><div class="comment"><b>Yorum:</b> ${p.tone}. Karar; trend, para girişi, momentum, formasyon, risk ve risk/getiri birleşiminden üretilmiştir.</div>`;
+  const stopPct = close&&stop ? ((close-stop)/close)*100 : 0;
+  const target2Pct = close&&t2 ? ((t2-close)/close)*100 : 0;
+  $('aiDecision').innerHTML=`
+    <div class="grid g2">
+      <div style="text-align:center"><span class="badge ${p.cls}" style="font-size:18px;padding:10px 14px">${p.decision}</span><div class="metric"><div class="v ${p.score>=68?'ok':p.score>=52?'warn':'bad'}">${fmt(p.score,0)}/100</div><div class="muted">AI güven skoru</div></div></div>
+      <div class="comment">
+        <b>Olasılık:</b> %${fmt(probability,0)}<br>
+        <b>Risk puanı:</b> ${fmt(risk,0)}/100<br>
+        <b>Beklenen getiri:</b> %${fmt(expectedReturn,1)}<br>
+        <b>Risk/Getiri:</b> 1 : ${fmt(rr,2)}
+      </div>
+    </div>
+    <div class="comment"><b>Açıklamalı yorum:</b> ${aiDetailedComment(a,p,probability,expectedReturn,rr)}</div>`;
   const reasons=[];
   reasons.push(reasonLine(nval(a.trend)>=65,`Trend gücü: ${fmt(a.trend,0)}/100`));
   reasons.push(reasonLine(nval(a.money)>=55,`Para girişi: ${fmt(a.money,0)}/100`));
@@ -206,9 +221,27 @@ function renderAIEngine(a){
   reasons.push(reasonLine(nval(a.adx)>=25,`ADX trend teyidi: ${fmt(a.adx)}`));
   reasons.push(reasonLine(a.superTrendDir===1,`SuperTrend: ${a.superTrendDir===1?'AL':'SAT'}`));
   reasons.push(reasonLine(nval(a.risk)<=45,`Risk kabul edilebilir: ${fmt(a.risk,0)}/100`));
-  $('aiReasons').innerHTML=reasons.join('')+`<div class="comment"><b>Özet:</b> ${p.decision} kararının ana nedeni ${nval(a.trend)>=65?'trend desteği':nval(a.money)>=55?'para girişi':'teyitlerin sınırlı olması'}.</div>`;
+  reasons.push(reasonLine(rr>=1.5,`Risk/getiri oranı: 1 : ${fmt(rr,2)}`));
+  $('aiReasons').innerHTML=reasons.join('')+`<div class="comment"><b>Karar şeffaflığı:</b> Bu karar; güven puanı, risk puanı, olasılık, beklenen getiri, stop/hedef ve teknik teyitlerin birlikte okunmasıyla üretilmiştir.</div>`;
   renderPatternBox(a);
-  $('aiRiskPlan').innerHTML=`<div class="kpi"><b>Son fiyat</b><span>${tl(close)}</span></div><div class="kpi"><b>Stop</b><span>${tl(stop)}</span></div><div class="kpi"><b>Hedef 1</b><span>${tl(t1)}</span></div><div class="kpi"><b>Hedef 2</b><span>${tl(t2)}</span></div><div class="kpi"><b>Risk/Getiri</b><span>1 : ${fmt(rr,2)}</span></div><div class="comment"><b>İşlem disiplini:</b> Stop seviyesi korunmadan işlem yapılmamalı. Skor yüksek olsa bile tek başına yatırım tavsiyesi değildir.</div>`;
+  $('aiRiskPlan').innerHTML=`
+    <div class="kpi"><b>Son fiyat</b><span>${tl(close)}</span></div>
+    <div class="kpi"><b>Stop</b><span>${tl(stop)} <small>(-%${fmt(stopPct,1)})</small></span></div>
+    <div class="kpi"><b>Hedef 1</b><span>${tl(t1)} <small>(+%${fmt(expectedReturn,1)})</small></span></div>
+    <div class="kpi"><b>Hedef 2</b><span>${tl(t2)} <small>(+%${fmt(target2Pct,1)})</small></span></div>
+    <div class="kpi"><b>Risk/Getiri</b><span>1 : ${fmt(rr,2)}</span></div>
+    <div class="comment"><b>İşlem planı:</b> Olasılık ve güven yüksek olsa bile stop seviyesi korunmadan işlem yapılmamalı. Bu ekran yatırım tavsiyesi değil, karar destek aracıdır.</div>`;
+}
+function aiDetailedComment(a,p,probability,expectedReturn,rr){
+  const parts=[];
+  parts.push(`Sistem ${p.decision} sonucunu üretiyor; güven ${fmt(p.score,0)}/100, olasılık %${fmt(probability,0)}.`);
+  parts.push(nval(a.trend)>=65?'Trend tarafı kararı destekliyor.':'Trend tarafında yeterli güç yok.');
+  parts.push(nval(a.money)>=55?'Para girişi/likidite olumlu.':'Para girişi sınırlı; hacim teyidi izlenmeli.');
+  parts.push(nval(a.momentum)>=55?'Momentum pozitif.':'Momentum zayıf veya kararsız.');
+  parts.push(nval(a.pattern)>=60?`Formasyon tarafı destek veriyor: ${a.formation?.name||'aday yapı'}.`:'Formasyon teyidi zayıf.');
+  parts.push(rr>=1.5?'Risk/getiri dengesi kabul edilebilir.':'Risk/getiri dengesi zayıf; hedef-stop oranı iyileşmeli.');
+  parts.push(`Beklenen getiri yaklaşık %${fmt(expectedReturn,1)}.`);
+  return parts.join(' ');
 }
 
 function renderPatternBox(a){

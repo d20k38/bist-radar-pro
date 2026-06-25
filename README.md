@@ -1,17 +1,11 @@
-# BIST Radar Pro V16.12 - Gelişmiş Backtest ve İstatistik
+# BIST Radar Pro v16.13 - AI Karar Motoru
 
-Bu sürüm V16.11 Çok Katmanlı Güven Puanı üzerine geliştirilmiştir.
+Bu sürüm V16.12 üzerine geliştirilmiştir.
 
-## Eklenenler
-- Son 5-10 yıl aralığı için istatistiksel backtest altyapısı
-- Başarı oranı
-- Ortalama getiri
-- Ortalama bekleme süresi
-- Maksimum düşüş / max drawdown
-- Risk/getiri oranı
-- Karar türüne göre başarı tablosu
-- Portföy backtest ortalaması
-- API JSON güvenliği ve hata toleransı
+Eklenenler:
+- AI karar motoru geliştirildi.
+- Her hisse için güven puanı, risk puanı, olasılık, beklenen getiri, stop, hedef ve açıklamalı yorum üretir.
+- `/api/decision?symbol=PAPIL` endpoint'i eklendi.
+- Arayüzde AI karar kartı daha şeffaf hale getirildi.
 
-## Önemli not
-Backtest geçmiş veriye dayanır; geleceği garanti etmez. Yatırım tavsiyesi değildir.
+Not: Bu uygulama yatırım tavsiyesi değildir; karar destek ve eğitim amaçlıdır.
