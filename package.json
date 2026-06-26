@@ -1,1 +1,7 @@
-{"name":"bist-radar-pro-v16","version":"16.0.0","type":"module","scripts":{"dev":"vercel dev","start":"vercel dev"},"dependencies":{}}
+{
+  "name":"bist-radar-pro-v17-ai-pro",
+  "version":"17.0.0",
+  "type":"module",
+  "scripts":{"dev":"vercel dev","start":"vercel dev"},
+  "dependencies":{}
+}
