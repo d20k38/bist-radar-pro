@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro v16.16 - Öğrenen AI Lite</title>
+<title>BIST Radar Pro v16.17 - AI Yatırım Komitesi</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro v16.15</div><div class="pill">Portföy Öneri Motoru • Günlük/Haftalık/Aylık Sepet • AI Koç</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro v16.17</div><div class="pill">AI Yatırım Komitesi • Açıklanabilir AI • Öğrenen Sistem • Performans Takibi</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -35,6 +35,7 @@
     <button class="tab" data-page="dailyReport">📰 Günlük AI Raporu</button>
     <button class="tab" data-page="kapPage">📢 KAP/Haber AI</button>
     <button class="tab" data-page="confidencePage">🧩 Güven Katmanları</button>
+    <button class="tab" data-page="committeePage">🏛️ AI Yatırım Komitesi</button>
   </div>
   <div id="status" class="status">Hazır.</div>
 
@@ -186,6 +187,19 @@
     </div>
   </section>
 
+  <section id="committeePage" class="hidden">
+    <div class="grid g3">
+      <div class="card metric"><div class="body"><div class="muted">Komite Nihai Karar</div><div id="committeeDecision" class="v warn">-</div><div class="muted">5 uzman ortak sonucu</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Komite Güveni</div><div id="committeeScore" class="v ok">-</div><div class="muted">0-100</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Uzlaşma</div><div id="committeeAgreement" class="v ok">-</div><div class="muted">uzman görüş uyumu</div></div></div>
+    </div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head dark">🏛️ Altın Modül: AI Yatırım Komitesi</div><div class="body"><div class="quickFilters"><button class="btn" id="committeeBtn">Seçili hisse için komiteyi çalıştır</button></div><div id="committeeBox" class="comment">Teknik Analist, Temel Analist, Haber Analisti, Risk Yöneticisi ve Öğrenen AI aynı hisseyi ayrı ayrı değerlendirir.</div><br><table id="committeeTable" class="table"></table></div></div>
+      <div class="card"><div class="head green">🧠 Üç Temel Prensip</div><div class="body"><div id="principlesBox" class="comment">Açıklanabilir AI, Öğrenen Sistem ve Performans Takibi sonuçları burada gösterilir.</div></div></div>
+    </div>
+  </section>
+
+
 </div>
 <script>
 let chart, candleChart, candleSeries, lineSeries=[], lastRows=[], syms=[], scanCache=[], lastStock=null;
@@ -193,11 +207,11 @@ const defaultPortfolio=[{symbol:'MRSHL',lot:286,cost:2470},{symbol:'PAPIL',lot:7
 let portfolio=loadPortfolioLocal();
 const $=id=>document.getElementById(id);const fmt=(x,d=2)=>Number.isFinite(Number(x))?Number(x).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';const tl=x=>fmt(x)+' TL';
 function setStatus(t){$('status').textContent=t}
-function showPage(id,btn){['dashboard','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','portfolio','portfolioAdvice','dailyReport','kapPage','confidencePage'].forEach(x=>$(x).classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active')}
+function showPage(id,btn){['dashboard','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','portfolio','portfolioAdvice','dailyReport','kapPage','confidencePage','committeePage'].forEach(x=>$(x).classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active')}
 function badgeClass(score,risk=false){score=Number(score)||0;if(risk)return score<35?'bgreen':score<60?'byellow':'bred';return score>=65?'bgreen':score>=50?'byellow':'bred'}
 function decisionClass(d){return d==='GÜÇLÜ AL'||d==='AL'?'bgreen':d==='İZLE'?'byellow':d==='BEKLE'?'bblue':'bred'}
 async function init(){wire();await loadSymbols();renderPortfolio();renderSignalJournal();await loadStock(false);await scanAll(true);renderKapNews()}
-function wire(){document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page,b)));$('analyzeBtn').addEventListener('click',()=>{showPage('analysis',document.querySelector('[data-page="analysis"]'));loadStock(true)});$('backtestBtn').addEventListener('click',()=>{showPage('backtestPage',document.querySelector('[data-page=\"backtestPage\"]'));runBacktest()});$('scanBtn1').addEventListener('click',()=>scanAll(false)); setTimeout(()=>{const b=$('runBtBtn'); if(b)b.addEventListener('click',runBacktest); const p=$('runPortfolioBtBtn'); if(p)p.addEventListener('click',runPortfolioBacktest); const pa=$('pfAddBtn'); if(pa)pa.addEventListener('click',addOrUpdatePortfolio); const ps=$('pfSaveBtn'); if(ps)ps.addEventListener('click',()=>{savePortfolio();setStatus('Portföy kaydedildi.')}); const dr=$('dailyReportBtn'); if(dr)dr.addEventListener('click',renderDailyReport); const kr=$('kapRefreshBtn'); if(kr)kr.addEventListener('click',renderKapNews); const la=$('runLearningBtn'); if(la)la.addEventListener('click',runLearning); const ss=$('saveSignalBtn'); if(ss)ss.addEventListener('click',saveCurrentSignal); const cs=$('clearSignalsBtn'); if(cs)cs.addEventListener('click',clearSignalJournal); const ks=$('kapSymbolBtn'); if(ks)ks.addEventListener('click',()=>renderKapNews(($('search').value||'PAPIL').toUpperCase().trim())); const ka=$('kapAllBtn'); if(ka)ka.addEventListener('click',()=>renderKapNews('')); const rc=$('refreshConfidenceBtn'); if(rc)rc.addEventListener('click',runConfidence); const pav=$('portfolioAdviceBtn'); if(pav)pav.addEventListener('click',renderPortfolioAdvice); const pas=$('portfolioAdviceScanBtn'); if(pas)pas.addEventListener('click',async()=>{await scanAll(false);showPage('portfolioAdvice',document.querySelector('[data-page="portfolioAdvice"]'));renderPortfolioAdvice();});},0);$('search').addEventListener('keydown',e=>{if(e.key==='Enter'){$('analyzeBtn').click()}});['showEma20','showEma50','showEma200','showBB','showVWAP'].forEach(id=>{setTimeout(()=>{const el=$(id); if(el) el.addEventListener('change',()=>draw(lastRows));},0)})}
+function wire(){document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page,b)));$('analyzeBtn').addEventListener('click',()=>{showPage('analysis',document.querySelector('[data-page="analysis"]'));loadStock(true)});$('backtestBtn').addEventListener('click',()=>{showPage('backtestPage',document.querySelector('[data-page=\"backtestPage\"]'));runBacktest()});$('scanBtn1').addEventListener('click',()=>scanAll(false)); setTimeout(()=>{const b=$('runBtBtn'); if(b)b.addEventListener('click',runBacktest); const p=$('runPortfolioBtBtn'); if(p)p.addEventListener('click',runPortfolioBacktest); const pa=$('pfAddBtn'); if(pa)pa.addEventListener('click',addOrUpdatePortfolio); const ps=$('pfSaveBtn'); if(ps)ps.addEventListener('click',()=>{savePortfolio();setStatus('Portföy kaydedildi.')}); const dr=$('dailyReportBtn'); if(dr)dr.addEventListener('click',renderDailyReport); const kr=$('kapRefreshBtn'); if(kr)kr.addEventListener('click',renderKapNews); const la=$('runLearningBtn'); if(la)la.addEventListener('click',runLearning); const ss=$('saveSignalBtn'); if(ss)ss.addEventListener('click',saveCurrentSignal); const cs=$('clearSignalsBtn'); if(cs)cs.addEventListener('click',clearSignalJournal); const ks=$('kapSymbolBtn'); if(ks)ks.addEventListener('click',()=>renderKapNews(($('search').value||'PAPIL').toUpperCase().trim())); const ka=$('kapAllBtn'); if(ka)ka.addEventListener('click',()=>renderKapNews('')); const rc=$('refreshConfidenceBtn'); if(rc)rc.addEventListener('click',runConfidence); const cb=$('committeeBtn'); if(cb)cb.addEventListener('click',runCommittee); const pav=$('portfolioAdviceBtn'); if(pav)pav.addEventListener('click',renderPortfolioAdvice); const pas=$('portfolioAdviceScanBtn'); if(pas)pas.addEventListener('click',async()=>{await scanAll(false);showPage('portfolioAdvice',document.querySelector('[data-page="portfolioAdvice"]'));renderPortfolioAdvice();});},0);$('search').addEventListener('keydown',e=>{if(e.key==='Enter'){$('analyzeBtn').click()}});['showEma20','showEma50','showEma200','showBB','showVWAP'].forEach(id=>{setTimeout(()=>{const el=$(id); if(el) el.addEventListener('change',()=>draw(lastRows));},0)})}
 async function loadSymbols(){try{const j=await (await fetch('/api/symbols')).json();syms=j.symbols||[]}catch(e){syms=[]}if(!syms.length)syms=['PAPIL','MRSHL','TEZOL','USAK','VKING','THYAO','AKBNK','GARAN'];$('symbol').innerHTML=syms.map(s=>`<option>${s}</option>`).join('');$('symbol').onchange=e=>{$('search').value=e.target.value;loadStock(true)}}
 async function loadStock(verbose=true){const s=$('search').value.toUpperCase().trim()||'PAPIL';$('search').value=s;if(verbose)setStatus(s+' verisi alınıyor...');try{const j=await (await fetch('/api/stock?symbol='+encodeURIComponent(s))).json();if(!j.success)throw new Error(j.error||'Veri yok');renderStock(j);if(verbose)setStatus(s+' Yahoo Finance son verisi ile analiz edildi.')}catch(e){setStatus('Veri alınamadı: '+e.message)}}
 function renderStock(j){lastStock=j; const a=j.analysis||{},c=j.comments||{};const cards=[['Karar',a.decision,a.finalScore>=65?'ok':a.finalScore>=50?'warn':'bad'],['Güven','%'+fmt(a.confidence,0),'ok'],['Risk','%'+fmt(a.risk,0),a.risk<50?'ok':'bad'],['Hedef','%'+fmt(((a.target1-a.close)/a.close)*100,1),'ok'],['Son Fiyat',tl(a.close),a.change>=0?'ok':'bad']];$('cards').innerHTML=cards.map(x=>`<div class="card metric"><div class="body"><div class="muted">${x[0]}</div><div class="v ${x[2]}">${x[1]}</div><small>Değişim: ${fmt(a.change)}%</small></div></div>`).join('');$('engine').innerHTML=['trend','money','momentum','pattern','confidence','risk'].map(k=>{const v=a[k]||0;return `<b>${label(k)}: ${fmt(v,0)}/100</b><div class="barw"><div class="bar" style="width:${Math.max(0,Math.min(100,v))}%;background:${k==='risk'?(v<50?'#16a34a':'#dc2626'):(v>65?'#16a34a':v>50?'#f59e0b':'#dc2626')}"></div></div><br>`}).join('')+`<div class="comment"><b>Formasyon:</b> ${a.formation?.name||'-'}<br><b>ADX:</b> ${fmt(a.adx)} | <b>SuperTrend:</b> ${a.superTrendDir===1?'AL':'SAT'}<br><b>Stop:</b> ${tl(a.stop)} | <b>Hedef:</b> ${tl(a.target1)}</div>`;$('expert').textContent=c.expert||aiExpert(a);$('ai').textContent=c.ai||aiComment(a);renderAIEngine(a);renderMultiLayer(a.multiLayer||null,a);draw(a.ohlcv||j.ohlcv||[]);setTimeout(()=>runConfidence(false),80)}
@@ -533,6 +547,32 @@ async function runPortfolioBacktest(){
   $('btPortfolioTable').innerHTML='<tr><th>Hisse</th><th>Sinyal</th><th>Başarı %</th><th>Ort. Getiri</th></tr>'+out.map(x=>`<tr><td><b>${x.symbol}</b></td><td>${fmt(x.signals,0)}</td><td>%${fmt(x.success,1)}</td><td>%${fmt(x.avg,2)}</td></tr>`).join('');
   const avg=out.length?out.reduce((s,x)=>s+x.success,0)/out.length:0;
   $('btAiComment').innerHTML=`<b>Portföy Backtest Özeti:</b><br>Ortalama başarı oranı: <b>%${fmt(avg,1)}</b><br>${avg>=60?'Portföy sinyal kalitesi geçmişte kabul edilebilir görünmektedir.':'Portföy sinyal kalitesi zayıf; hisse bazlı teyitleri güçlendirmek gerekir.'}`;
+}
+
+
+function renderCommittee(c){
+  if(!c){return;}
+  if($('committeeDecision')) $('committeeDecision').textContent=(c.icon||'')+' '+(c.finalDecision||'-');
+  if($('committeeScore')) $('committeeScore').textContent=fmt(c.finalScore,0)+'/100';
+  if($('committeeAgreement')) $('committeeAgreement').textContent=fmt(c.agreement,0)+'/100';
+  const experts=c.experts||[];
+  if($('committeeTable')) $('committeeTable').innerHTML='<tr><th>Uzman</th><th>Görüş</th><th>Puan</th><th>Gerekçe</th></tr>'+experts.map(e=>`<tr><td><b>${e.icon||''} ${e.name}</b></td><td><span class="badge ${decisionClass(e.view)}">${e.view}</span></td><td><b>${fmt(e.score,0)}</b></td><td>${e.reason||''}</td></tr>`).join('');
+  if($('committeeBox')) $('committeeBox').innerHTML=`<b>${c.symbol} Komite Yorumu:</b><br>${c.committeeComment||''}<br><br><b>Güçlü görüşler:</b><br>${(c.positives||[]).length?(c.positives||[]).map(x=>'✅ '+x).join('<br>'):'Belirgin güçlü uzman görüşü yok.'}<br><br><b>Dikkat görüşleri:</b><br>${(c.warnings||[]).length?(c.warnings||[]).map(x=>'⚠️ '+x).join('<br>'):'Kritik zayıf uzman görüşü yok.'}`;
+  if($('principlesBox')) $('principlesBox').innerHTML=`<b>1) ${c.explainableAI?.title||'Açıklanabilir AI'}</b><br>${c.explainableAI?.summary||''}<br>${(c.explainableAI?.reasons||[]).map(x=>'• '+x).join('<br>')}<br><br><b>2) ${c.learningSystem?.title||'Öğrenen Sistem'}</b><br>${c.learningSystem?.summary||''}<br>Başarı: %${fmt(c.learningSystem?.successRate||0,1)} • Güven düzeltmesi: ${fmt(c.learningSystem?.confidenceAdjustment||0,1)}<br><br><b>3) ${c.performanceTracking?.title||'Performans Takibi'}</b><br>${c.performanceTracking?.summary||''}<br>${c.performanceTracking?.measured||''}`;
+}
+async function runCommittee(){
+  const s=($('search')?.value||'PAPIL').toUpperCase().trim();
+  showPage('committeePage',document.querySelector('[data-page="committeePage"]'));
+  if($('committeeBox')) $('committeeBox').textContent=s+' için AI Yatırım Komitesi çalışıyor...';
+  try{
+    const j=await fetchJsonSafe('/api/committee?symbol='+encodeURIComponent(s)+'&t='+Date.now());
+    if(!j.success) throw new Error(j.error||'Komite yanıtı alınamadı');
+    renderCommittee(j.committee);
+    setStatus(s+' AI Yatırım Komitesi tamamlandı.');
+  }catch(e){
+    if($('committeeBox')) $('committeeBox').textContent='AI Yatırım Komitesi hatası: '+e.message;
+    setStatus('AI Yatırım Komitesi hatası: '+e.message);
+  }
 }
 
 window.addEventListener('error',e=>{setStatus('Uygulama hatası: '+e.message);console.error(e.error||e.message);return true});

@@ -25,3 +25,15 @@ Bu sürüm v16.15 Portföy Öneri Motoru üzerine geliştirilmiştir.
 ## Not
 
 Bu sürüm yatırım tavsiyesi değildir. Teknik analiz, backtest ve öğrenen AI sonuçları karar destek amaçlıdır.
+
+
+## V16.17 - AI Yatırım Komitesi
+
+Eklenen Altın Modül:
+- Açıklanabilir AI: Karar nedenlerini uzman katmanlarıyla gösterir.
+- Öğrenen Sistem: Backtest ve öğrenme düzeltmesini karar puanına ekler.
+- Performans Takibi: Geçmiş sinyal başarısını komite kararına dahil eder.
+- AI Yatırım Komitesi: Teknik Analist, Temel Analist, Haber Analisti, Risk Yöneticisi ve Öğrenen AI uzmanlarından nihai karar üretir.
+
+Yeni endpoint:
+- `/api/committee?symbol=PAPIL`
