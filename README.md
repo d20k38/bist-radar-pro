@@ -1,20 +1,27 @@
-# BIST Radar Pro V17 AI Pro
+# BIST Radar Pro v16.16 - Öğrenen AI Lite
 
-Açıklanabilir, çok katmanlı ve öğrenen AI mantığıyla hazırlanmış Vercel uyumlu proje.
+Bu sürüm v16.15 Portföy Öneri Motoru üzerine geliştirilmiştir.
 
-## Kurulum
-1. ZIP içeriğini GitHub reposuna yükleyin.
-2. Vercel'e import edin.
-3. Node sürümü otomatik çalışır.
+## Eklenenler
 
-## Ana dosyalar
+- Öğrenen AI Lite sekmesi geliştirildi.
+- 5 gün, 20 gün ve 30 gün sonrası sinyal başarı analizi eklendi.
+- Geçmiş performansa göre **AI güven düzeltmesi** üretildi.
+- En iyi çalışan teknik kurallar ve zayıf kurallar ayrı gösterilir.
+- Karar türlerine göre başarı oranı korunur.
+- Yerel Sinyal Hafızası eklendi:
+  - Seçili hisse sinyali tarayıcıya kaydedilebilir.
+  - Fiyat, karar, skor, güven, risk, stop ve hedef saklanır.
+  - Bu alan ileride gerçek veriyle başarı takibi için temel oluşturur.
+
+## Dosya Yapısı
+
 - `index.html` ana arayüz
-- `api/stock.js` hisse analizi
-- `api/scan.js` parçalı tarama
-- `api/learning.js` öğrenen AI özeti
-- `api/portfolio-advice.js` portföy önerileri
-- `lib/ai-pro-engine.js` AI Pro karar motoru
-- `lib/data-provider.js` Yahoo Finance OHLC + fallback veri üretici
+- `api/learning.js` öğrenen AI endpoint'i
+- `lib/learning-engine.js` öğrenme motoru
+- `api/scan.js`, `api/stock.js`, `api/backtest.js` Vercel API dosyaları
+- `lib/engine.js`, `lib/indicators.js`, `lib/provider.js` analiz ve veri motorları
 
 ## Not
-Yahoo Finance verisi alınamazsa sistem demo/fallback OHLC üretir. Finansal kararlar için tek başına kullanılmamalıdır; karar destek ve eğitim amaçlıdır.
+
+Bu sürüm yatırım tavsiyesi değildir. Teknik analiz, backtest ve öğrenen AI sonuçları karar destek amaçlıdır.

@@ -1,24 +1,5 @@
 {
-  "weights": {
-    "trend": 0.15,
-    "momentum": 0.10,
-    "money": 0.15,
-    "pattern": 0.10,
-    "backtest": 0.15,
-    "kapNews": 0.10,
-    "financial": 0.10,
-    "sector": 0.05,
-    "learning": 0.10
-  },
-  "yearlyPerformance": [
-    {"year":2023,"signals":128,"success":82,"avgReturn":9.4,"bestRule":"ADX + SuperTrend"},
-    {"year":2024,"signals":164,"success":111,"avgReturn":11.2,"bestRule":"Para Girişi + EMA20"},
-    {"year":2025,"signals":147,"success":101,"avgReturn":13.1,"bestRule":"Formasyon + Hacim"}
-  ],
-  "ruleStats": [
-    {"rule":"ADX + SuperTrend","successRate":78,"weightDelta":3},
-    {"rule":"Çanak + Hacim Patlaması","successRate":74,"weightDelta":2},
-    {"rule":"RSI Dipten Dönüş","successRate":63,"weightDelta":1},
-    {"rule":"Sadece MACD","successRate":51,"weightDelta":-1}
-  ]
+  "version": "v16.9",
+  "description": "Öğrenen AI modülü geçmiş sinyalleri yıllara ve kurallara göre değerlendirir.",
+  "rules": ["EMA50_USTU", "EMA200_USTU", "MACD_POZITIF", "RSI_SAGLIKLI", "ADX_GUCLU", "SUPERTREND_AL", "HACIM_USTU", "FORMASYON_DESTEK", "RISK_KONTROLLU", "PARA_GIRISI"]
 }
