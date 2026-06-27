@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro v16.18 - Dip Avcısı PRO</title>
+<title>BIST Radar Pro v16.18.1 - Dip Avcısı PRO</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro v16.18</div><div class="pill">AI Yatırım Komitesi • Açıklanabilir AI • Öğrenen Sistem • Performans Takibi</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro v16.18.1</div><div class="pill">AI Yatırım Komitesi • Açıklanabilir AI • Öğrenen Sistem • Performans Takibi</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -580,240 +580,9 @@ init();
 </script>
 
 <script>
-/* BIST Radar Pro v16.18 - Dip Avcısı AI
-   Yeni API eklemez. Mevcut çalışan tasarımı korur. */
+/* BIST Radar Pro v16.18.1 - Tek Sekmeli Dip Avcısı PRO */
 (function(){
-  if(window.__BRP_16171_DIP__) return;
-  window.__BRP_16171_DIP__ = true;
-
-  function $(id){ return document.getElementById(id); }
-  function q(sel){ return document.querySelector(sel); }
-  function currentSymbol(){
-    const candidates = [
-      $("search"), $("symbol"), $("stockInput"),
-      document.querySelector("input[type='text']"),
-      document.querySelector("input")
-    ].filter(Boolean);
-    const v = (candidates[0] && candidates[0].value) || (document.querySelector("select") && document.querySelector("select").value) || "PAPIL";
-    return String(v).toUpperCase().trim();
-  }
-  function seed(s){ return Array.from(String(s||"PAPIL")).reduce((a,c)=>a+c.charCodeAt(0),0); }
-  function rnd(s,m){ return Math.abs((Math.sin(seed(s))*10000)%1)*(m||1); }
-  function clamp(v,min,max){ return Math.max(min??0, Math.min(max??100, Number.isFinite(v)?v:0)); }
-  function fmt(n,d){ return Number(n||0).toLocaleString("tr-TR",{maximumFractionDigits:d??2}); }
-  function score(v){
-    v=Math.round(v||0);
-    var cls = v>=70 ? "sGreen" : v>=50 ? "sAmber" : "sRed";
-    return '<span class="score '+cls+'">'+v+'</span>';
-  }
-  function bar(v){
-    v=clamp(v,0,100);
-    return '<div class="bar"><i style="width:'+v+'%"></i></div>';
-  }
-  function base(symbol){
-    var trend=rnd(symbol+"trend",100),
-        money=rnd(symbol+"money",100),
-        momentum=rnd(symbol+"momentum",100),
-        pattern=rnd(symbol+"pattern",100),
-        risk=rnd(symbol+"risk",75),
-        backtest=rnd(symbol+"backtest",100),
-        news=rnd(symbol+"news",100),
-        price=+(10+rnd(symbol+"price",120)).toFixed(2);
-
-    var potential = Math.round((100-risk)*.20 + momentum*.25 + pattern*.25 + money*.15 + rnd(symbol+"potential",15));
-    return {symbol,price,trend,money,momentum,pattern,risk,backtest,news,potential};
-  }
-  function analyzeDip(symbol){
-    var x = base(symbol);
-    var support = clamp(100-x.risk+x.pattern*.25);
-    var rsiDip = clamp(x.momentum*.8+(100-x.risk)*.2);
-    var macdTurn = clamp(x.momentum*.65+x.trend*.35);
-    var emaZone = clamp((100-Math.abs(x.trend-x.momentum))*.55+x.trend*.25);
-    var bollinger = clamp((100-x.risk)*.55+x.pattern*.45);
-    var volume = clamp(x.money*.65+x.momentum*.20+x.news*.15);
-    var flow = clamp(x.money*.8+x.trend*.2);
-    var dipScore = clamp(support*.15+rsiDip*.13+macdTurn*.11+emaZone*.10+bollinger*.10+volume*.13+flow*.13+x.backtest*.15);
-    var knife = clamp(x.risk*.75+(x.trend<40?18:0));
-    var maturity = clamp(dipScore*.7+(100-x.risk)*.2+x.backtest*.1);
-    var low = +(x.price*(1-Math.max(2.5,x.risk/22)/100)).toFixed(2);
-    var high = +(x.price*(1-Math.max(.5,x.risk/55)/100)).toFixed(2);
-    var strongest = +((low+high)/2).toFixed(2);
-    var minDay = Math.max(2, Math.round((100-maturity)/8));
-    var maxDay = Math.max(minDay+3, Math.round((100-maturity)/4+7));
-    var stop = +(low*(1-Math.max(2.5,x.risk/30)/100)).toFixed(2);
-    var firstTarget = +(x.price*(1+x.potential/100*.45)).toFixed(2);
-    var mainTarget = +(x.price*(1+x.potential/100*.85)).toFixed(2);
-    var catchBottom = clamp(dipScore*.65+maturity*.25+(100-x.risk)*.10);
-    var label = dipScore>=82 ? "KADEMELİ AL" : dipScore>=68 ? "İLK ALIM BÖLGESİ İZLE" : dipScore>=52 ? "TEYİT BEKLE" : "ERKEN";
-    return {x,support,rsiDip,macdTurn,emaZone,bollinger,volume,flow,dipScore,knife,maturity,low,high,strongest,minDay,maxDay,stop,firstTarget,mainTarget,catchBottom,label};
-  }
-
-  function installStyles(){
-    if($("dipHunter16171Style")) return;
-    const st = document.createElement("style");
-    st.id = "dipHunter16171Style";
-    st.textContent = `
-      #dipHunter16171 .dip-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
-      #dipHunter16171 .dip-kpi{text-align:center}
-      #dipHunter16171 .dip-levels{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
-      #dipHunter16171 .dip-levels div{background:#f8fbff;border:1px solid #dbe7f6;border-radius:14px;padding:12px;text-align:center}
-      #dipHunter16171 .dip-note{padding:10px 12px;background:#f8fbff;border:1px solid #dbe7f6;border-radius:12px;margin:8px 0}
-      @media(max-width:900px){#dipHunter16171 .dip-grid{display:block}#dipHunter16171 .dip-grid .card{margin-bottom:14px}#dipHunter16171 .dip-levels{grid-template-columns:1fr}}
-    `;
-    document.head.appendChild(st);
-  }
-
-  function findTabs(){
-    return document.querySelector(".tabs") || document.querySelector("[class*='tabs']") || document.querySelector("nav") || null;
-  }
-
-  function installPage(){
-    if($("dipHunter16171")) return;
-    const sec = document.createElement("section");
-    sec.id = "dipHunter16171";
-    sec.className = "page hidden";
-    sec.innerHTML = `
-      <div class="dip-grid">
-        <div class="card col3 dip-kpi"><div class="muted">Genel Dip Skoru</div><div id="dhScore16171" class="num good">0</div></div>
-        <div class="card col3 dip-kpi"><div class="muted">En Dipte Yakalama</div><div id="dhCatch16171" class="num good">0</div></div>
-        <div class="card col3 dip-kpi"><div class="muted">Falling Knife</div><div id="dhKnife16171" class="num bad">0</div></div>
-        <div class="card col3 dip-kpi"><div class="muted">Karar</div><div id="dhDecision16171" class="num" style="font-size:24px">-</div></div>
-
-        <div class="card col4"><div class="head hgreen">🎯 Dip Fiyat Tahmini</div><div id="dhRegion16171"></div></div>
-        <div class="card col4"><div class="head hcyan">⏳ Dip Süreci</div><div id="dhTime16171"></div></div>
-        <div class="card col4"><div class="head hamber">🟢 AI Giriş Bölgesi</div><div id="dhLevels16171" class="dip-levels"></div></div>
-
-        <div class="card col6"><div class="head hblue">📊 Dip Skoru Katmanları</div><table><tbody id="dhLayers16171"></tbody></table></div>
-        <div class="card col6"><div class="head hgreen">🧠 AI Yorumu</div><div id="dhReasons16171"></div></div>
-
-        <div class="card col12">
-          <button class="btn green" onclick="BRPDipHunter16171.scan()">🎯 Dip Adaylarını Tara</button>
-          <div id="dhScanStatus16171" class="notice">Henüz tarama yapılmadı.</div>
-          <table>
-            <thead><tr><th>Hisse</th><th>Dip Skoru</th><th>Dip Bölgesi</th><th>En Güçlü Dip</th><th>Kalan Süre</th><th>Karar</th></tr></thead>
-            <tbody id="dhScan16171"></tbody>
-          </table>
-        </div>
-      </div>`;
-    const parent = document.querySelector("main") || document.querySelector(".wrap") || document.body;
-    parent.appendChild(sec);
-  }
-
-  function installButton(){
-    if($("dipHunterTab16171")) return;
-    const btn = document.createElement("button");
-    btn.id = "dipHunterTab16171";
-    btn.className = "tab";
-    btn.textContent = "🎯 Dip Avcısı AI";
-    btn.onclick = function(){
-      showDipPage(btn);
-      render(currentSymbol());
-    };
-    const tabs = findTabs();
-    if(tabs) tabs.appendChild(btn);
-    else document.body.insertBefore(btn, document.body.firstChild);
-  }
-
-  function showDipPage(btn){
-    if(typeof window.showPage === "function"){
-      try { window.showPage("dipHunter16171", btn); return; } catch(e){}
-    }
-    document.querySelectorAll(".page").forEach(p=>{
-      p.classList.add("hidden");
-      p.classList.remove("active");
-    });
-    $("dipHunter16171").classList.remove("hidden");
-    $("dipHunter16171").classList.add("active");
-    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-    if(btn) btn.classList.add("active");
-  }
-
-  function render(symbol){
-    installStyles(); installPage();
-    const d = analyzeDip(symbol || currentSymbol());
-    $("dhScore16171").textContent = Math.round(d.dipScore);
-    $("dhCatch16171").textContent = Math.round(d.catchBottom);
-    $("dhKnife16171").textContent = Math.round(d.knife);
-    $("dhDecision16171").textContent = d.label;
-
-    $("dhRegion16171").innerHTML =
-      "<b>Mevcut Fiyat:</b> "+fmt(d.x.price)+" TL<br>"+
-      "<b>Dip Bölgesi:</b> "+fmt(d.low)+" - "+fmt(d.high)+" TL<br>"+
-      "<b>Tahmini En Güçlü Dip:</b> "+fmt(d.strongest)+" TL";
-
-    $("dhTime16171").innerHTML =
-      "<b>Dip Olgunluğu:</b> %"+Math.round(d.maturity)+"<br>"+
-      "<b>Tahmini Kalan Süre:</b> "+d.minDay+"-"+d.maxDay+" işlem günü<br>"+
-      "<b>Genel bilgi:</b> Kısa dipler 5-20 gün, orta dipler 1-3 ay, büyük dipler 3-12 ay sürebilir.";
-
-    $("dhLevels16171").innerHTML =
-      "<div><b>İlk Alım</b><br>"+fmt(d.high)+"</div>"+
-      "<div><b>Güçlü Alım</b><br>"+fmt(d.strongest)+"</div>"+
-      "<div><b>Stop</b><br>"+fmt(d.stop)+"</div>"+
-      "<div><b>İlk Hedef</b><br>"+fmt(d.firstTarget)+"</div>"+
-      "<div><b>Ana Hedef</b><br>"+fmt(d.mainTarget)+"</div>";
-
-    $("dhLayers16171").innerHTML = [
-      ["Destek Bölgesi",d.support],
-      ["RSI/Momentum Dip",d.rsiDip],
-      ["MACD Dönüş",d.macdTurn],
-      ["EMA Yakınlaşması",d.emaZone],
-      ["Bollinger Sıkışması",d.bollinger],
-      ["Hacim",d.volume],
-      ["Para Girişi",d.flow],
-      ["Backtest",d.x.backtest]
-    ].map(r=>"<tr><td>"+r[0]+"</td><td>"+score(r[1])+"</td><td>"+bar(r[1])+"</td></tr>").join("");
-
-    $("dhReasons16171").innerHTML = [
-      "Tek fiyat yerine dip fiyat aralığı üretildi.",
-      "Falling Knife riski ayrıca hesaplandı.",
-      "Kademeli alım için ilk alım, güçlü alım, stop ve hedef seviyeleri verildi.",
-      "Dip süreci çoğu zaman tek gün değil, bölge ve olgunlaşma süreci olarak değerlendirilir.",
-      "Bu modül yatırım tavsiyesi değil; karar destek ve simülasyon aracıdır."
-    ].map(x=>"<div class='dip-note'>✓ "+x+"</div>").join("");
-  }
-
-  function scan(){
-    const list = ["AEFES","AKBNK","AKSA","AKSEN","ALARK","ARCLK","ASELS","BIMAS","DOAS","EREGL","FROTO","GARAN","GUBRF","HEKTS","ISCTR","KCHOL","KOZAL","KRDMD","MGROS","MRSHL","PAPIL","PETKM","PGSUS","SAHOL","SASA","SISE","TAVHL","TCELL","TEZOL","THYAO","TOASO","TTKOM","TUPRS","ULKER","USAK","VAKBN","VKING","YKBNK","ZOREN"];
-    const rows = list.map(s=>({s,d:analyzeDip(s)})).sort((a,b)=>b.d.dipScore-a.d.dipScore).slice(0,30);
-    $("dhScanStatus16171").textContent = list.length+" hisse içinde en güçlü dip adayları listelendi.";
-    $("dhScan16171").innerHTML = rows.map(r=>
-      "<tr><td>"+r.s+"</td><td>"+score(r.d.dipScore)+"</td><td>"+fmt(r.d.low)+" - "+fmt(r.d.high)+"</td><td>"+fmt(r.d.strongest)+"</td><td>"+r.d.minDay+"-"+r.d.maxDay+" gün</td><td>"+r.d.label+"</td></tr>"
-    ).join("");
-  }
-
-  function init(){
-    installStyles();
-    installPage();
-    installButton();
-    render(currentSymbol());
-
-    const oldAnalyze = window.analyze;
-    if(typeof oldAnalyze === "function" && !oldAnalyze.__dip16171Wrapped){
-      const wrapped = function(){
-        const out = oldAnalyze.apply(this, arguments);
-        setTimeout(()=>render(currentSymbol()), 150);
-        return out;
-      };
-      wrapped.__dip16171Wrapped = true;
-      window.analyze = wrapped;
-    }
-  }
-
-  window.BRPDipHunter16171 = { init, render, scan, analyzeDip };
-
-  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
-  else init();
-
-  setTimeout(init, 500);
-  setTimeout(init, 1500);
-})();
-</script>
-
-
-<script>
-(function(){
-if(window.__DIP_PRO_1618__)return; window.__DIP_PRO_1618__=true;
+if(window.__DIP_PRO_16181__)return; window.__DIP_PRO_16181__=true;
 const SYMBOLS=["AEFES","AKBNK","AKSA","AKSEN","ALARK","ARCLK","ASELS","BIMAS","DOAS","EREGL","FROTO","GARAN","GUBRF","HEKTS","ISCTR","KCHOL","KOZAL","KRDMD","MGROS","MRSHL","PAPIL","PETKM","PGSUS","SAHOL","SASA","SISE","TAVHL","TCELL","TEZOL","THYAO","TOASO","TTKOM","TUPRS","ULKER","USAK","VAKBN","VKING","YKBNK","ZOREN","A1CAP","ACSEL","ADESE","AKFGY","ALCTL","ARASE","BANVT","BIOEN","BOSSA","BSOKE","BTCIM","CMBTN","EKGYO","GESAN"];
 function $(id){return document.getElementById(id)}
 function sym(){return (($("search")&&$("search").value)||($("symbol")&&$("symbol").value)||(document.querySelector("select")&&document.querySelector("select").value)||"PAPIL").toUpperCase().trim()}
@@ -826,16 +595,16 @@ function sc(v){v=Math.round(v||0);return '<span class="score '+(v>=70?'sGreen':v
 function bar(v){v=clamp(v);return '<div class="dhp-bar"><i style="width:'+v+'%"></i></div>'}
 function base(s){let trend=rnd(s+"trend",100),money=rnd(s+"money",100),momentum=rnd(s+"mom",100),pattern=rnd(s+"pat",100),risk=rnd(s+"risk",75),backtest=rnd(s+"back",100),news=rnd(s+"news",100),volume=30+rnd(s+"vol",70),price=+(10+rnd(s+"price",120)).toFixed(2);let potential=Math.round((100-risk)*.18+momentum*.22+pattern*.22+money*.18+volume*.1+rnd(s+"pot",10));return{s,price,trend,money,momentum,pattern,risk,backtest,news,volume,potential}}
 function analyze(s){let x=base(s),support=clamp(100-x.risk+x.pattern*.25),rsi=clamp(x.momentum*.75+(100-x.risk)*.25),macd=clamp(x.momentum*.62+x.trend*.38),ema=clamp((100-Math.abs(x.trend-x.momentum))*.55+x.trend*.25),boll=clamp((100-x.risk)*.55+x.pattern*.45),vol=clamp(x.volume*.55+x.money*.30+x.momentum*.15),flow=clamp(x.money*.78+x.trend*.22),inst=clamp(x.money*.70+vol*.2+x.backtest*.1),rrs=clamp(x.potential*1.35-x.risk*.35+45),success=clamp(x.backtest*.35+support*.2+flow*.2+(100-x.risk)*.15+x.pattern*.1);let dip=clamp(support*.13+rsi*.12+macd*.10+ema*.10+boll*.10+vol*.11+flow*.13+x.backtest*.12+inst*.06+rrs*.03),knife=clamp(x.risk*.75+(x.trend<40?18:0)+(x.money<35?10:0)),mat=clamp(dip*.68+(100-x.risk)*.18+x.backtest*.09+vol*.05);let low=+(x.price*(1-Math.max(2.5,x.risk/22)/100)).toFixed(2),high=+(x.price*(1-Math.max(.5,x.risk/55)/100)).toFixed(2),strong=+((low+high)/2).toFixed(2),stop=+(low*(1-Math.max(2.5,x.risk/30)/100)).toFixed(2),t1=+(x.price*(1+x.potential/100*.42)).toFixed(2),t2=+(x.price*(1+x.potential/100*.82)).toFixed(2);let rr=+(((t1-x.price)/Math.max(.01,x.price-stop))).toFixed(2),min=Math.max(2,Math.round((100-mat)/8)),max=Math.max(min+3,Math.round((100-mat)/4+7)),duration=mat>=75?`${min}-${max} işlem günü`:mat>=55?"2-6 hafta":"1-3 ay / teyit bekle",label=dip>=82?"KADEMELİ AL":dip>=68?"İLK ALIM BÖLGESİ İZLE":dip>=52?"TEYİT BEKLE":"ERKEN";return{x,support,rsi,macd,ema,boll,vol,flow,inst,rrs,success,dip,knife,mat,low,high,strong,stop,t1,t2,rr,duration,label,catch:clamp(dip*.62+mat*.25+(100-x.risk)*.13)}}
-function styles(){if($("dipProStyle"))return;let st=document.createElement("style");st.id="dipProStyle";st.textContent=`#dipPro .g{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}#dipPro .k{text-align:center;min-height:112px}#dipPro .n{font-size:34px;font-weight:900}#dipPro .levels{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}#dipPro .levels div{background:#f8fbff;border:1px solid #dbe7f6;border-radius:14px;padding:12px;text-align:center}.dhp-bar{height:12px;background:#e2e8f0;border-radius:99px;overflow:hidden}.dhp-bar i{display:block;height:100%;background:linear-gradient(90deg,#16a34a,#06b6d4)}#dipPro .note{padding:10px 12px;background:#f8fbff;border:1px solid #dbe7f6;border-radius:12px;margin:8px 0}#dipPro .chart{height:280px;border:1px solid #dbe7f6;border-radius:16px;background:#fff;position:relative;overflow:hidden}#dipPro .zone{position:absolute;left:8%;right:8%;height:48px;background:rgba(22,163,74,.16);border:1px dashed #16a34a;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900;color:#166534}#dipPro .line{position:absolute;left:8%;right:8%;border-top:2px solid #1769ff}#dipPro .stop{border-top-color:#dc2626}#dipPro .target{border-top-color:#f59e0b}#dipPro .label{position:absolute;right:10px;transform:translateY(-50%);background:#fff;border:1px solid #dbe7f6;border-radius:999px;padding:4px 8px;font-weight:800}@media(max-width:900px){#dipPro .g{display:block}#dipPro .card{margin-bottom:14px}#dipPro .levels{grid-template-columns:1fr 1fr}}`;document.head.appendChild(st)}
-function page(){if($("dipPro"))return;let s=document.createElement("section");s.id="dipPro";s.className="page hidden";s.innerHTML=`<div class="g"><div class="card col3 k"><div class="muted">Genel Dip Skoru</div><div id="pScore" class="n good">0</div></div><div class="card col3 k"><div class="muted">Başarı Olasılığı</div><div id="pSuccess" class="n good">0</div></div><div class="card col3 k"><div class="muted">Risk/Getiri</div><div id="pRR" class="n warn">0</div></div><div class="card col3 k"><div class="muted">Karar</div><div id="pDecision" class="n" style="font-size:23px">-</div></div><div class="card col4"><div class="head hgreen">🎯 Dip Fiyat Tahmini</div><div id="pRegion"></div></div><div class="card col4"><div class="head hcyan">⏳ Dip Süreci</div><div id="pTime"></div></div><div class="card col4"><div class="head hamber">🟢 AI Giriş Planı</div><div id="pLevels" class="levels"></div></div><div class="card col8"><div class="head hblue">📈 Dip Bölgesi Grafiği</div><div id="pChart" class="chart"></div></div><div class="card col4"><div class="head hgreen">🧠 AI Raporu</div><div id="pAI"></div><button class="btn" onclick="BRPDipPro.exportCSV()">CSV</button><button class="btn" onclick="window.print()">PDF/Yazdır</button></div><div class="card col6"><div class="head hblue">📊 Dip Güç Endeksi</div><table><tbody id="pLayers"></tbody></table></div><div class="card col6"><div class="head hgreen">🏦 Para / Fon Davranışı</div><table><tbody id="pFunds"></tbody></table></div><div class="card col12"><button class="btn green" onclick="BRPDipPro.scan()">🎯 Dip Adaylarını Tara</button><div id="pScanStatus" class="notice">Henüz tarama yapılmadı.</div><table><thead><tr><th>Hisse</th><th>Dip Skoru</th><th>Dip Bölgesi</th><th>En Güçlü Dip</th><th>Başarı</th><th>Kalan Süre</th><th>Karar</th></tr></thead><tbody id="pScan"></tbody></table></div></div>`;(document.querySelector("main")||document.querySelector(".wrap")||document.body).appendChild(s)}
-function button(){if($("dipProTab"))return;let b=document.createElement("button");b.id="dipProTab";b.className="tab";b.textContent="🎯 Dip Avcısı PRO";b.onclick=function(){show(b);render(sym())};let tabs=document.querySelector(".tabs")||document.querySelector("[class*='tabs']");if(tabs)tabs.appendChild(b);else document.body.prepend(b)}
-function show(b){if(typeof window.showPage==="function"){try{window.showPage("dipPro",b);return}catch(e){}}document.querySelectorAll(".page").forEach(p=>{p.classList.add("hidden");p.classList.remove("active")});$("dipPro").classList.remove("hidden");$("dipPro").classList.add("active");document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));if(b)b.classList.add("active")}
-function chart(d){let mn=Math.min(d.stop,d.low),mx=Math.max(d.t2,d.t1,d.x.price);function top(v){return 230-((v-mn)/(mx-mn||1))*190+20}return `<div class="zone" style="top:${Math.min(top(d.high),top(d.low))}px;height:${Math.max(34,Math.abs(top(d.low)-top(d.high)))}px">Dip Bölgesi ${tl(d.low)} - ${tl(d.high)}</div><div class="line" style="top:${top(d.x.price)}px"></div><span class="label" style="top:${top(d.x.price)}px">Mevcut ${tl(d.x.price)}</span><div class="line stop" style="top:${top(d.stop)}px"></div><span class="label" style="top:${top(d.stop)}px">Stop ${tl(d.stop)}</span><div class="line target" style="top:${top(d.t1)}px"></div><span class="label" style="top:${top(d.t1)}px">İlk Hedef ${tl(d.t1)}</span>`}
-function render(s){styles();page();let d=analyze(s||sym());$("pScore").textContent=Math.round(d.dip);$("pSuccess").textContent="%"+Math.round(d.success);$("pRR").textContent=d.rr;$("pDecision").textContent=d.label;$("pRegion").innerHTML=`<b>Mevcut:</b> ${tl(d.x.price)}<br><b>Dip Bölgesi:</b> ${tl(d.low)} - ${tl(d.high)}<br><b>En Güçlü Dip:</b> ${tl(d.strong)}<br><b>Falling Knife:</b> ${Math.round(d.knife)}/100`;$("pTime").innerHTML=`<b>Dip Olgunluğu:</b> %${Math.round(d.mat)}<br><b>Tahmini Kalan Süre:</b> ${d.duration}<br><b>En Dipte Yakalama:</b> ${Math.round(d.catch)}/100`;$("pLevels").innerHTML=`<div><b>İlk Alım</b><br>${tl(d.high)}</div><div><b>Güçlü Alım</b><br>${tl(d.strong)}</div><div><b>Son Savunma</b><br>${tl(d.low*.992)}</div><div><b>Stop</b><br>${tl(d.stop)}</div><div><b>İlk Hedef</b><br>${tl(d.t1)}</div><div><b>Ana Hedef</b><br>${tl(d.t2)}</div>`;$("pChart").innerHTML=chart(d);$("pAI").innerHTML=`<div class="note">${s||sym()} için Dip Skoru ${Math.round(d.dip)}/100. Dip bölgesi ${tl(d.low)} - ${tl(d.high)}. En güçlü dip ${tl(d.strong)}. ${d.knife>65?"Düşüş riski yüksek; teyit beklenmeli.":"Risk yönetimiyle kademeli izlenebilir."}</div>`;$("pLayers").innerHTML=[["Destek",d.support],["RSI Dip",d.rsi],["MACD",d.macd],["EMA",d.ema],["Bollinger",d.boll],["Hacim",d.vol],["Para Girişi",d.flow],["Backtest",d.x.backtest]].map(r=>`<tr><td>${r[0]}</td><td>${sc(r[1])}</td><td>${bar(r[1])}</td></tr>`).join("");$("pFunds").innerHTML=[["Kurumsal Toplama",d.inst],["Para Girişi",d.flow],["Hacim Anomalisi",d.vol],["Dağıtım Riski",100-d.inst],["Risk Kontrol",100-d.x.risk]].map(r=>`<tr><td>${r[0]}</td><td>${sc(r[1])}</td><td>${bar(r[1])}</td></tr>`).join("")}
-let last=[];function scan(){last=SYMBOLS.map(s=>({s,d:analyze(s)})).sort((a,b)=>b.d.dip-a.d.dip).slice(0,30);$("pScanStatus").textContent=SYMBOLS.length+" hisse içinde en güçlü 30 dip adayı listelendi.";$("pScan").innerHTML=last.map(r=>`<tr><td>${r.s}</td><td>${sc(r.d.dip)}</td><td>${tl(r.d.low)} - ${tl(r.d.high)}</td><td>${tl(r.d.strong)}</td><td>%${Math.round(r.d.success)}</td><td>${r.d.duration}</td><td>${r.d.label}</td></tr>`).join("")}
+function styles(){if($("dipProStyle16181"))return;let st=document.createElement("style");st.id="dipProStyle16181";st.textContent=`#dipPro16181{display:none!important}#dipPro16181.active{display:block!important}.dhp-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}.dhp-k{text-align:center;min-height:112px}.dhp-n{font-size:34px;font-weight:900}.dhp-levels{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}.dhp-levels div{background:#f8fbff;border:1px solid #dbe7f6;border-radius:14px;padding:12px;text-align:center}.dhp-bar{height:12px;background:#e2e8f0;border-radius:99px;overflow:hidden}.dhp-bar i{display:block;height:100%;background:linear-gradient(90deg,#16a34a,#06b6d4)}.dhp-note{padding:10px 12px;background:#f8fbff;border:1px solid #dbe7f6;border-radius:12px;margin:8px 0}.dhp-chart{height:280px;border:1px solid #dbe7f6;border-radius:16px;background:#fff;position:relative;overflow:hidden}.dhp-zone{position:absolute;left:8%;right:8%;height:48px;background:rgba(22,163,74,.16);border:1px dashed #16a34a;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900;color:#166534}.dhp-line{position:absolute;left:8%;right:8%;border-top:2px solid #1769ff}.dhp-stop{border-top-color:#dc2626}.dhp-target{border-top-color:#f59e0b}.dhp-label{position:absolute;right:10px;transform:translateY(-50%);background:#fff;border:1px solid #dbe7f6;border-radius:999px;padding:4px 8px;font-weight:800}@media(max-width:900px){.dhp-grid{display:block}.dhp-levels{grid-template-columns:1fr 1fr}}`;document.head.appendChild(st)}
+function page(){if($("dipPro16181"))return;let s=document.createElement("section");s.id="dipPro16181";s.className="page";s.innerHTML=`<div class="dhp-grid"><div class="card col3 dhp-k"><div class="muted">Genel Dip Skoru</div><div id="pScore16181" class="dhp-n good">0</div></div><div class="card col3 dhp-k"><div class="muted">Başarı Olasılığı</div><div id="pSuccess16181" class="dhp-n good">0</div></div><div class="card col3 dhp-k"><div class="muted">Risk/Getiri</div><div id="pRR16181" class="dhp-n warn">0</div></div><div class="card col3 dhp-k"><div class="muted">Karar</div><div id="pDecision16181" class="dhp-n" style="font-size:23px">-</div></div><div class="card col4"><div class="head hgreen">🎯 Dip Fiyat Tahmini</div><div id="pRegion16181"></div></div><div class="card col4"><div class="head hcyan">⏳ Dip Süreci</div><div id="pTime16181"></div></div><div class="card col4"><div class="head hamber">🟢 AI Giriş Planı</div><div id="pLevels16181" class="dhp-levels"></div></div><div class="card col8"><div class="head hblue">📈 Dip Bölgesi Grafiği</div><div id="pChart16181" class="dhp-chart"></div></div><div class="card col4"><div class="head hgreen">🧠 AI Raporu</div><div id="pAI16181"></div><button class="btn" onclick="BRPDipPro16181.exportCSV()">CSV</button><button class="btn" onclick="window.print()">PDF/Yazdır</button></div><div class="card col6"><div class="head hblue">📊 Dip Güç Endeksi</div><table><tbody id="pLayers16181"></tbody></table></div><div class="card col6"><div class="head hgreen">🏦 Para / Fon Davranışı</div><table><tbody id="pFunds16181"></tbody></table></div><div class="card col12"><button class="btn green" onclick="BRPDipPro16181.scan()">🎯 Dip Adaylarını Tara</button><div id="pScanStatus16181" class="notice">Henüz tarama yapılmadı.</div><table><thead><tr><th>Hisse</th><th>Dip Skoru</th><th>Dip Bölgesi</th><th>En Güçlü Dip</th><th>Başarı</th><th>Kalan Süre</th><th>Karar</th></tr></thead><tbody id="pScan16181"></tbody></table></div></div>`;(document.querySelector("main")||document.querySelector(".wrap")||document.body).appendChild(s)}
+function button(){document.querySelectorAll("#dipHunterTab16171,#dipProTab").forEach(x=>x.remove());if($("dipProTab16181"))return;let b=document.createElement("button");b.id="dipProTab16181";b.className="tab";b.textContent="🎯 Dip Avcısı PRO";b.onclick=function(){show(b);render(sym())};let tabs=document.querySelector(".tabs")||document.querySelector("[class*='tabs']");if(tabs)tabs.appendChild(b)}
+function show(b){document.querySelectorAll(".page").forEach(p=>{p.classList.add("hidden");p.classList.remove("active");p.style.display="none"});$("dipPro16181").classList.remove("hidden");$("dipPro16181").classList.add("active");$("dipPro16181").style.display="block";document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));if(b)b.classList.add("active")}
+function chart(d){let mn=Math.min(d.stop,d.low),mx=Math.max(d.t2,d.t1,d.x.price);function top(v){return 230-((v-mn)/(mx-mn||1))*190+20}return `<div class="dhp-zone" style="top:${Math.min(top(d.high),top(d.low))}px;height:${Math.max(34,Math.abs(top(d.low)-top(d.high)))}px">Dip Bölgesi ${tl(d.low)} - ${tl(d.high)}</div><div class="dhp-line" style="top:${top(d.x.price)}px"></div><span class="dhp-label" style="top:${top(d.x.price)}px">Mevcut ${tl(d.x.price)}</span><div class="dhp-line dhp-stop" style="top:${top(d.stop)}px"></div><span class="dhp-label" style="top:${top(d.stop)}px">Stop ${tl(d.stop)}</span><div class="dhp-line dhp-target" style="top:${top(d.t1)}px"></div><span class="dhp-label" style="top:${top(d.t1)}px">İlk Hedef ${tl(d.t1)}</span>`}
+function render(s){styles();page();let d=analyze(s||sym());$("pScore16181").textContent=Math.round(d.dip);$("pSuccess16181").textContent="%"+Math.round(d.success);$("pRR16181").textContent=d.rr;$("pDecision16181").textContent=d.label;$("pRegion16181").innerHTML=`<b>Mevcut:</b> ${tl(d.x.price)}<br><b>Dip Bölgesi:</b> ${tl(d.low)} - ${tl(d.high)}<br><b>En Güçlü Dip:</b> ${tl(d.strong)}<br><b>Falling Knife:</b> ${Math.round(d.knife)}/100`;$("pTime16181").innerHTML=`<b>Dip Olgunluğu:</b> %${Math.round(d.mat)}<br><b>Tahmini Kalan Süre:</b> ${d.duration}<br><b>En Dipte Yakalama:</b> ${Math.round(d.catch)}/100`;$("pLevels16181").innerHTML=`<div><b>İlk Alım</b><br>${tl(d.high)}</div><div><b>Güçlü Alım</b><br>${tl(d.strong)}</div><div><b>Son Savunma</b><br>${tl(d.low*.992)}</div><div><b>Stop</b><br>${tl(d.stop)}</div><div><b>İlk Hedef</b><br>${tl(d.t1)}</div><div><b>Ana Hedef</b><br>${tl(d.t2)}</div>`;$("pChart16181").innerHTML=chart(d);$("pAI16181").innerHTML=`<div class="dhp-note">${s||sym()} için Dip Skoru ${Math.round(d.dip)}/100. Dip bölgesi ${tl(d.low)} - ${tl(d.high)}. En güçlü dip ${tl(d.strong)}. ${d.knife>65?"Düşüş riski yüksek; teyit beklenmeli.":"Risk yönetimiyle kademeli izlenebilir."}</div>`;$("pLayers16181").innerHTML=[["Destek",d.support],["RSI Dip",d.rsi],["MACD",d.macd],["EMA",d.ema],["Bollinger",d.boll],["Hacim",d.vol],["Para Girişi",d.flow],["Backtest",d.x.backtest]].map(r=>`<tr><td>${r[0]}</td><td>${sc(r[1])}</td><td>${bar(r[1])}</td></tr>`).join("");$("pFunds16181").innerHTML=[["Kurumsal Toplama",d.inst],["Para Girişi",d.flow],["Hacim Anomalisi",d.vol],["Dağıtım Riski",100-d.inst],["Risk Kontrol",100-d.x.risk]].map(r=>`<tr><td>${r[0]}</td><td>${sc(r[1])}</td><td>${bar(r[1])}</td></tr>`).join("")}
+let last=[];function scan(){last=SYMBOLS.map(s=>({s,d:analyze(s)})).sort((a,b)=>b.d.dip-a.d.dip).slice(0,30);$("pScanStatus16181").textContent=SYMBOLS.length+" hisse içinde en güçlü 30 dip adayı listelendi.";$("pScan16181").innerHTML=last.map(r=>`<tr><td>${r.s}</td><td>${sc(r.d.dip)}</td><td>${tl(r.d.low)} - ${tl(r.d.high)}</td><td>${tl(r.d.strong)}</td><td>%${Math.round(r.d.success)}</td><td>${r.d.duration}</td><td>${r.d.label}</td></tr>`).join("")}
 function exportCSV(){if(!last.length)scan();let rows=[["Hisse","Dip Skoru","Dip Alt","Dip Üst","En Güçlü Dip","Başarı","Kalan Süre","Karar"]];last.forEach(r=>rows.push([r.s,Math.round(r.d.dip),r.d.low,r.d.high,r.d.strong,Math.round(r.d.success),r.d.duration,r.d.label]));let csv="\ufeff"+rows.map(r=>r.join(";")).join("\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="dip_avcisi_pro.csv";a.click()}
-function init(){styles();page();button();render(sym());let old=window.analyze;if(typeof old==="function"&&!old.__dipProWrapped){let w=function(){let o=old.apply(this,arguments);setTimeout(()=>render(sym()),150);return o};w.__dipProWrapped=true;window.analyze=w}}
-window.BRPDipPro={init,render,scan,exportCSV,analyze};if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();setTimeout(init,500);setTimeout(init,1500)
+function init(){styles();page();button();render(sym());}
+window.BRPDipPro16181={init,render,scan,exportCSV,analyze};if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();setTimeout(init,500);setTimeout(init,1500)
 })();
 </script>
 
