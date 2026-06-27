@@ -1,4 +1,0 @@
-import {getSymbols,getOhlcv} from '../lib/provider.js';
-import {analyze} from '../lib/engine.js';
-import {buildDipPro} from '../lib/dip-pro-engine.js';
-export default async function handler(req,res){const offset=Math.max(0,Number(req.query.offset||0));const limit=Math.min(4,Math.max(1,Number(req.query.limit||4)));try{const all=await getSymbols();const symbols=all.slice(offset,offset+limit);const data=[];for(const symbol of symbols){try{const rows=await getOhlcv(symbol,'1y','1d');const a=analyze(rows);data.push(buildDipPro(symbol,a));}catch(e){data.push({symbol,error:e.message,scores:{general:0},dipRegion:{strongest:0},maturity:{remaining:'Veri yok'},decision:'VERİ YOK'});}}res.status(200).json({success:true,total:all.length,offset,limit,count:data.length,nextOffset:offset+symbols.length,done:offset+symbols.length>=all.length,data})}catch(e){res.status(200).json({success:false,error:e.message,total:0,data:[],done:true})}}
