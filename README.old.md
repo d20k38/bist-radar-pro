@@ -1,4 +1,4 @@
-# BIST Radar Pro v17.0.1.4 - Formasyon Motoru
+# BIST Radar Pro v16.4 - Formasyon Motoru
 
 Bu sürüm V16.3 üzerine formasyon motoru ekler.
 

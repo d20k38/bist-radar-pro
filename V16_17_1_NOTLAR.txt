@@ -1,0 +1,20 @@
+BIST Radar Pro v16.17.1
+
+Bu sürüm mevcut çalışan v16.17 yapısını korur ve yalnızca Dip Avcısı AI modülünü ekler.
+
+Önemli:
+- Yeni api/*.js dosyası eklenmedi.
+- Vercel Hobby serverless function sınırı aşılmaz.
+- Mevcut tasarım korunur.
+- Dip Avcısı AI istemci tarafında index.html sonundaki güvenli modül olarak çalışır.
+
+Mevcut api/*.js sayısı: 10
+
+Eklenen:
+- Menüde 🎯 Dip Avcısı AI
+- Dip fiyat aralığı
+- Tahmini en güçlü dip
+- Dip olgunluğu / kalan süre
+- Falling Knife riski
+- İlk alım / güçlü alım / stop / hedef
+- Dip adayları taraması
