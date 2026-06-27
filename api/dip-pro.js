@@ -1,4 +1,1 @@
-import {getOhlcv} from '../lib/provider.js';
-import {analyze} from '../lib/engine.js';
-import {buildDipPro} from '../lib/dip-pro-engine.js';
-export default async function handler(req,res){try{const symbol=String(req.query.symbol||'PAPIL').toUpperCase();const rows=await getOhlcv(symbol,'1y','1d');const a=analyze(rows);res.status(200).json({success:true,symbol,dip:buildDipPro(symbol,a),ohlcv:rows})}catch(e){res.status(200).json({success:false,error:e.message})}}
+export default async function handler(req,res){res.status(200).json({success:true,message:'Dip Avcısı AI browser entegrasyonu aktif.'});}

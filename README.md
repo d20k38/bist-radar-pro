@@ -37,12 +37,3 @@ Eklenen Altın Modül:
 
 Yeni endpoint:
 - `/api/committee?symbol=PAPIL`
-
-
-## V17.3 entegre güncelleme
-- Mevcut V16.17 tasarım ve çalışan modüller korunmuştur.
-- Yeni sekme: 🎯 Dip Avcısı AI Pro
-- Yeni sekme: 🏛️ Komite 2.0
-- Yeni API: api/dip-pro.js, api/dip-scan.js, api/committee2.js
-- Yeni motor: lib/dip-pro-engine.js
-- Dip fiyat bölgesi, en güçlü dip, kalan süre, senaryolar, giriş/stop/hedef ve fon davranışı eklendi.
