@@ -5,7 +5,7 @@
 Bu sürüm yeni özellik eklemez. Amaç, mevcut çalışan ana projeyi bozmadan V17 geliştirme altyapısını hazırlamaktır.
 
 ### Yapılanlar
-- Tüm kaynak dosyalarda `v16.17` metinleri `v17.0.1` olarak değiştirildi.
+- Tüm kaynak dosyalarda `v17.0.2` metinleri `v17.0.1` olarak değiştirildi.
 - Başlık JavaScript tarafından tekrar eski sürüme çekilmesin diye runtime sürüm sabitleyici eklendi.
 - `config/version.js` eklendi.
 - `config/menu.js` eklendi.

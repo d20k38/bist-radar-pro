@@ -3,7 +3,7 @@
 Bu paket, GitHub'dan indirilen gerçek çalışan ana proje temel alınarak hazırlanmıştır.
 
 ## Amaç
-v16.17'de takılı kalma sorununu çözmek ve V17 modüler geliştirme altyapısını oluşturmak.
+v17.0.2'de takılı kalma sorununu çözmek ve V17 modüler geliştirme altyapısını oluşturmak.
 
 ## Yeni klasörler
 - `config/`

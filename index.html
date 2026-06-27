@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro v17.0.1 Kaynak Kod Refaktörü</title>
+<title>BIST Radar Pro v17.0.2 Başlık Fix</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 
@@ -239,6 +239,39 @@
   setTimeout(applyV1701, 100);
   setTimeout(applyV1701, 500);
   setTimeout(applyV1701, 1500);
+})();
+</script>
+
+
+<script>
+/* V17.0.2 Başlık Fix: Sayfa hangi JS ile render edilirse edilsin başlığı v17 yapar */
+(function(){
+  const APP_LABEL = "BIST Radar Pro v17.0.2";
+  function fixTextNode(node){
+    if(!node || !node.nodeValue) return;
+    if(node.nodeValue.includes("BIST Radar Pro v16.17") || node.nodeValue.includes("BIST Radar Pro v16")){
+      node.nodeValue = node.nodeValue
+        .replace(/BIST Radar Pro v16\.17/g, APP_LABEL)
+        .replace(/BIST Radar Pro v16/g, APP_LABEL)
+        .replace(/v16\.17/g, "v17.0.2");
+    }
+  }
+  function walk(el){
+    if(!el) return;
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let n;
+    while(n = walker.nextNode()) fixTextNode(n);
+  }
+  function apply(){
+    window.BRP_APP_VERSION = "17.0.2";
+    window.BRP_APP_NAME = "BIST Radar Pro";
+    window.BRP_APP_LABEL = APP_LABEL;
+    document.title = APP_LABEL;
+    walk(document.body || document.documentElement);
+  }
+  document.addEventListener("DOMContentLoaded", apply);
+  window.addEventListener("load", apply);
+  setInterval(apply, 500);
 })();
 </script>
 
