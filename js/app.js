@@ -1,7 +1,7 @@
 
 /*
 BIST Radar Pro v17.0 Modular Stable
-Bu dosya, v16.17'deki çalışan davranışı koruyacak şekilde ana uygulama katmanıdır.
+Bu dosya, v17.0.1'deki çalışan davranışı koruyacak şekilde ana uygulama katmanıdır.
 Sonraki sürümlerde modüller aşağıdaki dosyalara taşınacaktır:
 - router.js
 - dashboard.js
@@ -18,8 +18,8 @@ Sonraki sürümlerde modüller aşağıdaki dosyalara taşınacaktır:
   function patchTitle(){
     document.title = 'BIST Radar Pro v17.0 Modular Stable';
     document.querySelectorAll('h1,h2,.title,.brand,header *').forEach(function(el){
-      if((el.textContent||'').includes('BIST Radar Pro v16.17')){
-        el.textContent = el.textContent.replace('BIST Radar Pro v16.17','BIST Radar Pro v17.0 Modular Stable');
+      if((el.textContent||'').includes('BIST Radar Pro v17.0.1')){
+        el.textContent = el.textContent.replace('BIST Radar Pro v17.0.1','BIST Radar Pro v17.0 Modular Stable');
       }
     });
   }
@@ -28,7 +28,7 @@ Sonraki sürümlerde modüller aşağıdaki dosyalara taşınacaktır:
 })();
 
 
-/* v16.17 çalışan gömülü script yedeği */
+/* v17.0.1 çalışan gömülü script yedeği */
 let chart, candleChart, candleSeries, lineSeries=[], lastRows=[], syms=[], scanCache=[], lastStock=null;
 const defaultPortfolio=[{symbol:'MRSHL',lot:286,cost:2470},{symbol:'PAPIL',lot:7000,cost:27.50},{symbol:'TEZOL',lot:6156,cost:20.96},{symbol:'USAK',lot:29222,cost:3.05},{symbol:'VKING',lot:1000,cost:55}];
 let portfolio=loadPortfolioLocal();

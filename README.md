@@ -1,18 +1,20 @@
-# BIST Radar Pro v17.0.1 - Altyapı Refaktörü
+# BIST Radar Pro v17.0.1 - Kaynak Kod Refaktörü
 
-Bu sürüm, çalışan v16.17 projesinin V17 modüler mimariye geçiş sürümüdür.
+Bu paket, GitHub'dan indirilen gerçek çalışan ana proje temel alınarak hazırlanmıştır.
+
+## Amaç
+v16.17'de takılı kalma sorununu çözmek ve V17 modüler geliştirme altyapısını oluşturmak.
+
+## Yeni klasörler
+- `config/`
+- `components/`
+- `js/modules/`
+- `docs/`
 
 ## Önemli
-Bu sürümde yeni özellik eklenmemiştir. Amaç, bundan sonraki modülleri güvenli şekilde ekleyebilmek için altyapıyı hazırlamaktır.
+Bu sürümde yeni özellik eklenmedi. Mevcut çalışan yapı korunmuştur.
 
-## Ana dosyalar
-- `config/version.js`
-- `config/menu.js`
-- `js/router.js`
-- `components/`
-- `js/`
-- `api/`
-- `lib/`
-
-## Sonraki adım
-V17.1 → 🎯 Dip Avcısı AI
+## Kurulum
+ZIP içindeki dosyaları GitHub repo kök dizinine yükleyin.
+Vercel'de redeploy yaparken build cache kullanmayın.
+Tarayıcıda Ctrl+Shift+R ile sert yenileme yapın.

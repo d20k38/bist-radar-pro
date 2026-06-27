@@ -1,26 +1,19 @@
-// BIST Radar Pro - merkezi menü tanımı
-// Yeni modüller bundan sonra buraya tek satır eklenerek menüye alınacak.
-export const MENU_ITEMS = [
-  { id: "dashboard", label: "📊 Ana Kontrol" },
-  { id: "analysis", label: "📈 Hisse Analizi" },
-  { id: "strong", label: "🔥 En Güçlü 20" },
-  { id: "safe", label: "💎 Güvenli Kazanç" },
-  { id: "opportunity", label: "🚀 Fırsat Avcısı" },
-  { id: "risk", label: "⚠️ Riskli Hisseler" },
-  { id: "patterns", label: "🔎 Formasyonlar" },
-  { id: "backtest", label: "📊 Backtest" },
-  { id: "learning", label: "🧠 Öğrenen AI" },
-  { id: "portfolio", label: "💼 Portföy" },
-  { id: "portfolioAdvice", label: "🧺 Portföy Önerisi" },
-  { id: "dailyReport", label: "📰 Günlük AI Raporu" },
-  { id: "kapNews", label: "📢 KAP/Haber AI" },
-  { id: "confidence", label: "🧩 Güven Katmanları" },
-  { id: "committee", label: "🏛 AI Yatırım Komitesi" }
-
-  // v17.1 burada açılacak:
-  // { id: "dipHunter", label: "🎯 Dip Avcısı AI" }
+// BIST Radar Pro - merkezi menü planı
+// V17.1 ve sonrası yeni modüller buraya eklenecek.
+window.BRP_MENU_PLAN = [
+  "Ana Kontrol",
+  "Hisse Analizi",
+  "En Güçlü 20",
+  "Güvenli Kazanç",
+  "Fırsat Avcısı",
+  "Riskli Hisseler",
+  "Formasyonlar",
+  "Backtest",
+  "Öğrenen AI",
+  "Portföy",
+  "Portföy Önerisi",
+  "Günlük AI Raporu",
+  "KAP/Haber AI",
+  "Güven Katmanları",
+  "AI Yatırım Komitesi"
 ];
-
-if (typeof window !== "undefined") {
-  window.BRP_MENU_ITEMS = MENU_ITEMS;
-}

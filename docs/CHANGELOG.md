@@ -1,31 +1,25 @@
 # CHANGELOG
 
-## v17.0.1 - Altyapı Refaktörü
+## v17.0.1 - Kaynak Kod Refaktörü
 
-Yeni özellik eklenmedi. Amaç, v16.17 çalışan yapıyı bozmadan V17 modüler mimarinin temelini oluşturmaktır.
+Bu sürüm yeni özellik eklemez. Amaç, mevcut çalışan ana projeyi bozmadan V17 geliştirme altyapısını hazırlamaktır.
 
 ### Yapılanlar
-- Merkezi sürüm dosyası eklendi: `config/version.js`
-- Merkezi menü dosyası eklendi: `config/menu.js`
-- Router dosyası eklendi: `js/router.js`
-- Modül dosyaları hazırlandı:
-  - `js/dashboard.js`
-  - `js/stock-analysis.js`
-  - `js/portfolio.js`
-  - `js/backtest.js`
-  - `js/learning.js`
-  - `js/kap-news.js`
-  - `js/confidence.js`
-  - `js/committee.js`
-  - `js/dip.js`
-- Component klasörü hazırlandı:
-  - `components/card.js`
-  - `components/table.js`
-  - `components/progress.js`
-  - `components/badge.js`
-- v17.1 için `api/dip.js` ve `lib/dip-engine.js` hazırlandı.
-- v17.2 için `api/committee2.js` ve `lib/committee2-engine.js` hazırlandı.
-- v16.17 başlık problemi için runtime başlık düzeltmesi eklendi.
+- Tüm kaynak dosyalarda `v16.17` metinleri `v17.0.1` olarak değiştirildi.
+- Başlık JavaScript tarafından tekrar eski sürüme çekilmesin diye runtime sürüm sabitleyici eklendi.
+- `config/version.js` eklendi.
+- `config/menu.js` eklendi.
+- `components/` klasörü hazırlandı.
+- `js/modules/` klasörü hazırlandı.
+- V17.1 için `api/dip.js` ve `lib/dip-engine.js` hazırlandı.
+- V17.2 için `api/committee2.js` ve `lib/committee2-engine.js` hazırlandı.
 
-### Sonraki sürüm
-- v17.1 → Dip Avcısı AI
+### Değiştirilen dosyalar
+- README.md
+- README.old.md
+- index.html
+- docs/CHANGELOG.md
+- js/app.js
+
+### Sonraki adım
+- v17.1 → 🎯 Dip Avcısı AI
