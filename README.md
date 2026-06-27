@@ -37,26 +37,3 @@ Eklenen Altın Modül:
 
 Yeni endpoint:
 - `/api/committee?symbol=PAPIL`
-
-
-## V16.18 — Dip Avcısı AI
-Bu sürümde son çalışan V16.17 projesinin içine gerçek entegrasyon olarak Dip Avcısı AI eklendi.
-
-Yeni dosyalar:
-- `api/dip.js`
-- `api/dip-scan.js`
-- `lib/dip-engine.js`
-
-Yeni ekran:
-- `🎯 Dip Avcısı AI` sekmesi
-
-Özellikler:
-- Dip olasılığı
-- Falling Knife riski
-- Erken alım riski
-- Tepki potansiyeli
-- Hedef 1 / Hedef 2 / Stop
-- Katmanlı dip puanı
-- Dip adayları taraması
-
-Not: Bu sistem yatırım tavsiyesi değildir; teknik göstergelerle olasılık temelli karar destek sağlar.
