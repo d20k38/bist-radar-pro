@@ -1,39 +1,29 @@
-# BIST Radar Pro v16.16 - Öğrenen AI Lite
+# BIST Radar Pro v17.0 Modular Stable
 
-Bu sürüm v16.15 Portföy Öneri Motoru üzerine geliştirilmiştir.
+Bu sürüm yeni özellik eklemez; v16.17 çalışan yapıyı modüler V17 mimarisine taşır.
 
-## Eklenenler
+## Klasörler
 
-- Öğrenen AI Lite sekmesi geliştirildi.
-- 5 gün, 20 gün ve 30 gün sonrası sinyal başarı analizi eklendi.
-- Geçmiş performansa göre **AI güven düzeltmesi** üretildi.
-- En iyi çalışan teknik kurallar ve zayıf kurallar ayrı gösterilir.
-- Karar türlerine göre başarı oranı korunur.
-- Yerel Sinyal Hafızası eklendi:
-  - Seçili hisse sinyali tarayıcıya kaydedilebilir.
-  - Fiyat, karar, skor, güven, risk, stop ve hedef saklanır.
-  - Bu alan ileride gerçek veriyle başarı takibi için temel oluşturur.
+- `index.html`
+- `css/style.css`
+- `css/mobile.css`
+- `js/app.js`
+- `js/router.js`
+- `js/dashboard.js`
+- `js/stock-analysis.js`
+- `js/portfolio.js`
+- `js/backtest.js`
+- `js/learning.js`
+- `js/kap-news.js`
+- `js/confidence.js`
+- `js/committee.js`
+- `js/dip.js`
+- `api/`
+- `lib/`
+- `data/`
 
-## Dosya Yapısı
+## Sonraki sürümler
 
-- `index.html` ana arayüz
-- `api/learning.js` öğrenen AI endpoint'i
-- `lib/learning-engine.js` öğrenme motoru
-- `api/scan.js`, `api/stock.js`, `api/backtest.js` Vercel API dosyaları
-- `lib/engine.js`, `lib/indicators.js`, `lib/provider.js` analiz ve veri motorları
-
-## Not
-
-Bu sürüm yatırım tavsiyesi değildir. Teknik analiz, backtest ve öğrenen AI sonuçları karar destek amaçlıdır.
-
-
-## V16.17 - AI Yatırım Komitesi
-
-Eklenen Altın Modül:
-- Açıklanabilir AI: Karar nedenlerini uzman katmanlarıyla gösterir.
-- Öğrenen Sistem: Backtest ve öğrenme düzeltmesini karar puanına ekler.
-- Performans Takibi: Geçmiş sinyal başarısını komite kararına dahil eder.
-- AI Yatırım Komitesi: Teknik Analist, Temel Analist, Haber Analisti, Risk Yöneticisi ve Öğrenen AI uzmanlarından nihai karar üretir.
-
-Yeni endpoint:
-- `/api/committee?symbol=PAPIL`
+- v17.1 → Dip Avcısı AI
+- v17.2 → AI Yatırım Komitesi 2.0
+- v17.3 → Dip fiyatı, dip bölgesi, kalan süre
