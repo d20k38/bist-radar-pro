@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BIST Radar Pro v17.0.1 Kaynak Kod Refaktörü</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/mobile.css">
+<script src="config/version.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div class="brand">📈 BIST Radar Pro v17.0 Modular Stable</div><div class="pill">AI Yatırım Komitesi • Açıklanabilir AI • Öğrenen Sistem • Performans Takibi</div></div>
+  <div class="controls">
+    <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
+    <select id="symbol"></select>
+    <button class="btn" id="analyzeBtn">Analiz Et</button>
+    <button class="btn gray" id="backtestBtn">Backtest</button>
+  </div>
+  <div class="tabs">
+    <button class="tab active" data-page="dashboard">📊 Ana Kontrol</button>
+    <button class="tab" data-page="analysis">📈 Hisse Analizi</button>
+    <button class="tab" data-page="leaders">🔥 En Güçlü 20</button>
+    <button class="tab" data-page="safe">💎 Güvenli Kazanç</button>
+    <button class="tab" data-page="opportunity">🚀 Fırsat Avcısı</button>
+    <button class="tab" data-page="risky">⚠️ Riskli Hisseler</button>
+    <button class="tab" data-page="patterns">🔎 Formasyonlar</button>
+    <button class="tab" data-page="backtestPage">📊 Backtest</button>
+    <button class="tab" data-page="learningPage">🧠 Öğrenen AI</button>
+    <button class="tab" data-page="portfolio">💼 Portföy</button>
+    <button class="tab" data-page="portfolioAdvice">🧺 Portföy Önerisi</button>
+    <button class="tab" data-page="dailyReport">📰 Günlük AI Raporu</button>
+    <button class="tab" data-page="kapPage">📢 KAP/Haber AI</button>
+    <button class="tab" data-page="confidencePage">🧩 Güven Katmanları</button>
+    <button class="tab" data-page="committeePage">🏛️ AI Yatırım Komitesi</button>
+  </div>
+  <div id="status" class="status">Hazır.</div>
+
+  <section id="dashboard">
+    <div class="grid g4">
+      <div class="card metric"><div class="body"><div class="muted">Taranan</div><div id="mCount" class="v">-</div><div class="muted">BIST sembolü</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Ortalama Skor</div><div id="mAvg" class="v ok">-</div><div class="muted">piyasa gücü</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Güvenli Aday</div><div id="mSafe" class="v ok">-</div><div class="muted">risk kontrollü</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Fırsat Adayı</div><div id="mOpp" class="v warn">-</div><div class="muted">yüksek potansiyel</div></div></div>
+    </div>
+    <br>
+    <div class="grid g3">
+      <div class="card"><div class="head green">🔥 En Güçlü 20</div><div class="body"><div id="dashLeaders" class="dashList"></div></div></div>
+      <div class="card"><div class="head cyan">💎 Güvenli Kazançlar</div><div class="body"><div id="dashSafe" class="dashList"></div></div></div>
+      <div class="card"><div class="head yellow">🚀 Fırsat Avcısı</div><div class="body"><div id="dashOpp" class="dashList"></div></div></div>
+    </div>
+    <br>
+    <div class="grid g2">
+      <div class="card"><div class="head red">⚠️ Riskli Hisseler</div><div class="body"><div id="dashRisk" class="dashList"></div></div></div>
+      <div class="card"><div class="head dark">📢 KAP / Haber Etki Analizi</div><div class="body"><div id="dashKapBox" class="comment">KAP/Haber AI bekleniyor.</div></div></div>
+    </div>
+  </section>
+
+  <section id="analysis" class="hidden">
+    <div id="cards" class="grid g5"></div><br>
+    <div class="grid g2"><div class="card"><div class="head">📈 Mum Grafik ve Teknik Göstergeler</div><div class="body"><div class="indicatorToggles"><label class="chip"><input type="checkbox" id="showEma20" checked>EMA20</label><label class="chip"><input type="checkbox" id="showEma50" checked>EMA50</label><label class="chip"><input type="checkbox" id="showEma200" checked>EMA200</label><label class="chip"><input type="checkbox" id="showBB" checked>Bollinger</label><label class="chip"><input type="checkbox" id="showVWAP" checked>VWAP</label></div><div id="candleChart" class="chartbox"></div><div class="chartNote">Grafik: OHLC mumlar + EMA20/50/200 + Bollinger Bandı + VWAP. Veri kaynağı API OHLC çıktısıdır.</div></div></div><div class="card"><div class="head green">🧠 Uzman Motor Özeti</div><div class="body" id="engine"></div></div></div><br>
+    <div class="grid g2"><div class="card"><div class="head dark">👨‍🏫 Uzman Yorumu</div><div class="body"><div id="expert" class="comment"></div></div></div><div class="card"><div class="head dark">🤖 AI Yorumu</div><div class="body"><div id="ai" class="comment"></div></div></div></div><br>
+    <div class="grid g3">
+      <div class="card"><div class="head green">🟢 AI Karar Motoru</div><div class="body" id="aiDecision"></div></div>
+      <div class="card"><div class="head yellow">✅ Neden Bu Karar?</div><div class="body" id="aiReasons"></div></div>
+      <div class="card"><div class="head red">⚠️ Risk / İşlem Planı</div><div class="body" id="aiRiskPlan"></div></div>
+    </div><br>
+    <div class="card"><div class="head cyan">🔎 Formasyon Motoru</div><div class="body" id="patternBox"></div></div><br>
+    <div class="card"><div class="head dark">🧩 Çok Katmanlı Güven Puanı</div><div class="body" id="multiLayerBox"><div class="comment">Hisse analizi sonrası trend, momentum, para girişi, formasyon, Haber/KAP ve backtest katmanları burada gösterilir.</div></div></div>
+  </section>
+
+  <section id="leaders" class="hidden"><div class="card"><div class="head green">🔥 En Güçlü 20 Hisse</div><div class="body"><div class="quickFilters"><button class="btn" id="scanBtn1">Taramayı Yenile</button></div><table id="leaderTable" class="table"></table></div></div></section>
+  <section id="safe" class="hidden"><div class="card"><div class="head cyan">💎 Güvenli Kazançlar</div><div class="body"><div class="comment">Kriter: düşük risk, yüksek güven, pozitif trend ve güçlü final skor.</div><br><table id="safeTable" class="table"></table></div></div></section>
+  <section id="opportunity" class="hidden"><div class="card"><div class="head yellow">🚀 Fırsat Avcısı</div><div class="body"><div class="comment">Kriter: yüksek potansiyel, para girişi, momentum veya formasyon desteği.</div><br><table id="oppTable" class="table"></table></div></div></section>
+  <section id="risky" class="hidden"><div class="card"><div class="head red">⚠️ Riskli Hisseler</div><div class="body"><div class="comment">Risk yüksek, güven düşük veya karar zayıf olan hisseler burada izlenir.</div><br><table id="riskTable" class="table"></table></div></div></section>
+  <section id="patterns" class="hidden"><div class="card"><div class="head cyan">🔎 Formasyon Radar</div><div class="body"><div class="comment">Kriter: formasyon puanı yüksek, hedef/stop planı üretilebilen hisseler. Önce tarama yapın.</div><br><table id="patternTable" class="table"></table></div></div></section>
+  <section id="backtestPage" class="hidden">
+    <div class="grid g5">
+      <div class="card metric"><div class="body"><div class="muted">Sinyal Sayısı</div><div id="btSignals" class="v">-</div><div class="muted">son 5-10 yıl örneklem</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Başarı Oranı</div><div id="btSuccess" class="v ok">-</div><div class="muted">ileri test sonucu</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Ortalama Getiri</div><div id="btAvg" class="v warn">-</div><div class="muted">sinyal sonrası</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Ort. Bekleme</div><div id="btHold" class="v">-</div><div class="muted">gün</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Risk/Getiri</div><div id="btRR" class="v ok">-</div><div class="muted">ortalama oran</div></div></div>
+    </div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head dark">📊 Backtest Özeti</div><div class="body"><div class="quickFilters"><button class="btn" id="runBtBtn">Seçili hisseyi test et</button><button class="btn gray" id="runPortfolioBtBtn">Portföyü test et</button></div><div id="btSummary" class="comment">Backtest için hisse seçip düğmeye basın.</div><br><table id="btDecisionTable" class="table"></table></div></div>
+      <div class="card"><div class="head green">📈 İstatistik ve Yorum</div><div class="body"><div id="btAiComment" class="comment">Sinyal başarı oranı, ortalama getiri ve karar türlerine göre dağılım burada gösterilecek.</div><br><table id="btPortfolioTable" class="table"></table></div></div>
+    </div>
+  </section>
+
+  <section id="learningPage" class="hidden">
+    <div class="grid g5">
+      <div class="card metric"><div class="body"><div class="muted">Örnek Sinyal</div><div id="learnSamples" class="v">-</div><div class="muted">geçmiş test sayısı</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">5 Gün Başarı</div><div id="learn5Success" class="v ok">-</div><div class="muted">kısa vade</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">20 Gün Başarı</div><div id="learn20Success" class="v ok">-</div><div class="muted">orta vade</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">30 Gün Başarı</div><div id="learnSuccess" class="v ok">-</div><div class="muted">ana ölçüm</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Güven Düzeltmesi</div><div id="learnAdj" class="v warn">-</div><div class="muted">AI puanına etki</div></div></div>
+    </div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head dark">🧠 Öğrenen AI Özeti</div><div class="body"><div class="quickFilters"><button class="btn" id="runLearningBtn">Seçili hisseyi öğren</button><button class="btn green" id="saveSignalBtn">Bu sinyali hafızaya kaydet</button><button class="btn gray" id="clearSignalsBtn">Yerel hafızayı temizle</button></div><div id="learningComment" class="comment">Öğrenen AI için hisse seçip düğmeye basın. Sistem geçmiş yıllarda hangi kuralların daha başarılı olduğunu hesaplar.</div><br><table id="learnYearTable" class="table"></table></div></div>
+      <div class="card"><div class="head green">🏆 En İyi Çalışan Kurallar</div><div class="body"><table id="learnRuleTable" class="table"></table></div></div>
+    </div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head yellow">📅 Karar Türüne Göre Başarı</div><div class="body"><table id="learnDecisionTable" class="table"></table></div></div>
+      <div class="card"><div class="head red">⚠️ Zayıf Kurallar ve Uyarılar</div><div class="body"><table id="learnWeakTable" class="table"></table></div></div>
+    </div><br>
+    <div class="card"><div class="head cyan">💾 Yerel Sinyal Hafızası</div><div class="body"><div class="comment">Bu alan tarayıcıda saklanır. Alınan sinyalleri daha sonra gerçekleşen fiyatlarla karşılaştırmak için başlangıç hafızası oluşturur.</div><br><table id="signalJournalTable" class="table"></table></div></div>
+  </section>
+
+  <section id="portfolio" class="hidden">
+    <div class="grid g2">
+      <div class="card"><div class="head">💼 Portföy Radarım</div><div class="body">
+        <div id="portfolioBox" class="comment"></div><br>
+        <div class="quickFilters">
+          <input id="pfSymbol" placeholder="Hisse" style="padding:12px;border:1px solid var(--line);border-radius:12px;max-width:120px">
+          <input id="pfLot" type="number" placeholder="Lot" style="padding:12px;border:1px solid var(--line);border-radius:12px;max-width:120px">
+          <input id="pfCost" type="number" step="0.01" placeholder="Maliyet" style="padding:12px;border:1px solid var(--line);border-radius:12px;max-width:140px">
+          <button class="btn green" id="pfAddBtn">Ekle / Güncelle</button>
+          <button class="btn gray" id="pfSaveBtn">Kaydet</button>
+        </div>
+        <table id="portfolioTable" class="table"></table>
+      </div></div>
+      <div class="card"><div class="head green">🤖 Portföy AI Yorumu</div><div class="body"><div id="portfolioAi" class="comment">Portföy taraması sonrası güçlü/zayıf hisseler ve öneriler burada görünecek.</div></div></div>
+    </div>
+  </section>
+
+  <section id="portfolioAdvice" class="hidden">
+    <div class="grid g4">
+      <div class="card metric"><div class="body"><div class="muted">Günlük Trade</div><div id="paDailyCount" class="v warn">-</div><div class="muted">hızlı fırsat</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Haftalık Portföy</div><div id="paWeeklyCount" class="v ok">-</div><div class="muted">3-10 gün</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Aylık Portföy</div><div id="paMonthlyCount" class="v ok">-</div><div class="muted">daha sakin</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Nakit Önerisi</div><div id="paCash" class="v warn">-</div><div class="muted">risk tamponu</div></div></div>
+    </div><br>
+    <div class="card"><div class="head dark">🤖 AI Portföy Koçu</div><div class="body"><div class="quickFilters"><button class="btn" id="portfolioAdviceBtn">Portföy Önerisini Güncelle</button><button class="btn gray" id="portfolioAdviceScanBtn">Tüm Hisseleri Tara ve Öner</button></div><div id="portfolioCoach" class="comment">Tarama tamamlandığında günlük trade, haftalık ve aylık portföy önerileri burada oluşur.</div></div></div><br>
+    <div class="grid g3">
+      <div class="card"><div class="head yellow">⚡ Günlük / Anlık Trade Adayları</div><div class="body"><div class="comment">Kriter: hacim/para girişi, momentum, düşük stop mesafesi, hızlı hareket potansiyeli.</div><br><table id="dailyTradeTable" class="table"></table></div></div>
+      <div class="card"><div class="head green">📅 Haftalık Portföy Önerisi</div><div class="body"><div class="comment">Kriter: trend + güven + risk/getiri dengesi; 3-10 günlük taşıma için.</div><br><table id="weeklyPortfolioTable" class="table"></table></div></div>
+      <div class="card"><div class="head cyan">🧺 Aylık Portföy Önerisi</div><div class="body"><div class="comment">Kriter: güçlü trend, düşük/orta risk, yüksek güven ve daha dengeli volatilite.</div><br><table id="monthlyPortfolioTable" class="table"></table></div></div>
+    </div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head red">💼 Mevcut Portföy Revizyonu</div><div class="body"><table id="portfolioRevisionTable" class="table"></table></div></div>
+      <div class="card"><div class="head green">📊 Önerilen Ağırlık Dağılımı</div><div class="body"><div id="allocationBox" class="comment"></div><br><table id="allocationTable" class="table"></table></div></div>
+    </div>
+  </section>
+
+  <section id="dailyReport" class="hidden">
+    <div class="grid g2">
+      <div class="card"><div class="head dark">📰 Günlük AI Raporu</div><div class="body">
+        <div class="quickFilters"><button class="btn" id="dailyReportBtn">Raporu Güncelle</button><button class="btn gray" id="kapRefreshBtn">KAP/Haber Alanını Yenile</button></div>
+        <div id="dailyReportBox" class="comment">Tüm BIST taraması sonrası günlük rapor üretilecek.</div>
+      </div></div>
+      <div class="card"><div class="head yellow">📢 KAP / Haber Alanı</div><div class="body"><div id="kapNewsBox" class="comment">Bu alan şimdilik manuel/yer tutucu haber özetidir. Sonraki sürümde KAP API veya güvenilir haber kaynağı bağlanabilir.</div></div></div>
+    </div><br>
+    <div class="grid g4">
+      <div class="card"><div class="head green">🔥 En Güçlü 10</div><div class="body"><div id="reportStrong" class="dashList"></div></div></div>
+      <div class="card"><div class="head red">⚠️ En Riskli 10</div><div class="body"><div id="reportRisk" class="dashList"></div></div></div>
+      <div class="card"><div class="head cyan">🔎 Yeni Formasyonlar</div><div class="body"><div id="reportPatterns" class="dashList"></div></div></div>
+      <div class="card"><div class="head yellow">💥 Hacim / Para Girişi</div><div class="body"><div id="reportMoney" class="dashList"></div></div></div>
+    </div>
+  </section>
+
+
+  <section id="kapPage" class="hidden">
+    <div class="grid g3">
+      <div class="card metric"><div class="body"><div class="muted">Haber Sayısı</div><div id="kapCount" class="v">-</div><div class="muted">son kayıtlar</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">AI Etki Skoru</div><div id="kapImpact" class="v ok">-</div><div class="muted">0-100</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Duyarlılık</div><div id="kapSentiment" class="v warn">-</div><div class="muted">olumlu / olumsuz</div></div></div>
+    </div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head yellow">📢 Son KAP Bildirimleri / Haberler</div><div class="body"><div class="quickFilters"><button class="btn" id="kapSymbolBtn">Seçili Hisse Haberleri</button><button class="btn gray" id="kapAllBtn">Genel Haberler</button></div><div id="kapSummaryBox" class="comment">KAP/Haber verisi bekleniyor.</div><br><table id="kapTable" class="table"></table></div></div>
+      <div class="card"><div class="head green">🤖 AI Etki Analizi</div><div class="body"><div id="kapAiBox" class="comment">Haberlerin teknik sinyale etkisi burada açıklanacak.</div></div></div>
+    </div>
+  </section>
+
+  <section id="confidencePage" class="hidden">
+    <div class="grid g3">
+      <div class="card metric"><div class="body"><div class="muted">AI Genel</div><div id="mlGeneral" class="v ok">-</div><div class="muted">çok katmanlı skor</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Nihai Karar</div><div id="mlDecision" class="v warn">-</div><div class="muted">AL / İZLE / BEKLE</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Risk</div><div id="mlRisk" class="v bad">-</div><div class="muted">0-100</div></div></div>
+    </div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head dark">🧩 Katman Tablosu</div><div class="body"><div class="quickFilters"><button class="btn" id="refreshConfidenceBtn">Seçili hisse için güncelle</button></div><div id="mlTableBox" class="comment">Trend, Momentum, Para Girişi, Formasyon, Haber/KAP, Backtest ve AI Genel puanları burada gösterilir.</div></div></div>
+      <div class="card"><div class="head green">🤖 Şeffaf AI Yorumu</div><div class="body"><div id="mlComment" class="comment">Kararın nedenleri ve zayıf katmanlar burada açıklanır.</div></div></div>
+    </div>
+  </section>
+
+  <section id="committeePage" class="hidden">
+    <div class="grid g3">
+      <div class="card metric"><div class="body"><div class="muted">Komite Nihai Karar</div><div id="committeeDecision" class="v warn">-</div><div class="muted">5 uzman ortak sonucu</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Komite Güveni</div><div id="committeeScore" class="v ok">-</div><div class="muted">0-100</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Uzlaşma</div><div id="committeeAgreement" class="v ok">-</div><div class="muted">uzman görüş uyumu</div></div></div>
+    </div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head dark">🏛️ Altın Modül: AI Yatırım Komitesi</div><div class="body"><div class="quickFilters"><button class="btn" id="committeeBtn">Seçili hisse için komiteyi çalıştır</button></div><div id="committeeBox" class="comment">Teknik Analist, Temel Analist, Haber Analisti, Risk Yöneticisi ve Öğrenen AI aynı hisseyi ayrı ayrı değerlendirir.</div><br><table id="committeeTable" class="table"></table></div></div>
+      <div class="card"><div class="head green">🧠 Üç Temel Prensip</div><div class="body"><div id="principlesBox" class="comment">Açıklanabilir AI, Öğrenen Sistem ve Performans Takibi sonuçları burada gösterilir.</div></div></div>
+    </div>
+  </section>
+
+
+</div>
+
+<script src="js/app.js"></script>
+
+<script>
+(function(){
+  function applyV17(){
+    document.title='BIST Radar Pro v17.0 Modular Stable';
+    document.querySelectorAll('h1,h2,.title,.brand,header *').forEach(function(el){
+      if((el.textContent||'').includes('BIST Radar Pro v17.0.1') || (el.textContent||'').includes('v17.0.1')){
+        el.textContent = el.textContent.replace(/BIST Radar Pro v17.0.1\.17/g,'BIST Radar Pro v17.0 Modular Stable').replace(/v16\.17/g,'v17.0 Modular');
+      }
+    });
+  }
+  document.addEventListener('DOMContentLoaded',applyV17);
+  setTimeout(applyV17,100); setTimeout(applyV17,1000);
+})();
+</script>
+
+
+<script>
+/* V17.0.1 kaynak kod refaktörü: başlık ve sürüm tek merkezden zorlanır */
+(function(){
+  function applyV1701(){
+    window.BRP_APP_VERSION = "17.0.1";
+    window.BRP_APP_NAME = "BIST Radar Pro";
+    document.title = "BIST Radar Pro v17.0.1";
+    var nodes = document.querySelectorAll("h1,h2,h3,.title,.brand,.logo-title,header,header *,[class*='title'],[class*='brand']");
+    nodes.forEach(function(el){
+      if(!el || !el.textContent) return;
+      if(el.textContent.indexOf("BIST Radar Pro") !== -1 && el.textContent.indexOf("v17.0.1") === -1){
+        el.textContent = el.textContent.replace(/BIST Radar Pro\s*v[0-9.]+/g, "BIST Radar Pro v17.0.1");
+      }
+    });
+  }
+  document.addEventListener("DOMContentLoaded", applyV1701);
+  setTimeout(applyV1701, 100);
+  setTimeout(applyV1701, 500);
+  setTimeout(applyV1701, 1500);
+})();
+</script>
+
+
+<script src="config/plugins.js"></script>
+<script src="js/plugins/pluginLoader.js"></script>
+
+</body>
+</html>
