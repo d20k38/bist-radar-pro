@@ -3,16 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro v17.0 Modular Stable - AI Yatırım Komitesi</title>
+<title>BIST Radar Pro v17.0.1 Altyapı Refaktörü</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/mobile.css">
+<script type="module" src="config/version.js"></script>
+<script type="module" src="config/menu.js"></script>
+<script type="module" src="js/router.js"></script>
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro v17.0 Modular Stable</div><div class="pill">AI Yatırım Komitesi • Açıklanabilir AI • Öğrenen Sistem • Performans Takibi</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro v17.0.1</div><div class="pill">AI Yatırım Komitesi • Açıklanabilir AI • Öğrenen Sistem • Performans Takibi</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -206,15 +209,38 @@
 <script>
 (function(){
   function applyV17(){
-    document.title='BIST Radar Pro v17.0 Modular Stable';
+    document.title='BIST Radar Pro v17.0.1';
     document.querySelectorAll('h1,h2,.title,.brand,header *').forEach(function(el){
-      if((el.textContent||'').includes('BIST Radar Pro v16') || (el.textContent||'').includes('v16.17')){
-        el.textContent = el.textContent.replace(/BIST Radar Pro v16\.17/g,'BIST Radar Pro v17.0 Modular Stable').replace(/v16\.17/g,'v17.0 Modular');
+      if((el.textContent||'').includes('BIST Radar Pro v16') || (el.textContent||'').includes('v17.0.1')){
+        el.textContent = el.textContent.replace(/BIST Radar Pro v16\.17/g,'BIST Radar Pro v17.0.1').replace(/v16\.17/g,'v17.0.1');
       }
     });
   }
   document.addEventListener('DOMContentLoaded',applyV17);
   setTimeout(applyV17,100); setTimeout(applyV17,1000);
+})();
+</script>
+
+
+<script>
+window.BRP_APP_VERSION = "17.0.1";
+window.BRP_APP_NAME = "BIST Radar Pro";
+(function(){
+  function applyVersionTitle(){
+    document.title = "BIST Radar Pro v17.0.1";
+    document.querySelectorAll("h1,h2,.title,.brand,header *").forEach(function(el){
+      if(!el || !el.textContent) return;
+      if(el.textContent.includes("BIST Radar Pro v16.17") || el.textContent.includes("BIST Radar Pro v17.0 Modular") || el.textContent.includes("BIST Radar Pro v17.0 Stable")){
+        el.textContent = el.textContent
+          .replace(/BIST Radar Pro v16\.17/g,"BIST Radar Pro v17.0.1")
+          .replace(/BIST Radar Pro v17\.0 Modular Stable/g,"BIST Radar Pro v17.0.1")
+          .replace(/BIST Radar Pro v17\.0 Stable/g,"BIST Radar Pro v17.0.1");
+      }
+    });
+  }
+  document.addEventListener("DOMContentLoaded", applyVersionTitle);
+  setTimeout(applyVersionTitle, 100);
+  setTimeout(applyVersionTitle, 800);
 })();
 </script>
 
