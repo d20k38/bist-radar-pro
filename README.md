@@ -11,3 +11,6 @@ Taban: R7 Indicator Engine.
 - JSON portföy yükleme/indirme ve CSV dışa aktarım eklendi.
 - Yeni API eklenmedi.
 - Demo/random veri eklenmedi.
+
+## R9 Institutional AI Suite
+Bu sürümde V20 Simülasyon, Smart Portfolio, Fırsat Avcısı ve Formasyonlar aynı karar/veri mimarisi altında birleştirildi. R9 yeni API eklemez; mevcut tarama, day trading, institutional, portföy ve karar motoru sonuçlarını tek suite ekranında özetler.

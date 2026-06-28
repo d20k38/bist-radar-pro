@@ -22,6 +22,7 @@
   </div>
   <div class="tabs">
     <button class="tab active" data-page="dashboard">🧠 R3 Dashboard + Karar Merkezi</button>
+    <button class="tab" data-page="r9Suite">🏛️ R9 Institutional AI Suite</button>
     <button class="tab" data-page="snapshotCompare">🧪 R6 Kalite Karşılaştırma</button>
     <button class="tab" data-page="dayTradingAI">⚡ Day Trading AI</button>
     <button class="tab" data-page="tradePlanner">🎯 V32 Trade Planner</button>
@@ -94,6 +95,39 @@
       <div class="card"><div class="head red">⚠️ Riskli Hisseler</div><div class="body"><div id="dashRisk" class="dashList"></div></div></div>
       <div class="card"><div class="head dark">📢 KAP / Haber Etki Analizi</div><div class="body"><div id="dashKapBox" class="comment">KAP/Haber AI bekleniyor.</div></div></div>
     </div>
+  </section>
+
+
+  <section id="r9Suite" class="hidden">
+    <div class="card"><div class="head dark">🏛️ R9 Institutional AI Suite</div><div class="body">
+      <div class="comment"><b>R9 yeni veri üretmez.</b> R1 Veri Katmanı, R7 Indicator Engine, R2 Karar Motoru ve R8 Dinamik Portföy verilerini tek kurumsal çalışma alanında birleştirir. Simülasyon, Smart Portfolio, Fırsat Avcısı ve Formasyonlar aynı Master Stock Object üzerinden değerlendirilir.</div><br>
+      <div class="quickFilters">
+        <button class="btn green" id="r9RunBtn">R9 Suite'i Güncelle</button>
+        <button class="btn" id="r9FullBtn">Tara + R9 Güncelle</button>
+        <button class="btn gray" id="r9ExportBtn">R9 CSV</button>
+      </div>
+      <div id="r9Status" class="status">R9 hazır. Önce tarama varsa onu kullanır; yoksa tarama başlatılabilir.</div>
+    </div></div>
+    <br>
+    <div class="grid g5">
+      <div class="card metric"><div class="body"><div class="muted">AI Fırsat</div><div id="r9OppCount" class="v ok">-</div><div class="muted">yüksek öncelik</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Portföy Sağlığı</div><div id="r9PortfolioScore" class="v warn">-</div><div class="muted">Smart Portfolio</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Simülasyon Risk</div><div id="r9SimRisk" class="v bad">-</div><div class="muted">Monte Carlo / senaryo</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Formasyon</div><div id="r9PatternCount" class="v ok">-</div><div class="muted">onaylı aday</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Veri Kalitesi</div><div id="r9DataQuality" class="v ok">-</div><div class="muted">tekil kayıt</div></div></div>
+    </div>
+    <br>
+    <div class="grid g2">
+      <div class="card"><div class="head green">🚀 AI Fırsat Avcısı</div><div class="body"><div id="r9OppNarrative" class="comment">Tarama sonrası en güçlü çoklu sinyal adayları burada görünür.</div><br><table id="r9OpportunityTable" class="table"></table></div></div>
+      <div class="card"><div class="head cyan">🧠 Smart Portfolio 2.0</div><div class="body"><div id="r9PortfolioNarrative" class="comment">Portföyünüz R8 verileriyle değerlendirilir; zayıf halka ve fırsat eşleşmeleri gösterilir.</div><br><table id="r9SmartTable" class="table"></table></div></div>
+    </div>
+    <br>
+    <div class="grid g2">
+      <div class="card"><div class="head yellow">🧪 AI Simulation Studio</div><div class="body"><div id="r9SimulationBox" class="comment">Portföy için 1 hafta / 1 ay / stres senaryosu üretilir.</div><br><table id="r9SimulationTable" class="table"></table></div></div>
+      <div class="card"><div class="head dark">🔎 Formasyon Radar Pro</div><div class="body"><div id="r9PatternBox" class="comment">Formasyon, momentum, RVOL ve karar motoru birlikte değerlendirilir.</div><br><table id="r9PatternTable" class="table"></table></div></div>
+    </div>
+    <br>
+    <div class="card"><div class="head red">⚠️ R9 Kurumsal Uyarılar</div><div class="body"><table id="r9AlertTable" class="table"></table></div></div>
   </section>
 
   <section id="snapshotCompare" class="hidden">
@@ -647,7 +681,7 @@ const defaultPortfolio=[{symbol:'MRSHL',lot:286,cost:2470},{symbol:'PAPIL',lot:7
 let portfolio=loadPortfolioLocal();
 const $=id=>document.getElementById(id);const fmt=(x,d=2)=>Number.isFinite(Number(x))?Number(x).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';const tl=x=>fmt(x)+' TL';
 function setStatus(t){$('status').textContent=t}
-const APP_PAGES=['dashboard','snapshotCompare','tradePlanner','institutionalDashboard','aiAdvisor','explainableAI','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','tradingCenter','portfolio','portfolioAdvice','v20Portfolio','smartPortfolio','radarLab','dayTradingAI','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional','institutionalScanner'];
+const APP_PAGES=['dashboard','r9Suite','snapshotCompare','tradePlanner','institutionalDashboard','aiAdvisor','explainableAI','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','tradingCenter','portfolio','portfolioAdvice','v20Portfolio','smartPortfolio','radarLab','dayTradingAI','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional','institutionalScanner'];
 function showPage(id,btn){
   APP_PAGES.forEach(x=>{const el=$(x); if(el){el.classList.add('hidden'); el.style.display='none';}});
   const page=$(id); if(page){page.classList.remove('hidden'); page.style.display='block'; document.body.setAttribute('data-page',id);}
@@ -2067,6 +2101,7 @@ setTimeout(()=>{
 },600);
 
 init();
+
 setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]'); if(b)b.addEventListener('click',()=>loadV19().catch(e=>setStatus(e.message))); if($('v19ScanBtn'))$('v19ScanBtn').addEventListener('click',scanV19); if($('v19ExportBtn'))$('v19ExportBtn').addEventListener('click',exportV19);},700);
 setTimeout(()=>{const b=document.querySelector('[data-page="dipProfessional"]'); if(b){b.addEventListener('click',()=>loadV18Dip().catch(e=>setStatus(e.message)));} if($('v18ScanDipBtn'))$('v18ScanDipBtn').addEventListener('click',scanV18Dip); if($('v18ExportCsvBtn'))$('v18ExportCsvBtn').addEventListener('click',exportV18DipCSV);},500);
 </script>
@@ -2170,6 +2205,80 @@ function optimizeV19Portfolio(amount=50000){
   }).join('\n');
   alert('V19 Portföy Optimizasyonu ('+fmt(amount,0)+' TL):\n\n'+rows);
 }
+
+
+// R9 Institutional AI Suite — ortak veri modeli üzerinden kurumsal çalışma alanı
+let r9Rows=[];
+function r9Num(x,d=0){ const n=Number(x); return Number.isFinite(n)?Number(n.toFixed(d)):0; }
+function r9ScoreOf(x){ return Number(x?.finalScore||x?.aiScore||x?.score||x?.master?.finalScore||0); }
+function r9DayOf(x){ return Number(x?.dayTrading?.score||x?.dayScore||x?.day||x?.master?.dayTrading||0); }
+function r9IqsOf(x){ return Number(x?.iqs||x?.quality?.iqs||x?.institutional?.iqs||x?.master?.iqs||0); }
+function r9MoneyOf(x){ return Number(x?.money||x?.institutionalMoney||x?.institutional?.money||x?.master?.money||0); }
+function r9PatternOf(x){ return Number(x?.pattern||x?.patternScore||x?.formation?.score||x?.analysis?.pattern||x?.master?.pattern||0); }
+function r9RiskOf(x){ return Number(x?.risk||x?.analysis?.risk||x?.master?.risk||50); }
+function r9DecisionOf(score,risk){ if(score>=82&&risk<65)return 'GÜÇLÜ AL'; if(score>=68)return 'AL'; if(score>=54)return 'İZLE'; if(score>=42)return 'TUT'; return 'SAT'; }
+function r9TagOf(x){
+  const tags=[]; if(r9DayOf(x)>=75)tags.push('🚀 Day'); if(r9PatternOf(x)>=70)tags.push('🔎 Formasyon'); if(r9MoneyOf(x)>=70)tags.push('💰 Kurumsal'); if(r9IqsOf(x)>=75)tags.push('⭐ IQS'); if((x.kapScore||x.kapAI?.impactScore||0)>=70)tags.push('📰 KAP'); if(tags.length>=3)tags.unshift('🔥 Çoklu'); return tags.slice(0,4).join(' + ')||'İzle';
+}
+function r9BaseRows(){
+  const by=new Map();
+  const pools=[scanCache||[], dayTradingCache||[], institutionalCache||[], smartPortfolioOpps||[], smartPortfolioRows||[]];
+  pools.flat().filter(Boolean).forEach(x=>{
+    const sym=(x.symbol||x.Symbol||'').toUpperCase().trim(); if(!sym)return;
+    const old=by.get(sym)||{symbol:sym};
+    const merged={...old,...x,symbol:sym};
+    const sc=Math.max(r9ScoreOf(old),r9ScoreOf(x),r9DayOf(x),r9IqsOf(x));
+    merged.finalScore=sc||r9ScoreOf(merged);
+    by.set(sym,merged);
+  });
+  return [...by.values()];
+}
+function r9BuildRows(){
+  r9Rows=r9BaseRows().map(x=>{
+    const day=r9DayOf(x), iqs=r9IqsOf(x), money=r9MoneyOf(x), pat=r9PatternOf(x), base=r9ScoreOf(x), risk=r9RiskOf(x);
+    const kap=Number(x.kapScore||x.kapAI?.impactScore||0), fin=Number(x.financialScore||x.financialAI?.score||0);
+    const ai=r9Num((base*0.25)+(day*0.18)+(iqs*0.18)+(money*0.16)+(pat*0.10)+(kap*0.06)+(fin*0.04)+((100-risk)*0.03),0);
+    return {...x, ai, day, iqs, money, pattern:pat, kap, financial:fin, risk, decision:r9DecisionOf(ai,risk), tag:r9TagOf({...x,finalScore:ai,dayScore:day,iqs,money,pattern:pat})};
+  }).sort((a,b)=>b.ai-a.ai);
+  return r9Rows;
+}
+function r9Badge(v){ return `<span class="badge ${badgeClass(v)}">${fmt(v,0)}</span>`; }
+function r9DecisionBadge(d){ return `<span class="badge ${decisionClass(d)}">${d}</span>`; }
+function r9Render(){
+  const rows=r9BuildRows();
+  const opp=rows.filter(x=>x.ai>=65).slice(0,20);
+  const pat=rows.filter(x=>x.pattern>=55 || /Formasyon/.test(x.tag)).slice(0,20);
+  const dq=rows.length?Math.min(100,Math.round(rows.length/6.2)):0;
+  if($('r9OppCount'))$('r9OppCount').textContent=opp.length;
+  if($('r9DataQuality'))$('r9DataQuality').textContent='%'+fmt(dq,0);
+  if($('r9PatternCount'))$('r9PatternCount').textContent=pat.length;
+  const pf=portfolio||[]; const held=rows.filter(x=>pf.some(p=>(p.symbol||'').toUpperCase()===x.symbol));
+  const pfScore=held.length?held.reduce((s,x)=>s+x.ai,0)/held.length:0; if($('r9PortfolioScore'))$('r9PortfolioScore').textContent=held.length?fmt(pfScore,0):'-';
+  const avgRisk=held.length?held.reduce((s,x)=>s+x.risk,0)/held.length:(rows.length?rows.reduce((s,x)=>s+x.risk,0)/rows.length:50); if($('r9SimRisk'))$('r9SimRisk').textContent=avgRisk>65?'Yüksek':avgRisk>45?'Orta':'Düşük';
+  if($('r9Status'))$('r9Status').innerHTML=`<b>${rows.length}</b> tekil hisse R9 veri havuzunda. En güçlü adaylar: <b>${opp.slice(0,5).map(x=>x.symbol).join(', ')||'-'}</b>.`;
+  if($('r9OppNarrative'))$('r9OppNarrative').innerHTML=`AI Fırsat Avcısı; Day Trading, IQS, Kurumsal Para, Formasyon, KAP/Financial ve risk katmanlarını birleştirir. İlk sırada <b>${opp[0]?.symbol||'-'}</b> var.`;
+  if($('r9OpportunityTable'))$('r9OpportunityTable').innerHTML=opp.length?'<tr><th>#</th><th>Hisse</th><th>AI</th><th>Karar</th><th>Day</th><th>IQS</th><th>Kurumsal</th><th>Etiket</th><th>Plan</th></tr>'+opp.map((x,i)=>`<tr><td>${i+1}</td><td><b>${x.symbol}</b></td><td>${r9Badge(x.ai)}</td><td>${r9DecisionBadge(x.decision)}</td><td>${r9Badge(x.day)}</td><td>${r9Badge(x.iqs)}</td><td>${r9Badge(x.money)}</td><td>${x.tag}</td><td><button class="btn" style="padding:7px 10px" onclick="r9OpenPlan('${x.symbol}')">🎯</button></td></tr>`).join(''):'<tr><td>Önce tarama yapın.</td></tr>';
+  if($('r9SmartTable'))$('r9SmartTable').innerHTML=held.length?'<tr><th>Hisse</th><th>AI</th><th>Risk</th><th>Karar</th><th>Aksiyon</th><th>Alternatif</th></tr>'+held.sort((a,b)=>a.ai-b.ai).map((x,i)=>{const alt=opp.find(o=>!pf.some(p=>(p.symbol||'').toUpperCase()===o.symbol)); const action=x.ai>=70?'ARTIR/TUT':x.ai>=55?'TUT':'AZALT'; return `<tr><td><b>${x.symbol}</b></td><td>${r9Badge(x.ai)}</td><td>${fmt(x.risk,0)}</td><td>${r9DecisionBadge(x.decision)}</td><td><b>${action}</b></td><td>${alt?`${alt.symbol} (+${fmt(alt.ai-x.ai,0)})`:'-'}</td></tr>`}).join(''):'<tr><td>Portföy boş veya taramada portföy hisseleri yok.</td></tr>';
+  if($('r9PortfolioNarrative'))$('r9PortfolioNarrative').innerHTML=held.length?`Portföy ortalama R9 skoru <b>${fmt(pfScore,0)}</b>. Zayıf halka: <b>${held.sort((a,b)=>a.ai-b.ai)[0]?.symbol||'-'}</b>. Portföy dışı en iyi fırsat: <b>${opp.find(o=>!pf.some(p=>(p.symbol||'').toUpperCase()===o.symbol))?.symbol||'-'}</b>.`:'Portföyünüzü R8 Portföy Radarım bölümünden girerseniz Smart Portfolio analizi burada görünür.';
+  const sim=[['Olumlu Piyasa','1 hafta',pfScore?Math.max(0,(pfScore-50)/7):0,avgRisk],['Nötr Piyasa','1 ay',pfScore?Math.max(-8,(pfScore-55)/5):0,avgRisk],['Stres Senaryosu','1 hafta',-Math.max(3,avgRisk/8),avgRisk+15],['BIST -3%','Gün içi',-Math.max(1.5,avgRisk/18),avgRisk+10]];
+  if($('r9SimulationTable'))$('r9SimulationTable').innerHTML='<tr><th>Senaryo</th><th>Ufuk</th><th>Beklenen Etki</th><th>Risk</th></tr>'+sim.map(x=>`<tr><td>${x[0]}</td><td>${x[1]}</td><td>${pctFmt(x[2])}</td><td>${x[3]>65?'Yüksek':x[3]>45?'Orta':'Düşük'}</td></tr>`).join('');
+  if($('r9SimulationBox'))$('r9SimulationBox').innerHTML='Simülasyon kesin fiyat tahmini değildir; portföy skoru, risk ve mevcut karar motoru katsayılarından senaryo etkisi üretir.';
+  if($('r9PatternTable'))$('r9PatternTable').innerHTML=pat.length?'<tr><th>Hisse</th><th>Formasyon</th><th>AI</th><th>Day</th><th>Karar</th><th>Etiket</th></tr>'+pat.map(x=>`<tr><td><b>${x.symbol}</b></td><td>${r9Badge(x.pattern)}</td><td>${r9Badge(x.ai)}</td><td>${r9Badge(x.day)}</td><td>${r9DecisionBadge(x.decision)}</td><td>${x.tag}</td></tr>`).join(''):'<tr><td>Formasyon skoru yüksek aday yok.</td></tr>';
+  if($('r9PatternBox'))$('r9PatternBox').innerHTML='Formasyon Radar Pro, tek başına mum/grafik şekline göre değil; formasyon + momentum + hacim + karar motoru uyumuna göre sıralar.';
+  const alerts=[]; if(rows.length<100)alerts.push(['Veri Evreni','Taranan tekil hisse az görünüyor. R5 Universal Scanner ile tam tarama yapın.']); if(avgRisk>65)alerts.push(['Risk','Portföy/piyasa risk ortalaması yüksek. Stop ve pozisyon büyüklüğü sıkı izlenmeli.']); const weak=held.filter(x=>x.ai<50); if(weak.length)alerts.push(['Portföy','Zayıf portföy hisseleri: '+weak.map(x=>x.symbol).join(', ')]); if(!alerts.length)alerts.push(['Durum','Kritik R9 uyarısı yok.']);
+  if($('r9AlertTable'))$('r9AlertTable').innerHTML='<tr><th>Kategori</th><th>Uyarı</th></tr>'+alerts.map(a=>`<tr><td><b>${a[0]}</b></td><td>${a[1]}</td></tr>`).join('');
+}
+async function r9RunFull(){
+  showPage('r9Suite',document.querySelector('[data-page="r9Suite"]'));
+  try{ if(!scanCache.length) await scanAll(false); }catch(e){setStatus('R9 ana tarama uyarısı: '+e.message)}
+  try{ if(!dayTradingCache.length) await runDayTradingScan(false); }catch(e){setStatus('R9 Day Trading uyarısı: '+e.message)}
+  try{ if(!institutionalCache.length) await runInstitutionalScanner(false); }catch(e){setStatus('R9 Institutional uyarısı: '+e.message)}
+  try{ await runSmartPortfolio(); }catch(e){setStatus('R9 Smart Portfolio uyarısı: '+e.message)}
+  showPage('r9Suite',document.querySelector('[data-page="r9Suite"]')); r9Render();
+}
+function r9OpenPlan(symbol){ $('search').value=symbol; showPage('tradePlanner',document.querySelector('[data-page="tradePlanner"]')); if(typeof runTradePlanner==='function')setTimeout(()=>runTradePlanner(symbol).catch(e=>setStatus('R9 plan hatası: '+e.message)),80); }
+function r9ExportCSV(){ if(!r9Rows.length) r9Render(); if(!r9Rows.length)return alert('R9 için önce tarama yapın.'); downloadCSV([['Hisse','AI','Karar','Day','IQS','Kurumsal','Formasyon','Risk','Etiket'],...r9Rows.map(x=>[x.symbol,x.ai,x.decision,x.day,x.iqs,x.money,x.pattern,x.risk,x.tag])],'r9_institutional_ai_suite.csv'); }
+setTimeout(()=>{const a=$('r9RunBtn'); if(a)a.addEventListener('click',r9Render); const b=$('r9FullBtn'); if(b)b.addEventListener('click',()=>r9RunFull().catch(e=>setStatus('R9 hata: '+e.message))); const c=$('r9ExportBtn'); if(c)c.addEventListener('click',r9ExportCSV); const tab=document.querySelector('[data-page="r9Suite"]'); if(tab)tab.addEventListener('click',()=>setTimeout(r9Render,80));},1100);
 
 setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]'); if(b)b.addEventListener('click',()=>loadV19().catch(e=>setStatus(e.message))); if($('v19ScanBtn'))$('v19ScanBtn').addEventListener('click',scanV19); if($('v19ExportBtn'))$('v19ExportBtn').addEventListener('click',exportV19);},900);
 </script>
