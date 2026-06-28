@@ -1,14 +1,13 @@
-# BIST Radar Pro R14.1 KAP Safe JSON FIX
+# BIST Radar Pro R15 Core Stabilization
 
-## Amaç
-KAP/Haber alanında Vercel `FUNCTION_INVOCATION_FAILED` olduğunda tarayıcıya HTML hata sayfası yerine her zaman JSON dönmesini sağlamak.
+Bu sürüm yeni özellik eklemez. Amaç çekirdek veri zincirini stabilize etmektir.
 
-## Değişiklikler
-- `/api/core?action=kap` güvenli JSON moduna alındı.
-- KAP provider yoksa demo/random haber üretmez; nötr KAP yanıtı döner.
-- `api/core.js` içindeki veri sağlayıcı `require` işlemi lazy-load yapıldı; KAP isteği OHLC provider hatasından etkilenmez.
-- `index.html` içindeki eski `/api/kap` çağrıları `/api/core?action=kap` formatına çevrildi.
-- API function sayısı yine 1: `api/core.js`.
+## Odak
+- Symbols → OHLCV → Indicator → Decision → Master Object zinciri denetlenir.
+- /api/core?action=scan artık stageSummary ve diagnostic alanları döndürür.
+- Başarılı analiz 0 ise hata yutulmaz; ilk hata sebepleri ekrana aktarılır.
+- API function sayısı 1 olarak korunur: api/core.js.
 
-## GitHub Notu
-`api/` klasöründe yalnızca `core.js` kalmalı. Eski endpoint dosyaları varsa silin.
+## Not
+Eğer başarılı analiz yine 0 ise R14/R15 Diagnostic Mode ile şu URL kontrol edilmelidir:
+/api/core?action=diagnostic&symbol=PAPIL

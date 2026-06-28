@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro R14 Diagnostic Mode</title>
+<title>BIST Radar Pro R15 Core Stabilization</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/r10-runtime.js"></script>
 <script>
@@ -92,7 +92,7 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro R14 Diagnostic Mode</div><div class="pill">%100 Gerçek OHLCV • R14 Diagnostic Mode • Veri Sağlığı</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro R15 Core Stabilization</div><div class="pill">%100 Gerçek OHLCV • R15 Core Stabilization • Veri Zinciri</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -975,6 +975,7 @@ async function scanAll(silent=false){
         if(part.length) scanCache=mergeUniqueBySymbol(scanCache,part);
         const errs=Array.isArray(j.errors)?j.errors:[];
         if(errs.length) window.scanErrors.push(...errs.map(x=>({...x,offset})));
+        if(j.diagnostic && (!part.length)) window.scanErrors.push({offset, error:j.diagnostic.message, stageSummary:j.stageSummary, firstErrors:j.diagnostic.firstErrors});
         consecutiveFetchFails=0;
         const next=Number(j.nextOffset);
         // API gerçek işlediği sembol kadar ilerletir; nextOffset yoksa batch kadar ilerle.
@@ -1017,7 +1018,12 @@ async function scanAll(silent=false){
     const errCount=(window.scanErrors||[]).length;
     const ok=scanCache.filter(x=>x&&x.symbol&&String(x.decision||'')!=='VERİ YOK').length;
     setProgress(total||offset,total||offset);
-    setStatus(`${scanCache.length} tekil hisse üretildi. Başarılı analiz: ${ok}. Hatalı/atlanmış parti veya sembol: ${errCount}. Tarama ${sec} sn sürdü.`);
+    if(ok===0){
+      const sample=(window.scanErrors||[]).slice(0,3).map(e=>`${e.symbol||('offset '+(e.offset??'-'))}: ${e.error||e.message||'hata'}`).join(' • ');
+      setStatus(`${scanCache.length} tekil hisse üretildi. Başarılı analiz: 0. R15 Core Stabilization: veri zinciri kırıldı. İlk hata: ${sample||'Diagnostic Mode ile kontrol edin.'} Tarama ${sec} sn sürdü.`);
+    }else{
+      setStatus(`${scanCache.length} tekil hisse üretildi. Başarılı analiz: ${ok}. Hatalı/atlanmış parti veya sembol: ${errCount}. Tarama ${sec} sn sürdü.`);
+    }
   }catch(e){
     setStatus('Tarama hatası: '+e.message);
   }finally{

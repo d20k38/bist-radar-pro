@@ -61,9 +61,42 @@ async function handleScan(req,res){
   const explicit = String(req.query.symbols||'').split(',').map(s=>s.trim().toUpperCase()).filter(Boolean);
   const SYMBOLS = safeSymbols();
   const universe = explicit.length ? explicit : SYMBOLS.slice(offset, offset+limit);
-  const results = await Promise.all(universe.slice(0,limit).map(s=>one(s, req.query.range || '1y')));
-  const ok = results.filter(x=>x.success).sort((a,b)=>(b.score||0)-(a.score||0));
-  send(res,{success:true,total:explicit.length?explicit.length:SYMBOLS.length,offset,limit,done:explicit.length?true:offset+limit>=SYMBOLS.length,results:ok,data:ok,errors:results.filter(x=>!x.success)});
+  const selected = universe.slice(0,limit);
+  const started = Date.now();
+  const stageSummary = { symbols:selected.length, ohlcvOk:0, volumeOk:0, indicatorOk:0, decisionOk:0, masterOk:0 };
+  const results = [];
+  const errors = [];
+  for(const s of selected){
+    try{
+      const m = await one(s, req.query.range || req.query.period || '1y');
+      if(m && m.success){
+        const h=m.dataHealth||m.indicators?.health||{};
+        stageSummary.ohlcvOk += (m.ohlcv||[]).length>0 ? 1 : 0;
+        stageSummary.volumeOk += h.volume ? 1 : 0;
+        stageSummary.indicatorOk += m.indicators ? 1 : 0;
+        stageSummary.decisionOk += m.decision ? 1 : 0;
+        stageSummary.masterOk += 1;
+        results.push(m);
+      }else{
+        const err={success:false,symbol:s,error:m?.error||'master object üretilemedi',stage:m?.stage||'master'};
+        errors.push(err);
+      }
+    }catch(e){
+      errors.push({success:false,symbol:s,error:e.message||String(e),stage:'fatal'});
+    }
+  }
+  const ok = results.filter(x=>x.success).sort((a,b)=>(Number(b.score||b.finalScore||0))-(Number(a.score||a.finalScore||0)));
+  const total = explicit.length ? explicit.length : SYMBOLS.length;
+  const nextOffset = explicit.length ? selected.length : Math.min(offset+limit,total);
+  const done = explicit.length ? true : nextOffset>=total;
+  const diagnostic = {
+    message: ok.length ? 'R15 core zinciri çalıştı.' : 'R15: semboller işlendi ancak başarılı Master Stock Object üretilemedi.',
+    chain: stageSummary,
+    firstErrors: errors.slice(0,8),
+    hint: ok.length ? '' : 'Diagnostic Mode ile ilk hatalı sembolü kontrol edin: /api/core?action=diagnostic&symbol='+(selected[0]||'PAPIL'),
+    durationMs: Date.now()-started
+  };
+  send(res,{success:true,total,offset,limit,nextOffset,done,processed:selected.length,successCount:ok.length,errorCount:errors.length,stageSummary,diagnostic,results:ok,data:ok,errors});
 }
 async function handlePortfolio(req,res){
   try{
@@ -177,10 +210,10 @@ module.exports = async function handler(req,res){
       symbols:handleSymbols, stock:handleStock, quote:handleStock, decision:handleDecision,
       dip:handleDip, scan:handleScan, 'institutional-scan':handleScan, institutional:handleScan,
       'portfolio-advice':handlePortfolio, portfolio:handlePortfolio,
-      kap:handleKap, news:handleKap, diagnostic:handleDiagnostic, diagnose:handleDiagnostic, health:handleDiagnostic, learning:handleLearning, backtest:handleBacktest, committee:handleCommittee
+      kap:handleKap, news:handleKap, diagnostic:handleDiagnostic, diagnose:handleDiagnostic, health:handleDiagnostic, stabilize:handleDiagnostic, learning:handleLearning, backtest:handleBacktest, committee:handleCommittee
     };
     const fn = map[action];
     if(!fn) return bad(res,'Bilinmeyen core action: '+(action||'-'));
     return await fn(req,res);
-  }catch(e){ return send(res,{success:false,error:e.message||String(e),source:'R12.1 core'}); }
+  }catch(e){ return send(res,{success:false,error:e.message||String(e),source:'R15 core-stabilization'}); }
 };
