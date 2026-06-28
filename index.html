@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro R20 Explainable AI</title>
+<title>BIST Radar Pro R20.1 Explainable AI</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/r10-runtime.js"></script>
 <script>
@@ -92,7 +92,7 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro R20 Explainable AI</div><div class="pill">%100 Gerçek OHLCV • R20 Explainable AI • Sade Karar Merkezi</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro R20.1 Explainable AI</div><div class="pill">%100 Gerçek OHLCV • R20.1 Explainable AI • Karşılaştırma Modülü</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -101,7 +101,8 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
   </div>
   <div class="tabs simplified-tabs">
     <button class="tab active" data-page="dashboard">🧠 Karar Merkezi</button>
-    <button class="tab" data-page="explainableAI">🔎 R20 Explainable AI</button>
+    <button class="tab" data-page="explainableAI">🔎 R20.1 Explainable AI</button>
+    <button class="tab" data-page="snapshotCompare">🧪 Karşılaştırma</button>
     <button class="tab" data-page="dayTradingAI">⚡ Day Trading AI</button>
     <button class="tab" data-page="analysis">📈 Hisse Analizi</button>
     <button class="tab" data-page="portfolio">💼 Portföy Radarım</button>
@@ -281,7 +282,7 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
     </div><br>
     <div class="card"><div class="head dark">🔎 R20 Explainable AI 2.0 / Karar Gerekçesi</div><div class="body">
       <div class="quickFilters"><button class="btn" id="xaiRunBtn">Seçili Hisseyi Açıkla</button><button class="btn gray" id="xaiOpenAnalysisBtn">Hisse Analizine Git</button><button class="btn green" id="xaiExportBtn">XAI CSV</button></div>
-      <div id="xaiNarrative" class="comment">R20, AI kararının neden oluştuğunu katman katman açıklar. Trend, momentum, hacim, kurumsal para, risk, IQS ve veri kalitesi aynı ekranda özetlenir. Gereksiz modül kalabalığı kaldırıldı.</div>
+      <div id="xaiNarrative" class="comment">R20.1, AI kararının neden oluştuğunu katman katman açıklar. Trend, momentum, hacim, kurumsal para, risk, IQS ve veri kalitesi aynı ekranda özetlenir. Gereksiz modül kalabalığı kaldırıldı.</div>
     </div>
     <div class="grid g3" style="margin-top:16px">
       <div class="card"><div class="head yellow">📢 Son KAP Bildirimi</div><div class="body"><div id="xaiKapLatest" class="comment">Hisse seçip çalıştırın.</div></div></div>
@@ -2128,13 +2129,52 @@ function renderXAI(x){
   if($('xaiTraceTable')) $('xaiTraceTable').innerHTML='<tr><th>#</th><th>Karar İzi</th></tr>'+(x.trace||[]).map((t,i)=>`<tr><td>${i+1}</td><td>${t}</td></tr>`).join('');
   if($('xaiTraceBox')) $('xaiTraceBox').innerHTML=`<b>Decision Trace:</b><br>${(x.trace||[]).join('<br>')}<br><br><b>Not:</b> Bu ekran yatırım tavsiyesi değildir. Kararın hangi gerçek OHLC/hacim/KAP/backtest katmanlarından oluştuğunu şeffaflaştıran karar destek ekranıdır.`;
 }
+function r20SelectedSymbol(){
+  const candidates=[
+    window.currentSymbol,
+    window.selectedSymbol,
+    $('symbol')?.value,
+    $('search')?.value,
+    lastStock?.symbol,
+    r3Rows?.[0]?.symbol
+  ];
+  for(const c of candidates){
+    const s=String(c||'').toUpperCase().replace(/[^A-Z0-9]/g,'').trim();
+    if(s) return s;
+  }
+  return "";
+}
+function r20FindCurrentMaster(symbol){
+  const s=String(symbol||'').toUpperCase();
+  const pools=[r3Rows, scanCache, dayTradingCache, institutionalCache, v27Rows, advisorRows];
+  for(const pool of pools){
+    const hit=(pool||[]).find(x=>String(x?.symbol||x?.master?.symbol||'').toUpperCase()===s);
+    if(hit) return hit.master || hit;
+  }
+  if(lastStock && String(lastStock.symbol||'').toUpperCase()===s) return lastStock.master || lastStock;
+  return null;
+}
 async function runExplainableAI(){
-  const s=($('search').value||$('symbol').value||'PAPIL').toUpperCase().trim();
+  const s=r20SelectedSymbol();
   showPage('explainableAI',document.querySelector('[data-page="explainableAI"]'));
-  setStatus(s+' için R20 Explainable AI hazırlanıyor...');
+  if(!s){
+    const msg='R20.1 Explainable AI: Önce bir hisse seçin veya Analiz Et düğmesiyle hisseyi yükleyin.';
+    setStatus(msg);
+    if($('xaiNarrative')) $('xaiNarrative').textContent=msg;
+    return;
+  }
+  if($('search')) $('search').value=s;
+  if($('symbol') && [...$('symbol').options].some(o=>String(o.value).toUpperCase()===s)) $('symbol').value=s;
+  setStatus(s+' için R20.1 Explainable AI hazırlanıyor...');
   try{
-    const j=await (await fetch('/api/core?action=decision&symbol='+encodeURIComponent(s)+'&t='+Date.now())).json();
-    if(!j.success) throw new Error(j.error||'Explainable AI alınamadı');
+    let j=null, master=r20FindCurrentMaster(s);
+    if(master && (master.score!=null || master.finalScore!=null || master.indicators)){
+      j={success:true, master, symbol:s, source:'R20.1 mevcut Master Object'};
+    }else{
+      const resp=await fetch('/api/core?action=explain&symbol='+encodeURIComponent(s)+'&t='+Date.now());
+      j=await resp.json();
+      if(!j.success) throw new Error(j.error||'Explainable AI alınamadı');
+    }
     let x=j.explainable || buildR20XAIFromMaster(j);
     try{
       const kj=await (await fetch('/api/core?action=kap&symbol='+encodeURIComponent(s)+'&limit=8&ai=1&technicalScore='+encodeURIComponent(x?.score||50)+'&t='+Date.now())).json();
@@ -2144,10 +2184,13 @@ async function runExplainableAI(){
     }catch(kerr){
       renderKapAIBox({available:false,summary:'KAP AI bağlantısı kurulamadı.',comment:kerr.message,effectHorizon:{today:50,threeDays:50,oneWeek:50,oneMonth:50},reasons:['KAP API yanıtı alınamadı'],risks:['KAP katmanı nötr bırakıldı.']});
     }
-    renderFinancialAIBox(j.financialAI || {score:50,grade:'Nötr',polarity:'Veri yok',summary:'Finansal AI veri kaynağı bağlı değil; finansal katman nötr bırakıldı.',comment:'Random/demo finansal veri üretilmedi.',reasons:['Gerçek finansal kaynak bekleniyor.'],risks:['Finansal katkı nötrdür.'],source:'R20 safe-neutral'});
+    renderFinancialAIBox(j.financialAI || {score:50,grade:'Nötr',polarity:'Veri yok',summary:'Finansal AI veri kaynağı bağlı değil; finansal katman nötr bırakıldı.',comment:'Random/demo finansal veri üretilmedi.',reasons:['Gerçek finansal kaynak bekleniyor.'],risks:['Finansal katkı nötrdür.'],source:'R20.1 safe-neutral'});
     renderXAI(x);
-    setStatus(s+' için R20 Explainable AI hazır.');
-  }catch(e){ setStatus('R20 Explainable AI hatası: '+e.message); if($('xaiNarrative')) $('xaiNarrative').textContent='R20 Explainable AI hatası: '+e.message; }
+    setStatus(s+' için R20.1 Explainable AI hazır.');
+  }catch(e){
+    setStatus('R20.1 Explainable AI hatası: '+e.message);
+    if($('xaiNarrative')) $('xaiNarrative').textContent='R20.1 Explainable AI hatası: '+e.message;
+  }
 }
 function renderInlineExplainableFromStock(a){
   if(!$('aiDecision')) return;

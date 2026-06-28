@@ -276,7 +276,7 @@ module.exports = async function handler(req,res){
   try{
     const action = String(req.query.action || req.query.a || '').toLowerCase();
     const map = {
-      symbols:handleSymbols, stock:handleStock, quote:handleStock, decision:handleDecision,
+      symbols:handleSymbols, stock:handleStock, quote:handleStock, decision:handleDecision, explain:handleDecision, xai:handleDecision,
       dip:handleDip, scan:handleScan, 'institutional-scan':handleScan, institutional:handleScan,
       'portfolio-advice':handlePortfolio, portfolio:handlePortfolio,
       kap:handleKap, news:handleKap, diagnostic:handleDiagnostic, diagnose:handleDiagnostic, health:handleDiagnostic, stabilize:handleDiagnostic, validate:handleValidate, validator:handleValidate, corevalidator:handleValidate, learning:handleLearning, backtest:handleBacktest, committee:handleCommittee
