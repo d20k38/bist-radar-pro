@@ -6,7 +6,8 @@ import { getCoreAnalysis, getCoreMeta } from '../lib/core-engine.js';
 import { buildDecisionPayload } from '../lib/ai-decision-engine.js';
 import { buildExplainableAI } from '../lib/explainable-ai-engine.js';
 import { analyzeFinancialAI } from '../lib/financial-ai-engine.js';
-import { buildMasterStockObject, masterToLegacyRow, cleanSymbol, normalizeUniverse } from '../lib/data-layer.js';
+import { buildMasterStockObject, cleanSymbol, normalizeUniverse } from '../lib/data-layer.js';
+import { buildDecisionFromMaster, decisionToRow, summarizeDecisions } from '../lib/decision-layer.js';
 
 const __filename=fileURLToPath(import.meta.url); const __dirname=dirname(__filename);
 function readJson(p,fallback){try{return JSON.parse(readFileSync(p,'utf8'))}catch(e){return fallback}}
@@ -38,11 +39,13 @@ async function buildOne(symbol, withExplain=false){
   const financialData=findFinancialData(sym);
   const financialAI=analyzeFinancialAI({symbol:sym,core,financialData,kapItems});
   const master=buildMasterStockObject(core,{symbol:sym,financialScore:financialAI?.score});
-  if(!withExplain) return {master,row:masterToLegacyRow(master),core};
+  const r2Decision=buildDecisionFromMaster(master);
+  const row=decisionToRow(r2Decision);
+  if(!withExplain) return {master,r2Decision,row,core};
   const decision=buildDecisionPayload(core.symbol,core.analysis);
   let explainable=buildExplainableAI(core.symbol,core,decision);
   explainable=applyFinancialToExplainable(explainable,financialAI);
-  return {master,row:masterToLegacyRow(master),core,decision,explainable,financialAI};
+  return {master,r2Decision,row,core,decision,explainable,financialAI};
 }
 export default async function handler(req,res){
   res.setHeader('Content-Type','application/json; charset=utf-8');
@@ -50,19 +53,20 @@ export default async function handler(req,res){
     const requestedSymbol=cleanSymbol(req.query.symbol||'');
     if(requestedSymbol){
       const r=await buildOne(requestedSymbol,true);
-      return res.status(200).json({success:true,schema:'R1_DATA_LAYER_DECISION_SINGLE',symbol:r.master.symbol,master:r.master,row:r.row,decision:r.decision,explainable:r.explainable,financialAI:r.financialAI,analysis:r.core.analysis,dayTrading:r.core.dayTrading,institutional:r.core.institutional,quality:r.core.quality,core:r.core.meta});
+      return res.status(200).json({success:true,schema:'R2_DECISION_SINGLE',symbol:r.master.symbol,master:r.master,r2Decision:r.r2Decision,row:r.row,decision:r.decision,explainable:r.explainable,financialAI:r.financialAI,analysis:r.core.analysis,dayTrading:r.core.dayTrading,institutional:r.core.institutional,quality:r.core.quality,core:r.core.meta});
     }
     const all=normalizeUniverse(await getSymbols());
     const offset=Math.max(0,Number(req.query.offset||0));
     const limit=Math.max(1,Math.min(Number(req.query.limit||4),4));
     const symbols=all.slice(offset,offset+limit);
-    const masters=[]; const data=[]; const errors=[];
+    const masters=[]; const decisions=[]; const data=[]; const errors=[];
     for(const symbol of symbols){
-      try{const r=await buildOne(symbol,false); masters.push(r.master); data.push(r.row);}catch(e){errors.push({symbol,error:e.message});}
+      try{const r=await buildOne(symbol,false); masters.push(r.master); decisions.push(r.r2Decision); data.push(r.row);}catch(e){errors.push({symbol,error:e.message});}
     }
     data.sort((a,b)=>(b.finalScore||0)-(a.finalScore||0));
-    return res.status(200).json({success:true,schema:'R1_DATA_LAYER_DECISION_BATCH',count:data.length,total:all.length,offset,limit,nextOffset:offset+symbols.length,done:offset+symbols.length>=all.length,data,masters,errors,core:getCoreMeta()});
+    const summary=summarizeDecisions(decisions);
+    return res.status(200).json({success:true,schema:'R2_DECISION_BATCH',count:data.length,total:all.length,offset,limit,nextOffset:offset+symbols.length,done:offset+symbols.length>=all.length,data,masters,decisions,summary,errors,core:getCoreMeta(),note:'R2: Master Stock Object -> tek AI Final Decision kararı üretir.'});
   }catch(e){
-    res.status(200).json({success:false,schema:'R1_DATA_LAYER_DECISION',error:e.message,data:[],masters:[],count:0,total:0,done:true});
+    res.status(200).json({success:false,schema:'R2_DECISION',error:e.message,data:[],masters:[],decisions:[],count:0,total:0,done:true});
   }
 }
