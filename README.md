@@ -1,14 +1,16 @@
-# BIST Radar Pro R10.1 Scanner Completion FIX
+# BIST Radar Pro R10.2 RVOL FIX
 
-Bu sürüm R10 Codebase Refactor üzerine performans/kararlılık düzeltmesidir.
+Bu sürüm R10.1 Scanner Completion FIX üzerine hazırlanmıştır.
 
 ## Düzeltmeler
-- 336/526 gibi ara noktada takılan tarama döngüsü düzeltildi.
-- Tek bir API batch hatası tüm taramayı durdurmaz; batch hata olarak kaydedilip sonraki bloğa geçilir.
-- `/api/scan` sembol başına zaman aşımı ile güvenli hale getirildi.
-- Toplam sembol sayısı önce `/api/symbols` ile alınır; ilerleme çubuğu gerçek toplamı gösterir.
-- Tarama sonunda başarılı ve hatalı/atlanmış kayıt sayısı raporlanır.
-- Benchmark verisi tam taramada kapatıldı; bu Vercel timeout riskini azaltır.
+- RVOL değerinin sürekli `0x` görünmesi düzeltildi.
+- Son işlem gününün hacmi 0/null gelirse RVOL, son pozitif hacimli işlem gününe göre hesaplanır.
+- 20 günlük ve 5 günlük ortalama hacim hesaplarında yalnızca gerçek pozitif hacimler kullanılır.
+- Hacim verisi yoksa `0x` yerine `veri yetersiz` gösterilir.
+- Hacim verisi eksikliği, Day Trading skorunu yapay şekilde cezalandırmaz; nötr puanlanır.
+- Indicator Engine içindeki RVOL hesaplaması da aynı mantığa bağlandı.
 
-## Not
-Demo/random veri eklenmedi. Veri alınamayan semboller hata satırı olarak raporlanır.
+## Kurallar
+- Random/demo hacim verisi eklenmedi.
+- API sayısı artırılmadı.
+- Syntax test geçti.
