@@ -1,18 +1,13 @@
-# BIST Radar Pro R17 - Provider Abstraction Layer
+# BIST Radar Pro R18 Indicator Engine 100
 
-Bu sürüm yeni özellik eklemez; veri sağlayıcı katmanını sağlamlaştırır.
+Bu sürüm yeni ekran eklemekten çok hesaplama çekirdeğini güçlendirir.
 
-## Amaç
-- `yahoo-finance2` paketi bulunamazsa uygulamanın çökmesini engellemek.
-- Önce `yahoo-finance2`, yoksa Yahoo HTTP chart/quote provider ile gerçek OHLCV almaya çalışmak.
-- Veri alınamazsa random/demo üretmeden JSON hata ve diagnostic döndürmek.
-- 2420 gibi gürültülü/tekrarlı sembol evrenini temiz `lib/symbols.js` listesine indirmek.
+## Eklenen / güçlendirilen katmanlar
+- Trend göstergeleri: SMA/EMA/WMA/HMA, Bollinger, Donchian, Keltner
+- Momentum göstergeleri: RSI, Stochastic, MACD, PPO, ROC, TRIX, CCI, Williams %R, DPO
+- Hacim göstergeleri: RVOL 5/10/20/50, VWAP 20/50, VWMA, OBV, ADL, CMF, MFI, Force Index, Volume Oscillator, Ease of Movement
+- Volatilite göstergeleri: ATR, Historical Volatility, StdDev, Ulcer Index, Choppiness
+- Kurumsal kalite katmanları: trendQuality, momentumQuality, volumeQuality, institutionalMoneyScore, liquidityScore, riskScore
+- Decision Engine artık AI=0 yerine bu hesaplanmış katmanlardan puan üretir.
 
-## Dosya yapısı
-- `api/core.js`: tek Vercel function
-- `lib/unified-provider.js`: Provider Abstraction Layer
-- `lib/symbols.js`: temiz BIST sembol evreni
-- `index.html`
-
-## Vercel Hobby
-`api/` içinde sadece `core.js` kalmalıdır.
+Random/demo veri eklenmedi; tüm metrikler gerçek OHLCV dizisinden türetilir.
