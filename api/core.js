@@ -1,4 +1,12 @@
-const { SYMBOLS, master, diagnose, diagnoseMany } = require('../lib/unified-provider');
+let providerCache = null;
+function getProvider(){
+  if(providerCache) return providerCache;
+  providerCache = require('../lib/unified-provider');
+  return providerCache;
+}
+function safeSymbols(){
+  try{ return getProvider().SYMBOLS || []; }catch(_){ return []; }
+}
 
 function send(res, obj, cache='s-maxage=30, stale-while-revalidate=120'){
   try{ res.setHeader('Cache-Control', cache); }catch(_){ }
@@ -7,11 +15,12 @@ function send(res, obj, cache='s-maxage=30, stale-while-revalidate=120'){
 function bad(res, msg){ send(res,{success:false,error:msg}); }
 function symbolsFrom(q){ return String(q.symbols || q.symbol || '').split(',').map(s=>s.trim().toUpperCase()).filter(Boolean); }
 async function one(s, period='1y'){
-  try{return await master(s,{period});}
+  try{ const { master } = getProvider(); return await master(s,{period});}
   catch(e){return {success:false,symbol:s,error:e.message||String(e)}}
 }
 async function handleSymbols(req,res){
-  const limit = Math.max(1, Math.min(1000, Number(req.query.limit || SYMBOLS.length)));
+  const SYMBOLS = safeSymbols();
+  const limit = Math.max(1, Math.min(1000, Number(req.query.limit || SYMBOLS.length || 0)));
   const offset = Math.max(0, Number(req.query.offset || 0));
   const slice = SYMBOLS.slice(offset, offset+limit);
   send(res,{ success:true, total:SYMBOLS.length, offset, limit, symbols:slice }, 's-maxage=3600, stale-while-revalidate=86400');
@@ -50,6 +59,7 @@ async function handleScan(req,res){
   const offset = Math.max(0, Number(req.query.offset || 0));
   const limit = Math.max(1, Math.min(30, Number(req.query.limit || 12)));
   const explicit = String(req.query.symbols||'').split(',').map(s=>s.trim().toUpperCase()).filter(Boolean);
+  const SYMBOLS = safeSymbols();
   const universe = explicit.length ? explicit : SYMBOLS.slice(offset, offset+limit);
   const results = await Promise.all(universe.slice(0,limit).map(s=>one(s, req.query.range || '1y')));
   const ok = results.filter(x=>x.success).sort((a,b)=>(b.score||0)-(a.score||0));
@@ -64,7 +74,45 @@ async function handlePortfolio(req,res){
   }catch(e){send(res,{success:false,error:e.message||String(e)})}
 }
 async function handleKap(req,res){
-  send(res,{success:true, live:false, source:'R12.1 core', items:[], institutional:{items:[],summary:'Canlı KAP bağlantısı bu konsolide endpointte veri döndürmedi; random/demo haber üretilmedi.'}, note:'KAP için ayrı provider bağlanmadı. Veri yoksa nötr bırakılır.', demoData:false});
+  try{
+    const symbol = String(req.query.symbol || '').toUpperCase().trim();
+    const limit = Math.max(1, Math.min(50, Number(req.query.limit || 20)));
+    // R14.1: KAP tarafı asla Vercel HTML/error döndürmez. Canlı provider yoksa güvenli JSON döner.
+    const items = [];
+    return send(res,{
+      success:true,
+      live:false,
+      source:'R14.1 kap-safe-json',
+      symbol,
+      limit,
+      items,
+      data:items,
+      count:0,
+      kapAI:null,
+      institutional:{
+        items,
+        score:50,
+        summary:'KAP canlı veri sağlayıcısı bağlı değil veya yanıt alınamadı. Demo/random haber üretilmedi; KAP etkisi nötr kabul edildi.'
+      },
+      ai:{
+        impactScore:50,
+        reliabilityScore:0,
+        eventType:'Veri yok',
+        summary:'Okunabilir gerçek KAP bildirimi bulunamadı.',
+        comment:'KAP kaynağı güvenli JSON döndürdü ancak canlı haber içeriği yok. Karar motoru KAP katkısını nötr bırakmalıdır.'
+      },
+      demoData:false,
+      timestamp:new Date().toISOString()
+    }, 'no-store');
+  }catch(e){
+    return send(res,{
+      success:false,
+      source:'R14.1 kap-safe-json',
+      error:e.message||String(e),
+      items:[], data:[], count:0, demoData:false,
+      institutional:{items:[],score:50,summary:'KAP modülü hata aldı; JSON dışı cevap engellendi.'}
+    }, 'no-store');
+  }
 }
 async function handleBacktest(req,res){
   const s=String(req.query.symbol||'').toUpperCase().trim();
@@ -93,13 +141,17 @@ async function handleDiagnostic(req,res){
   const period = req.query.range || req.query.period || '1y';
   try{
     if(explicit.length>1){
+      const { diagnoseMany } = getProvider();
       const out = await diagnoseMany(explicit, {period, limit});
       return send(res, out, 'no-store');
     }
     if(symbol || explicit.length===1){
+      const { diagnose } = getProvider();
       const out = await diagnose(symbol || explicit[0], {period});
       return send(res, out, 'no-store');
     }
+    const SYMBOLS = safeSymbols();
+    const { diagnoseMany } = getProvider();
     const list = SYMBOLS.slice(offset, offset+limit);
     const out = await diagnoseMany(list, {period, limit});
     out.totalUniverse = SYMBOLS.length;

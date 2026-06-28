@@ -1,16 +1,14 @@
-# BIST Radar Pro R14 Diagnostic Mode
+# BIST Radar Pro R14.1 KAP Safe JSON FIX
 
-Bu sürüm yeni yatırım özelliği eklemez. Amaç, veri zincirindeki kırılma noktasını görünür hale getirmektir.
+## Amaç
+KAP/Haber alanında Vercel `FUNCTION_INVOCATION_FAILED` olduğunda tarayıcıya HTML hata sayfası yerine her zaman JSON dönmesini sağlamak.
 
-## Eklenenler
-- `/api/core?action=diagnostic` endpointi
-- Hisse bazlı sembol → OHLCV → hacim → indicator → karar motoru denetimi
-- OHLC derinliği, pozitif hacim sayısı, RVOL, VWAP, CMF, MFI kontrolü
-- Dashboard içinde R14 Diagnostic Mode sekmesi
-- Diagnostic CSV dışa aktarım
+## Değişiklikler
+- `/api/core?action=kap` güvenli JSON moduna alındı.
+- KAP provider yoksa demo/random haber üretmez; nötr KAP yanıtı döner.
+- `api/core.js` içindeki veri sağlayıcı `require` işlemi lazy-load yapıldı; KAP isteği OHLC provider hatasından etkilenmez.
+- `index.html` içindeki eski `/api/kap` çağrıları `/api/core?action=kap` formatına çevrildi.
+- API function sayısı yine 1: `api/core.js`.
 
-## API Yapısı
-Vercel Hobby sınırı için yalnızca `api/core.js` function olarak kalır. `lib/` kök dizindedir.
-
-## Not
-Random/demo veri eklenmedi. Veri eksikse eksik aşama açıkça raporlanır.
+## GitHub Notu
+`api/` klasöründe yalnızca `core.js` kalmalı. Eski endpoint dosyaları varsa silin.

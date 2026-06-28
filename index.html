@@ -47,7 +47,7 @@ async function renderKapNews(symbol=''){
   if(summary) summary.textContent=loading;
   if(aiBox) aiBox.textContent='KAP etkisi ve güven skoru hazırlanıyor...';
   try{
-    const url='/api/kap?limit=20&ai=1'+(target?'&symbol='+encodeURIComponent(target):'')+'&t='+Date.now();
+    const url='/api/core?action=kap&limit=20&ai=1'+(target?'&symbol='+encodeURIComponent(target):'')+'&t='+Date.now();
     const j=await fetchJsonSafe(url,{timeout:7000,retries:1});
     const inst=j.institutional||j;
     const items=Array.isArray(inst.items)?inst.items:(Array.isArray(j.items)?j.items:[]);
@@ -1306,7 +1306,7 @@ async function runV20Portfolio(){
 
 async function runV22News(symbol=''){
   const target = symbol || '';
-  const url = '/api/kap?engine=v22&limit=30' + (target ? '&symbol='+encodeURIComponent(target) : '');
+  const url = '/api/core?action=kap&engine=v22&limit=30' + (target ? '&symbol='+encodeURIComponent(target) : '');
   const loading = `<b>V22 Kurumsal Haber Motoru çalışıyor...</b><br>${target?target:'Genel KAP akışı'} sınıflandırılıyor.`;
   if($('v22Summary')) $('v22Summary').innerHTML = loading;
   try{
@@ -2096,7 +2096,7 @@ async function runExplainableAI(){
     let x=j.explainable;
     renderFinancialAIBox(j.financialAI);
     try{
-      const kj=await (await fetch('/api/kap?symbol='+encodeURIComponent(s)+'&limit=8&ai=1&technicalScore='+encodeURIComponent(x?.score||50)+'&t='+Date.now())).json();
+      const kj=await (await fetch('/api/core?action=kap&symbol='+encodeURIComponent(s)+'&limit=8&ai=1&technicalScore='+encodeURIComponent(x?.score||50)+'&t='+Date.now())).json();
       const kapAI=kj.kapAI||kj.latestKapAI;
       renderKapAIBox(kapAI);
       x=applyKapAIToXAI(x,kapAI);
@@ -2625,7 +2625,7 @@ setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]')
       const el=$id('kapList')||$id('kapNews')||$id('kapBox');
       try{
         if(el) el.innerHTML='KAP verisi alınıyor...';
-        const url='/api/kap'+(symbol?('?symbol='+encodeURIComponent(symbol)):'');
+        const url='/api/core?action=kap'+(symbol?('&symbol='+encodeURIComponent(symbol)):'');
         const r=await fetch(url,{cache:'no-store'});
         const j=await r.json().catch(()=>({success:false,error:'API JSON döndürmedi'}));
         if(!j.success) throw new Error(j.error||'KAP verisi alınamadı');
