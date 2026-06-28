@@ -725,13 +725,38 @@ function stdArr(a,n){return a.map((_,i)=>{if(i<n-1)return NaN; const part=a.slic
 function calcBollinger(c,n=20,k=2){const mid=smaArr(c,n),sd=stdArr(c,n);return{mid,upper:mid.map((m,i)=>Number.isFinite(m)?m+k*sd[i]:NaN),lower:mid.map((m,i)=>Number.isFinite(m)?m-k*sd[i]:NaN)}}
 function calcVwap(h,l,c,v){let pv=0,vol=0;return c.map((x,i)=>{const typical=(h[i]+l[i]+c[i])/3;pv+=typical*(v[i]||0);vol+=(v[i]||0);return vol?pv/vol:NaN})}
 function calcEma(a,n){let k=2/(n+1),o=[];a.forEach((v,i)=>o[i]=i?v*k+o[i-1]*(1-k):v);return o}
-async function fetchJsonSafe(url){
-  const res=await fetch(url,{cache:'no-store'});
-  const text=await res.text();
-  try{return JSON.parse(text)}catch(e){
-    const msg=text.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().slice(0,160)||res.statusText||'Boş yanıt';
-    throw new Error('API JSON döndürmedi: '+msg);
+async function fetchJsonSafe(url, opts={}){
+  const timeout=Number(opts.timeout||11000);
+  const retries=Number(opts.retries??1);
+  let lastErr=null;
+  for(let attempt=0; attempt<=retries; attempt++){
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(), timeout);
+    try{
+      const res=await fetch(url,{cache:'no-store',signal:controller.signal});
+      const text=await res.text();
+      let json;
+      try{json=JSON.parse(text)}catch(e){
+        const msg=text.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().slice(0,180)||res.statusText||'Boş yanıt';
+        throw new Error('API JSON döndürmedi: '+msg);
+      }
+      if(!res.ok) throw new Error(json?.error||('HTTP '+res.status));
+      return json;
+    }catch(e){
+      lastErr=e?.name==='AbortError'?new Error('API zaman aşımı: '+url):e;
+      if(attempt<retries) await new Promise(r=>setTimeout(r,350+attempt*400));
+    }finally{clearTimeout(timer)}
   }
+  throw lastErr||new Error('API bağlantı hatası');
+}
+function mergeUniqueBySymbol(base, part){
+  const map=new Map((base||[]).filter(x=>x&&x.symbol).map(x=>[String(x.symbol).toUpperCase(),x]));
+  (part||[]).filter(x=>x&&x.symbol).forEach(x=>{
+    const sym=String(x.symbol).toUpperCase();
+    const prev=map.get(sym);
+    if(!prev || Number(x.finalScore||0)>Number(prev.finalScore||0)) map.set(sym,x);
+  });
+  return [...map.values()];
 }
 function setProgress(done,total){
   const pct=total?Math.round((done/total)*100):0;
@@ -740,29 +765,40 @@ function setProgress(done,total){
   if(t)t.textContent=total?`${done}/${total} hisse tarandı (%${pct})`:'Tarama bekleniyor.';
 }
 async function scanAll(silent=false){
-  setStatus('BIST listesi parçalı olarak taranıyor...');
+  setStatus('R4 performans taraması başlatıldı: küçük partiler, tekilleştirme ve güvenli tekrar deneme aktif...');
   document.body.classList.add('loading');
   scanCache=[];
   setProgress(0,0);
+  const started=Date.now();
   try{
-    let offset=0,total=null,chunk=4,guard=0;
+    let offset=0,total=null,chunk=6,guard=0,failStreak=0;
     while(true){
-      const j=await fetchJsonSafe(`/api/scan?limit=${chunk}&offset=${offset}&t=${Date.now()}`);
+      const j=await fetchJsonSafe(`/api/scan?limit=${chunk}&offset=${offset}&t=${Date.now()}`,{timeout:12000,retries:1});
       if(!j.success) throw new Error(j.error||'API başarısız yanıt verdi');
       total=Number(j.total||0);
       const part=Array.isArray(j.data)?j.data.filter(x=>x&&x.symbol):[];
-      scanCache=scanCache.concat(part);
+      if(part.length){ failStreak=0; scanCache=mergeUniqueBySymbol(scanCache,part); }
+      else { failStreak++; }
       offset=Number(j.nextOffset ?? (offset+chunk));
       setProgress(Math.min(offset,total||offset), total||offset);
-      renderDashboard();
-      renderTables();
+      // R4: Her partide ağır tablo çizimi yerine aralıklı render. UI donmasını azaltır.
+      if(guard%3===0 || j.done || offset>=total){
+        scanCache.sort((a,b)=>(Number(b.finalScore)||0)-(Number(a.finalScore)||0));
+        renderDashboard();
+        renderTables();
+      }else{
+        if(typeof r3Render==='function') r3Render();
+      }
       if(j.done || !total || offset>=total) break;
-      guard++; if(guard>250) throw new Error('Tarama güvenlik sınırına takıldı. Liste çok büyükse tekrar deneyin.');
-      await new Promise(r=>setTimeout(r,120));
+      guard++;
+      if(guard>Math.ceil((total||604)/Math.max(chunk,1))+25) throw new Error('R4 güvenlik çıkışı: beklenenden fazla parti denendi.');
+      if(failStreak>=5) throw new Error('Arka arkaya boş API yanıtı alındı. Veri sağlayıcı geçici olarak cevap vermiyor olabilir.');
+      await new Promise(r=>setTimeout(r,45));
     }
     scanCache.sort((a,b)=>(Number(b.finalScore)||0)-(Number(a.finalScore)||0));
     renderDashboard();renderTables();
-    setStatus(`${scanCache.length} hisse tarandı. En güçlü, güvenli kazanç ve fırsat listeleri güncellendi.`);
+    const sec=((Date.now()-started)/1000).toFixed(1);
+    setStatus(`${scanCache.length} tekil hisse tarandı. R4 performans taraması ${sec} sn sürdü.`);
   }catch(e){
     setStatus('Tarama hatası: '+e.message);
   }finally{

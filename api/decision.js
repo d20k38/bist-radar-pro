@@ -57,15 +57,22 @@ export default async function handler(req,res){
     }
     const all=normalizeUniverse(await getSymbols());
     const offset=Math.max(0,Number(req.query.offset||0));
-    const limit=Math.max(1,Math.min(Number(req.query.limit||4),4));
+    const limit=Math.max(1,Math.min(Number(req.query.limit||4),6));
     const symbols=all.slice(offset,offset+limit);
     const masters=[]; const decisions=[]; const data=[]; const errors=[];
-    for(const symbol of symbols){
-      try{const r=await buildOne(symbol,false); masters.push(r.master); decisions.push(r.r2Decision); data.push(r.row);}catch(e){errors.push({symbol,error:e.message});}
+    const jobs=symbols.map(async symbol=>{
+      try{const r=await buildOne(symbol,false); return {symbol,ok:true,...r};}
+      catch(e){return {symbol,ok:false,error:e.message};}
+    });
+    const results=await Promise.allSettled(jobs);
+    for(const rr of results){
+      const r=rr.status==='fulfilled'?rr.value:{symbol:'?',ok:false,error:rr.reason?.message||String(rr.reason)};
+      if(r.ok){masters.push(r.master); decisions.push(r.r2Decision); data.push(r.row);}
+      else {errors.push({symbol:r.symbol,error:r.error});}
     }
     data.sort((a,b)=>(b.finalScore||0)-(a.finalScore||0));
     const summary=summarizeDecisions(decisions);
-    return res.status(200).json({success:true,schema:'R2_DECISION_BATCH',count:data.length,total:all.length,offset,limit,nextOffset:offset+symbols.length,done:offset+symbols.length>=all.length,data,masters,decisions,summary,errors,core:getCoreMeta(),note:'R2: Master Stock Object -> tek AI Final Decision kararı üretir.'});
+    return res.status(200).json({success:true,schema:'R2_DECISION_BATCH',count:data.length,total:all.length,offset,limit,nextOffset:offset+symbols.length,done:offset+symbols.length>=all.length,data,masters,decisions,summary,errors,core:getCoreMeta(),note:'R4: küçük parça + paralel karar hesaplama; Master Stock Object -> tek AI Final Decision kararı üretir.'});
   }catch(e){
     res.status(200).json({success:false,schema:'R2_DECISION',error:e.message,data:[],masters:[],decisions:[],count:0,total:0,done:true});
   }
