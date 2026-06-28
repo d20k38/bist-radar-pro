@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro V18 Professional - Gerçek Veri Çekirdeği</title>
+<title>BIST Radar Pro V19 Institutional - %100 Gerçek Veri</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro V18 Professional</div><div class="pill">Gerçek Veri Çekirdeği • Random Yok • Dip Avcısı PRO</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro V19 Institutional</div><div class="pill">%100 Gerçek Veri • 250 Günlük Hafıza • Institutional AI</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -36,6 +36,7 @@
     <button class="tab" data-page="kapPage">📢 KAP/Haber AI</button>
     <button class="tab" data-page="confidencePage">🧩 Güven Katmanları</button>
     <button class="tab" data-page="committeePage">🏛️ AI Yatırım Komitesi</button>
+    <button class="tab" data-page="v19Institutional">🏦 V19 Institutional</button>
     <button class="tab" data-page="dipProfessional">🎯 Dip Avcısı PRO</button>
   </div>
   <div id="status" class="status">Hazır.</div>
@@ -225,6 +226,34 @@
   </section>
 
 
+
+  <section id="v19Institutional" class="hidden">
+    <div class="grid g4">
+      <div class="card metric"><div class="head green">Dip Skoru</div><div class="body"><div id="v19DipScore" class="v">-</div><div class="muted">%100 gerçek veri</div></div></div>
+      <div class="card metric"><div class="head cyan">AI Güven</div><div class="body"><div id="v19Trust" class="v">-</div><div class="muted">veri + backtest</div></div></div>
+      <div class="card metric"><div class="head yellow">Kurumsal Toplama</div><div class="body"><div id="v19Inst" class="v">-</div><div class="muted">OBV + hacim</div></div></div>
+      <div class="card metric"><div class="head dark">Karar</div><div class="body"><div id="v19Decision" class="v" style="font-size:22px">-</div><div class="muted">Institutional AI</div></div></div>
+    </div>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card"><div class="head green">🎯 250 Günlük Dip Kümesi</div><div class="body" id="v19Region">Analiz bekleniyor...</div></div>
+      <div class="card"><div class="head cyan">⏳ Dip Süreci</div><div class="body" id="v19Time">Analiz bekleniyor...</div></div>
+      <div class="card"><div class="head yellow">🟢 Kademeli Giriş Planı</div><div class="body" id="v19Levels">Analiz bekleniyor...</div></div>
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card"><div class="head">📈 Institutional Dip Grafiği</div><div class="body"><div id="v19Chart" style="height:330px;border:1px solid var(--line);border-radius:14px;position:relative;background:#fff;overflow:hidden"></div></div></div>
+      <div class="card"><div class="head green">🧠 AI Raporu</div><div class="body"><div id="v19AI" class="comment">Analiz bekleniyor...</div></div></div>
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card"><div class="head">📊 Puan Katmanları</div><div class="body"><table class="table"><tbody id="v19Layers"></tbody></table></div></div>
+      <div class="card"><div class="head green">📌 Gerçek Göstergeler</div><div class="body"><table class="table"><tbody id="v19Indicators"></tbody></table></div></div>
+    </div>
+    <div class="card" style="margin-top:16px"><div class="head green">🔍 Tüm BIST Dip Taraması</div><div class="body">
+      <button class="btn green" id="v19ScanBtn">Tümünü Tara</button> <button class="btn gray" id="v19ExportBtn">CSV Dışa Aktar</button>
+      <div id="v19ScanStatus" class="status">Henüz tarama yapılmadı.</div>
+      <table class="table"><thead><tr><th>Hisse</th><th>Son Fiyat</th><th>Dip Skoru</th><th>AI Güven</th><th>Dip Bölgesi</th><th>En Güçlü Dip</th><th>Karar</th></tr></thead><tbody id="v19Rows"></tbody></table>
+    </div></div>
+  </section>
+
   <section id="committeePage" class="hidden">
     <div class="grid g3">
       <div class="card metric"><div class="body"><div class="muted">Komite Nihai Karar</div><div id="committeeDecision" class="v warn">-</div><div class="muted">5 uzman ortak sonucu</div></div></div>
@@ -245,7 +274,7 @@ const defaultPortfolio=[{symbol:'MRSHL',lot:286,cost:2470},{symbol:'PAPIL',lot:7
 let portfolio=loadPortfolioLocal();
 const $=id=>document.getElementById(id);const fmt=(x,d=2)=>Number.isFinite(Number(x))?Number(x).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';const tl=x=>fmt(x)+' TL';
 function setStatus(t){$('status').textContent=t}
-function showPage(id,btn){['dashboard','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','portfolio','portfolioAdvice','dailyReport','kapPage','confidencePage','committeePage','dipProfessional'].forEach(x=>$(x).classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active')}
+function showPage(id,btn){['dashboard','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','portfolio','portfolioAdvice','dailyReport','kapPage','confidencePage','committeePage','dipProfessional','v19Institutional'].forEach(x=>$(x).classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active')}
 function badgeClass(score,risk=false){score=Number(score)||0;if(risk)return score<35?'bgreen':score<60?'byellow':'bred';return score>=65?'bgreen':score>=50?'byellow':'bred'}
 function decisionClass(d){return d==='GÜÇLÜ AL'||d==='AL'?'bgreen':d==='İZLE'?'byellow':d==='BEKLE'?'bblue':'bred'}
 async function init(){wire();await loadSymbols();renderPortfolio();renderSignalJournal();await loadStock(false);await scanAll(true);renderKapNews()}
@@ -675,7 +704,19 @@ function exportV18DipCSV(){
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='v18_gercek_veri_dip_avcisi.csv';a.click();
 }
 
+
+/* V19 Institutional - %100 gerçek veri */
+let v19Cache=[];
+function v19Badge(v){v=Number(v)||0;return `<span class="badge ${v>=70?'bgreen':v>=50?'byellow':'bred'}">${Math.round(v)}</span>`}
+function v19Bar(v){v=Math.max(0,Math.min(100,Number(v)||0));return `<div class="barw"><div class="bar" style="width:${v}%;background:${v>=70?'var(--green)':v>=50?'var(--yellow)':'var(--red)'}"></div></div>`}
+function v19TL(x){return `${fmt(x,2)} TL`}
+function v19Chart(a){const low=Math.min(a.levels.stop,a.dipRegion.low), high=Math.max(a.levels.mainTarget,a.currentPrice); const top=v=>270-((v-low)/Math.max(.01,high-low))*220+25; return `<div style="position:absolute;left:8%;right:8%;top:${Math.min(top(a.dipRegion.high),top(a.dipRegion.low))}px;height:${Math.max(34,Math.abs(top(a.dipRegion.low)-top(a.dipRegion.high)))}px;background:rgba(22,163,74,.16);border:1px dashed var(--green);border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900;color:#166534">250 Günlük Dip Kümesi ${v19TL(a.dipRegion.low)} - ${v19TL(a.dipRegion.high)}</div><div style="position:absolute;left:8%;right:8%;top:${top(a.currentPrice)}px;border-top:2px solid var(--blue)"></div><span style="position:absolute;right:10px;top:${top(a.currentPrice)}px;transform:translateY(-50%);background:#fff;border:1px solid var(--line);border-radius:99px;padding:5px 9px;font-weight:900">Son ${v19TL(a.currentPrice)}</span><div style="position:absolute;left:8%;right:8%;top:${top(a.levels.stop)}px;border-top:2px solid var(--red)"></div><span style="position:absolute;right:10px;top:${top(a.levels.stop)}px;transform:translateY(-50%);background:#fff;border:1px solid var(--line);border-radius:99px;padding:5px 9px;font-weight:900">Stop ${v19TL(a.levels.stop)}</span><div style="position:absolute;left:8%;right:8%;top:${top(a.levels.firstTarget)}px;border-top:2px solid var(--yellow)"></div><span style="position:absolute;right:10px;top:${top(a.levels.firstTarget)}px;transform:translateY(-50%);background:#fff;border:1px solid var(--line);border-radius:99px;padding:5px 9px;font-weight:900">İlk Hedef ${v19TL(a.levels.firstTarget)}</span>`}
+async function loadV19(symbol=null){const s=(symbol||$('search').value||$('symbol').value||'PAPIL').toUpperCase();setStatus(`V19 gerçek veri analizi alınıyor: ${s}`);const j=await (await fetch(`/api/dip?symbol=${encodeURIComponent(s)}`)).json();if(!j.success)throw new Error(j.error||'V19 analizi alınamadı');const a=j.analysis;$('v19DipScore').textContent=Math.round(a.ai.dipScore);$('v19Trust').textContent=Math.round(a.ai.aiTrust);$('v19Inst').textContent=Math.round(a.ai.institutional);$('v19Decision').textContent=a.ai.decision;const cl=(a.supportClusters||[])[0]||{};$('v19Region').innerHTML=`<div class="kpi"><b>Son Fiyat</b><span>${v19TL(a.currentPrice)}</span></div><div class="kpi"><b>Dip Kümesi</b><span>${v19TL(a.dipRegion.low)} - ${v19TL(a.dipRegion.high)}</span></div><div class="kpi"><b>En Güçlü Dip</b><span>${v19TL(a.dipRegion.strongest)}</span></div><div class="kpi"><b>Test Sayısı</b><span>${cl.touches||0}</span></div><div class="kpi"><b>Ortalama Tepki</b><span>%${fmt(cl.avgReaction||0,2)}</span></div>`;$('v19Time').innerHTML=`<div class="kpi"><b>Dip Olgunluğu</b><span>%${Math.round(a.ai.maturity)}</span></div><div class="kpi"><b>Tahmini Süre</b><span>${a.ai.duration}</span></div><div class="kpi"><b>Falling Knife</b><span>${Math.round(a.ai.fallingKnife)}/100</span></div><div class="kpi"><b>Backtest Başarı</b><span>%${fmt(a.backtest.successRate,1)}</span></div>`;$('v19Levels').innerHTML=`<div class="kpi"><b>İlk Alım</b><span>${v19TL(a.levels.firstBuy)}</span></div><div class="kpi"><b>Güçlü Alım</b><span>${v19TL(a.levels.strongBuy)}</span></div><div class="kpi"><b>Stop</b><span>${v19TL(a.levels.stop)}</span></div><div class="kpi"><b>İlk Hedef</b><span>${v19TL(a.levels.firstTarget)}</span></div><div class="kpi"><b>Ana Hedef</b><span>${v19TL(a.levels.mainTarget)}</span></div><div class="kpi"><b>Risk/Getiri</b><span>${fmt(a.levels.riskReward,2)}</span></div>`;$('v19Chart').innerHTML=v19Chart(a);$('v19AI').textContent=a.aiText;$('v19Layers').innerHTML=Object.entries(a.scores).map(([k,v])=>`<tr><td>${({'support':'Destek','rsi':'RSI','macd':'MACD','ema':'EMA','bollinger':'Bollinger','volume':'Hacim','money':'Para Girişi','adx':'ADX','atr':'ATR','cluster':'Dip Kümesi','backtest':'Backtest'}[k]||k)}</td><td>${v19Badge(v)}</td><td>${v19Bar(v)}</td></tr>`).join('');$('v19Indicators').innerHTML=Object.entries(a.indicators).map(([k,v])=>`<tr><td>${k.toUpperCase()}</td><td><b>${fmt(v,2)}</b></td></tr>`).join('');setStatus(`${s} için V19 Institutional analiz hazır. Random veri yok.`)}
+async function scanV19(){v19Cache=[];const sj=await (await fetch('/api/symbols')).json();const list=sj.symbols||[];$('v19ScanStatus').textContent=`0 / ${list.length} hisse tarandı...`;for(let i=0;i<list.length;i++){const s=list[i];try{const j=await (await fetch(`/api/dip?symbol=${encodeURIComponent(s)}`)).json();if(j.success)v19Cache.push({symbol:s,...j.analysis})}catch(e){}v19Cache.sort((a,b)=>(b.ai?.dipScore||0)-(a.ai?.dipScore||0));$('v19Rows').innerHTML=v19Cache.slice(0,30).map(x=>`<tr><td><b>${x.symbol}</b></td><td>${v19TL(x.currentPrice)}</td><td>${v19Badge(x.ai.dipScore)}</td><td>${v19Badge(x.ai.aiTrust)}</td><td>${v19TL(x.dipRegion.low)} - ${v19TL(x.dipRegion.high)}</td><td>${v19TL(x.dipRegion.strongest)}</td><td>${x.ai.decision}</td></tr>`).join('');$('v19ScanStatus').textContent=`${i+1} / ${list.length} hisse tarandı.`;await new Promise(r=>setTimeout(r,60));}}
+function exportV19(){const rows=[['Hisse','Son Fiyat','Dip Skoru','AI Güven','Dip Alt','Dip Üst','En Güçlü Dip','Karar']];v19Cache.forEach(x=>rows.push([x.symbol,x.currentPrice,x.ai.dipScore,x.ai.aiTrust,x.dipRegion.low,x.dipRegion.high,x.dipRegion.strongest,x.ai.decision]));const csv='\ufeff'+rows.map(r=>r.join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='v19_institutional_dip_tarama.csv';a.click();}
+
 init();
+setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]'); if(b)b.addEventListener('click',()=>loadV19().catch(e=>setStatus(e.message))); if($('v19ScanBtn'))$('v19ScanBtn').addEventListener('click',scanV19); if($('v19ExportBtn'))$('v19ExportBtn').addEventListener('click',exportV19);},700);
 setTimeout(()=>{const b=document.querySelector('[data-page="dipProfessional"]'); if(b){b.addEventListener('click',()=>loadV18Dip().catch(e=>setStatus(e.message)));} if($('v18ScanDipBtn'))$('v18ScanDipBtn').addEventListener('click',scanV18Dip); if($('v18ExportCsvBtn'))$('v18ExportCsvBtn').addEventListener('click',exportV18DipCSV);},500);
 </script>
 </body>
