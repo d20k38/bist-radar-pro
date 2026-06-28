@@ -55,22 +55,24 @@ function normDisclosure(x={}){
   };
 }
 
-async function fetchJson(url, options={}, timeoutMs=8000){
+async function fetchJson(url, options={}, timeoutMs=2800){
   const controller = new AbortController();
-  const timer = setTimeout(()=>controller.abort(), timeoutMs);
+  const timer = setTimeout(()=>controller.abort(new Error('KAP istek zaman aşımı')), timeoutMs);
   try{
     const r = await fetch(url, {
       ...options,
       signal: controller.signal,
       headers: {
         'accept': 'application/json, text/plain, */*',
-        'user-agent': 'Mozilla/5.0 BIST-Radar-Pro/25.1',
+        'user-agent': 'Mozilla/5.0 BIST-Radar-Pro/25.2',
         'referer': 'https://www.kap.org.tr/tr/',
         ...(options.headers || {})
       }
     });
+    const txt = await r.text();
     if(!r.ok) throw new Error(`${r.status} ${r.statusText}`);
-    return await r.json();
+    try{ return JSON.parse(txt); }
+    catch(e){ throw new Error('KAP JSON döndürmedi'); }
   }finally{ clearTimeout(timer); }
 }
 
@@ -79,6 +81,7 @@ function arrFromKapResponse(j){
   if(Array.isArray(j?.data)) return j.data;
   if(Array.isArray(j?.disclosures)) return j.disclosures;
   if(Array.isArray(j?.result)) return j.result;
+  if(Array.isArray(j?.items)) return j.items;
   return [];
 }
 
@@ -87,27 +90,64 @@ function isoDateOffset(days){
   return d.toISOString().slice(0,10);
 }
 
-async function fetchKapLive(limit=30){
-  const errors = [];
-  const endpoints = [
-    async()=> fetchJson('https://www.kap.org.tr/tr/api/disclosures', {}, 8000),
-    async()=> fetchJson('https://www.kap.org.tr/tr/api/disclosures?afterDisclosureIndex=0', {}, 8000),
-    async()=> fetchJson('https://www.kap.org.tr/tr/api/disclosure/members/byCriteria', {
-      method:'POST',
-      headers:{'content-type':'application/json','referer':'https://www.kap.org.tr/tr/bildirim-sorgu'},
-      body: JSON.stringify({fromDate: isoDateOffset(-15), toDate: isoDateOffset(0), mkkMemberOidList: [], subjectList: []})
-    }, 9000)
-  ];
+function getKapCache(){
+  const g = globalThis;
+  if(!g.__BIST_RADAR_KAP_CACHE__) g.__BIST_RADAR_KAP_CACHE__ = {ts:0, items:[], error:''};
+  return g.__BIST_RADAR_KAP_CACHE__;
+}
 
-  for(const call of endpoints){
-    try{
-      const j = await call();
-      const arr = arrFromKapResponse(j);
-      const out = arr.map(normDisclosure).filter(x => x.title || x.summary).slice(0, limit);
-      if(out.length) return out;
-    }catch(e){ errors.push(e.message); }
+async function tryFetchKapByCriteria(limit){
+  const j = await fetchJson('https://www.kap.org.tr/tr/api/disclosure/members/byCriteria', {
+    method:'POST',
+    headers:{'content-type':'application/json','referer':'https://www.kap.org.tr/tr/bildirim-sorgu'},
+    body: JSON.stringify({
+      fromDate: isoDateOffset(-7),
+      toDate: isoDateOffset(0),
+      mkkMemberOidList: [],
+      subjectList: [],
+      disclosureClass: '',
+      index: '',
+      market: '',
+      sector: ''
+    })
+  }, 3000);
+  return arrFromKapResponse(j).map(normDisclosure).filter(x => x.title || x.summary).slice(0, limit);
+}
+
+async function tryFetchKapLatest(limit){
+  const j = await fetchJson('https://www.kap.org.tr/tr/api/disclosures?afterDisclosureIndex=0', {}, 2500);
+  return arrFromKapResponse(j).map(normDisclosure).filter(x => x.title || x.summary).slice(0, limit);
+}
+
+async function fetchKapLive(limit=20){
+  const cache = getKapCache();
+  const ttlMs = 5 * 60 * 1000;
+  if(cache.items.length && Date.now() - cache.ts < ttlMs){
+    return {items:cache.items.slice(0, limit), cached:true, error:cache.error||''};
   }
-  throw new Error('KAP canlı bağlantı kurulamadı: ' + errors.join(' | '));
+
+  const errors = [];
+  const attempts = [tryFetchKapLatest, tryFetchKapByCriteria];
+  for(const fn of attempts){
+    try{
+      const out = await fn(Math.max(limit, 20));
+      if(out.length){
+        cache.ts = Date.now();
+        cache.items = out;
+        cache.error = '';
+        return {items:out.slice(0, limit), cached:false, error:''};
+      }
+      errors.push('KAP listesi boş döndü');
+    }catch(e){
+      errors.push(e?.name === 'AbortError' ? 'KAP istek zaman aşımı' : (e.message || String(e)));
+    }
+  }
+
+  if(cache.items.length){
+    cache.error = errors.join(' | ');
+    return {items:cache.items.slice(0, limit), cached:true, error:cache.error};
+  }
+  return {items:[], cached:false, error:errors.join(' | ') || 'KAP canlı bağlantı kurulamadı'};
 }
 
 function filterNews(all, symbol){
@@ -131,13 +171,21 @@ export default async function handler(req,res){
     let note = '';
     let all = [];
     try{
-      all = await fetchKapLive(Math.max(limit, 30));
-      live = all.length > 0;
-      source = 'KAP canlı bildirim akışı';
-      note = 'Veriler Vercel sunucu tarafı KAP proxy üzerinden okunmuştur; tarayıcı CORS engeline takılmaz.';
+      const liveResult = await fetchKapLive(Math.max(limit, 20));
+      all = liveResult.items || [];
+      if(!all.length){
+        all = readLocalNews().map(normDisclosure);
+        live = false;
+        source = all.length ? 'Yerel gerçek KAP arşivi' : 'KAP bağlantısı yok / yerel arşiv boş';
+        note = (liveResult.error || 'KAP canlı bağlantı kurulamadı') + '. Yerel arşiv boşsa haber listesi boş döner; demo/random haber kullanılmaz.';
+      }else{
+        live = !liveResult.cached;
+        source = liveResult.cached ? 'KAP önbellek bildirim akışı' : 'KAP canlı bildirim akışı';
+        note = liveResult.error ? ('KAP canlı istek kısa zaman aşımına takıldı; önbellek/yerel arşiv kullanıldı. Ayrıntı: ' + liveResult.error) : 'Veriler Vercel sunucu tarafı KAP proxy üzerinden kısa zaman aşımı ve önbellek ile okunmuştur.';
+      }
     }catch(e){
       all = readLocalNews().map(normDisclosure);
-      note = e.message + '. Yerel arşiv boşsa haber listesi boş döner; demo/random haber kullanılmaz.';
+      note = (e.message || 'KAP canlı bağlantı kurulamadı') + '. Yerel arşiv boşsa haber listesi boş döner; demo/random haber kullanılmaz.';
       source = all.length ? 'Yerel gerçek KAP arşivi' : 'KAP bağlantısı yok / yerel arşiv boş';
     }
     const latest = filterNews(all, symbol).slice(0,limit);
