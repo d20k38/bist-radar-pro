@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro V32.3 Karar Motoru FIX</title>
+<title>BIST Radar Pro V33 Data Architecture</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro V32.3 Institutional</div><div class="pill">%100 Gerçek Veri • V32.1 AI Karar Motoru • Trade Planner + IQS</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro V33 Data Architecture</div><div class="pill">%100 Gerçek Veri • V33 Master Stock Object • Tek Veri Mimarisi</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -22,7 +22,7 @@
   </div>
   <div class="tabs">
     <button class="tab active" data-page="dashboard">📊 Ana Kontrol</button>
-    <button class="tab" data-page="decisionCenter">🧠 V32.1 Karar Motoru</button>
+    <button class="tab" data-page="decisionCenter">🧠 V33 Karar Motoru</button>
     <button class="tab" data-page="dayTradingAI">⚡ Day Trading AI</button>
     <button class="tab" data-page="tradePlanner">🎯 V32 Trade Planner</button>
     <button class="tab" data-page="tradingCenter">🎯 V31 Trading Center</button>
@@ -64,7 +64,7 @@
       <div class="card metric"><div class="head red">Sat/Kaçın</div><div class="body"><div id="dcAvoid" class="v">-</div><div class="muted">riskli</div></div></div>
       <div class="card metric"><div class="head dark">Tekil Hisse</div><div class="body"><div id="dcTotal" class="v">-</div><div class="muted">duplicate fix</div></div></div>
     </div>
-    <div class="card" style="margin-top:16px"><div class="head dark">🧠 V32.1 AI Decision Center / Karar Motoru</div><div class="body">
+    <div class="card" style="margin-top:16px"><div class="head dark">🧠 V33 Data Architecture / AI Decision Center</div><div class="body">
       <div class="quickFilters">
         <button class="btn green" id="dcRunBtn">Karar Motorunu Çalıştır</button>
         <button class="btn gray" id="dcUseExistingBtn">Mevcut Taramalardan Oluştur</button>
@@ -1956,7 +1956,7 @@ window.scanV18Dip = async function(){
 };
 setTimeout(()=>{
   const tabs=document.querySelector('.tabs');
-  if(tabs && !document.querySelector('[data-page="decisionCenter"]')){const b=document.createElement('button');b.className='tab';b.dataset.page='decisionCenter';b.textContent='🧠 V32.1 Karar Motoru';tabs.insertBefore(b,tabs.children[1]||null);b.addEventListener('click',()=>showPage('decisionCenter',b));}
+  if(tabs && !document.querySelector('[data-page="decisionCenter"]')){const b=document.createElement('button');b.className='tab';b.dataset.page='decisionCenter';b.textContent='🧠 V33 Karar Motoru';tabs.insertBefore(b,tabs.children[1]||null);b.addEventListener('click',()=>showPage('decisionCenter',b));}
   const r=$('dcRunBtn'); if(r)r.addEventListener('click',()=>dcRunFull().catch(e=>setStatus('V32.1 hatası: '+e.message)));
   const u=$('dcUseExistingBtn'); if(u)u.addEventListener('click',dcRender);
   const x=$('dcExportBtn'); if(x)x.addEventListener('click',dcExport);
@@ -2145,6 +2145,110 @@ window.dcExplain=dcExplain; window.dcOpenPlan=dcOpenPlan; window.dcRender=dcRend
   setTimeout(()=>{
     const b=q('dcRunBtn'); if(b){ b.onclick=(ev)=>{ev.preventDefault(); window.dcRunFull();}; }
   },500);
+})();
+</script>
+
+
+<script>
+/* V33 DATA ARCHITECTURE UI BINDING
+   Amaç: Karar Motoru artık eski cache formatlarına bağlı kalmaz.
+   /api/decision?mode=batch üzerinden Master Stock Object okur.
+*/
+(function(){
+  const V33_LIMIT=48;
+  function el(id){return document.getElementById(id)}
+  function esc(x){return String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+  function clean(x){return String(typeof x==='string'?x:(x?.symbol||x?.code||'')).toUpperCase().replace('.IS','').trim()}
+  function num(x,d=0){x=Number(x);return Number.isFinite(x)?x:d}
+  function clamp(x){return Math.max(0,Math.min(100,num(x)))}
+  function fmtLocal(x,d=0){x=Number(x);return Number.isFinite(x)?x.toFixed(d).replace('.',','):'0'}
+  function badgeDecision(d){d=String(d||'');let cls=d.includes('GÜÇLÜ')||d==='AL'?'bgreen':d.includes('İZLE')||d.includes('TUT')?'byellow':'bred';return `<span class="badge ${cls}">${esc(d||'-')}</span>`}
+  function badgeScore(v){v=clamp(v);return `<span class="badge ${v>=85?'bgreen':v>=70?'byellow':'bred'}">${fmtLocal(v,0)}</span>`}
+  function distBadge(v){if(v===null||v===undefined)return '<span class="badge byellow">-</span>';v=num(v,99);let cls=v<=3?'bgreen':v<=8?'byellow':v<=15?'bblue':'bred';return `<span class="badge ${cls}">%${fmtLocal(v,1)}</span>`}
+  async function v33Json(url,timeout=14000){
+    const c=new AbortController(); const t=setTimeout(()=>c.abort(),timeout);
+    try{
+      const r=await fetch(url,{signal:c.signal,cache:'no-store',headers:{accept:'application/json'}});
+      const text=await r.text();
+      try{return JSON.parse(text)}catch(e){return {success:false,error:'API JSON döndürmedi: '+text.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').slice(0,180)}}
+    }catch(e){return {success:false,error:e.name==='AbortError'?'API zaman aşımı':(e.message||'Failed to fetch')}}
+    finally{clearTimeout(t)}
+  }
+  function normalizeMaster(m){
+    if(!m)return null;
+    if(m.master)m=m.master;
+    const sym=clean(m.symbol); if(!sym)return null;
+    return {
+      symbol:sym, price:num(m.price||m.close), change:num(m.change), decision:m.decision||'İZLE / TUT',
+      aiFinal:clamp(m.aiFinal||m.finalScore||m.score), confidence:m.confidence||'B', confidencePct:clamp(m.confidencePct||m.confidenceScore||m.confidence||50),
+      risk:clamp(m.risk||55), iqs:clamp(m.iqs||m.quality||50), dayTrading:clamp(m.dayTrading||m.dayScore||0), swing:clamp(m.swing||m.swingScore||50), position:clamp(m.position||m.positionScore||50),
+      institutional:clamp(m.institutional||m.instScore||m.money||0), kap:clamp(m.kap||m.kapScore||50), financial:clamp(m.financial||m.financialScore||50), backtest:clamp(m.backtest||m.backtestScore||50),
+      dipDistance:(m.dipDistance===null||m.dipDistance===undefined)?null:num(m.dipDistance,99), trade:m.trade||{}, positives:m.positives||[], warnings:m.warnings||[], explanation:m.explanation||'', schemaVersion:m.schemaVersion||'V33'
+    }
+  }
+  function setV33Status(t){
+    try{ if(typeof setStatus==='function') setStatus(t); }catch(e){}
+    const box=el('dcSelectedBox'); if(box) box.innerHTML='<b>V33 Data Architecture</b><br>'+esc(t);
+  }
+  function renderRows(rows){
+    window.dcRows=rows;
+    const strong=rows.filter(x=>x.decision==='GÜÇLÜ AL').length;
+    const buy=rows.filter(x=>x.decision==='AL').length;
+    const watch=rows.filter(x=>String(x.decision).includes('İZLE')||String(x.decision).includes('TUT')).length;
+    const avoid=rows.filter(x=>String(x.decision).includes('SAT')||String(x.decision).includes('KAÇIN')).length;
+    if(el('dcStrongBuy'))el('dcStrongBuy').textContent=strong;
+    if(el('dcBuy'))el('dcBuy').textContent=buy;
+    if(el('dcWatch'))el('dcWatch').textContent=watch;
+    if(el('dcAvoid'))el('dcAvoid').textContent=avoid;
+    if(el('dcTotal'))el('dcTotal').textContent=rows.length;
+    const top=rows.slice(0,10);
+    const header='<tr><th>Hisse</th><th>AI Karar</th><th>AI</th><th>Güven</th><th>IQS</th><th>Day</th><th>Swing</th><th>Pozisyon</th><th>Kurumsal</th><th>Dip Mesafe</th><th>Plan</th><th>Explain</th></tr>';
+    const body=rows.slice(0,80).map(x=>`<tr><td><b>${esc(x.symbol)}</b><br><span class="mini">${typeof tl==='function'?tl(x.price):fmtLocal(x.price,2)}</span></td><td>${badgeDecision(x.decision)}</td><td>${badgeScore(x.aiFinal)}</td><td><b>${esc(x.confidence)}</b><br><span class="mini">%${fmtLocal(x.confidencePct,0)}</span></td><td>${badgeScore(x.iqs)}</td><td>${badgeScore(x.dayTrading)}</td><td>${badgeScore(x.swing)}</td><td>${badgeScore(x.position)}</td><td>${badgeScore(x.institutional)}</td><td>${distBadge(x.dipDistance)}</td><td><button class="btn green" style="padding:7px 9px" onclick="dcOpenPlan('${esc(x.symbol)}')">🎯</button></td><td><button class="btn gray" style="padding:7px 9px" onclick="dcExplain('${esc(x.symbol)}')">🔍</button></td></tr>`).join('');
+    if(el('dcTable'))el('dcTable').innerHTML=header+(body||'<tr><td>V33 Master Object henüz veri üretmedi.</td></tr>');
+    if(el('dcTopTable'))el('dcTopTable').innerHTML='<tr><th>#</th><th>Hisse</th><th>Karar</th><th>AI</th><th>Gerekçe</th></tr>'+top.map((x,i)=>`<tr onclick="dcExplain('${esc(x.symbol)}')"><td><b>${i+1}</b></td><td><b>${esc(x.symbol)}</b></td><td>${badgeDecision(x.decision)}</td><td>${badgeScore(x.aiFinal)}</td><td>Day ${fmtLocal(x.dayTrading,0)} • IQS ${fmtLocal(x.iqs,0)} • Kurumsal ${fmtLocal(x.institutional,0)} • Dip %${x.dipDistance==null?'-':fmtLocal(x.dipDistance,1)}</td></tr>`).join('');
+    if(el('dcNarrative'))el('dcNarrative').innerHTML=`<b>V33 Data Architecture:</b> ${rows.length} tekil Master Stock Object üretildi. Eski cache formatları yerine tek veri modeli kullanıldı. <b>${strong}</b> güçlü AL, <b>${buy}</b> AL, <b>${watch}</b> izleme/tutma, <b>${avoid}</b> kaçın/sat. En güçlü adaylar: <b>${esc(top.slice(0,5).map(x=>x.symbol).join(', ')||'-')}</b>.`;
+  }
+  window.dcExplain=function(symbol){
+    const x=(window.dcRows||[]).find(r=>r.symbol===clean(symbol)); if(!x)return;
+    const t=x.trade||{};
+    if(el('dcSelectedBox'))el('dcSelectedBox').innerHTML=`<b>${esc(x.symbol)} V33 Master Decision</b><br>${badgeDecision(x.decision)} • AI <b>${fmtLocal(x.aiFinal,0)}/100</b> • Güven <b>${esc(x.confidence)}</b><br><br><b>Neden?</b><br>✅ Day Trading: ${fmtLocal(x.dayTrading,0)}/100<br>✅ Swing: ${fmtLocal(x.swing,0)}/100<br>✅ Pozisyon: ${fmtLocal(x.position,0)}/100<br>✅ IQS: ${fmtLocal(x.iqs,0)}/100<br>✅ Kurumsal Para: ${fmtLocal(x.institutional,0)}/100<br>✅ KAP AI: ${fmtLocal(x.kap,0)}/100<br>✅ Financial AI: ${fmtLocal(x.financial,0)}/100<br>✅ Backtest/Learning: ${fmtLocal(x.backtest,0)}/100<br><br><b>Trade Plan</b><br>Giriş: ${fmtLocal(t.entryLow,2)} - ${fmtLocal(t.entryHigh,2)} • Stop: ${fmtLocal(t.stop,2)} • Hedef1: ${fmtLocal(t.target1,2)} • RR: 1/${fmtLocal(t.riskReward,2)}<br><br><b>Karşıt görüş:</b><br>${(x.warnings||[]).length?x.warnings.map(w=>'⚠ '+esc(w)).join('<br>'):'Belirgin karşıt uyarı yok.'}<br><br><span class="mini">${esc(x.schemaVersion)} • Demo/random veri yok.</span>`;
+  };
+  async function loadMasterRows(){
+    setV33Status('V33 /api/symbols kontrol ediliyor...');
+    const sj=await v33Json('/api/symbols?t='+Date.now(),9000);
+    if(!sj.success||!Array.isArray(sj.symbols)) throw new Error(sj.error||'Sembol API çalışmadı. Vercel deploy kök klasörü yanlış olabilir.');
+    const portfolioSyms=(window.portfolio||[]).map(clean).filter(Boolean);
+    const symbols=[...new Set([...portfolioSyms,...sj.symbols.map(clean).filter(Boolean)])].slice(0,V33_LIMIT);
+    const rows=[]; const errors=[];
+    for(let i=0;i<symbols.length;i+=6){
+      const chunk=symbols.slice(i,i+6);
+      setV33Status(`V33 Master Stock Object oluşturuluyor: ${Math.min(i+chunk.length,symbols.length)}/${symbols.length}`);
+      const j=await v33Json('/api/decision?mode=batch&symbols='+encodeURIComponent(chunk.join(','))+'&t='+Date.now(),18000);
+      if(j.success){
+        const arr=(j.data||j.rows||[]).map(normalizeMaster).filter(Boolean);
+        rows.push(...arr);
+        if(Array.isArray(j.errors)) errors.push(...j.errors.map(e=>`${e.symbol}: ${e.error}`));
+      }else errors.push(j.error||'batch hata');
+    }
+    const map=new Map(); rows.forEach(r=>{const old=map.get(r.symbol); if(!old||r.aiFinal>old.aiFinal) map.set(r.symbol,r)});
+    const final=[...map.values()].sort((a,b)=>b.aiFinal-a.aiFinal);
+    if(!final.length) throw new Error('V33 Master Object üretilemedi. İlk hata: '+(errors[0]||'bilinmiyor'));
+    window.dcApiDecisionCache=final; window.dcRows=final; renderRows(final);
+    setV33Status(`V33 tamamlandı: ${final.length} tekil Master Stock Object. Karar Motoru artık tek veri mimarisini kullanıyor.`);
+    return final;
+  }
+  window.dcRunFull=async function(){
+    try{ if(typeof showPage==='function') showPage('decisionCenter',document.querySelector('[data-page="decisionCenter"]')); await loadMasterRows(); }
+    catch(e){
+      const text=e.message||'Failed to fetch';
+      const html='<b>V33 Data Architecture hata</b><br>'+esc(text)+'<br><br><span class="mini">Not: ZIP içindeki proje klasörünün tamamı Vercel kökü olarak deploy edilmeli. Sadece index.html dosyasını açarsanız /api çalışmaz.</span>';
+      if(el('dcSelectedBox'))el('dcSelectedBox').innerHTML=html;
+      if(el('dcTable'))el('dcTable').innerHTML='<tr><th>Durum</th></tr><tr><td>'+html+'</td></tr>';
+      setV33Status('V33 Karar Motoru çalışmadı: '+text);
+    }
+  };
+  window.dcRender=function(){ renderRows(window.dcRows||window.dcApiDecisionCache||[]); };
+  setTimeout(()=>{const b=el('dcRunBtn'); if(b)b.onclick=(ev)=>{ev.preventDefault(); window.dcRunFull();}; const u=el('dcUseExistingBtn'); if(u)u.onclick=(ev)=>{ev.preventDefault(); window.dcRender();};},700);
 })();
 </script>
 
