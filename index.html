@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro V23 Institutional - Day Trading AI</title>
+<title>BIST Radar Pro V24 Institutional Scanner Pro</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro V23 Institutional</div><div class="pill">%100 Gerçek Veri • V20 Portföy • V22 Haber • V23 Day Trading AI</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro V24 Institutional</div><div class="pill">%100 Gerçek Veri • V23 Day Trading AI • V24 Institutional Scanner Pro</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -37,6 +37,7 @@
     <button class="tab" data-page="kapPage">📢 KAP/Haber AI</button>
     <button class="tab" data-page="v22News">🏢 V22 Kurumsal Haber Motoru</button>
     <button class="tab" data-page="dayTradingAI">⚡ V23 Day Trading AI</button>
+    <button class="tab" data-page="institutionalScanner">🏦 V24 Institutional Scanner Pro</button>
     <button class="tab" data-page="confidencePage">🧩 Güven Katmanları</button>
     <button class="tab" data-page="committeePage">🏛️ AI Yatırım Komitesi</button>
     <button class="tab" data-page="v19Institutional">🏦 V19 Institutional</button>
@@ -189,6 +190,25 @@
       <div class="card"><div class="head cyan">🔍 Seçili Aday Açıklaması</div><div class="body"><div id="dtExplain" class="comment">Listeden bir hisseye tıklayın. Skorun neden oluştuğu ve giriş/stop/hedef planı burada gösterilir.</div><br><table id="dtLayerTable" class="table"></table></div></div>
     </div>
   </section>
+
+  <section id="institutionalScanner" class="hidden">
+    <div class="grid g4">
+      <div class="card metric"><div class="body"><div class="muted">En Yüksek Institutional Score</div><div id="isBestScore" class="v ok">-</div><div class="muted">0-100</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Kurumsal Aday</div><div id="isInstCount" class="v ok">-</div><div class="muted">skor ≥ 88</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Güçlü Aday</div><div id="isStrongCount" class="v warn">-</div><div class="muted">skor ≥ 78</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Taranan</div><div id="isScanned" class="v">-</div><div class="muted">gerçek OHLC + hacim</div></div></div>
+    </div><br>
+    <div class="card"><div class="head dark">🏦 V24 Institutional Scanner Pro</div><div class="body">
+      <div class="quickFilters"><button class="btn" id="isScanBtn">Kurumsal Tarama Başlat</button><button class="btn gray" id="isExportBtn">CSV Dışa Aktar</button></div>
+      <div id="isStatus" class="comment">620+ BIST hedefi için sembol listesindeki tüm hisseler parça parça taranır. Skor; RVOL, göreceli güç, para akışı, VWAP, Dip Avcısı, trend, KAP/haber, backtest, risk ve likidite katmanlarından oluşur. Random/pseudo veri kullanılmaz.</div>
+    </div></div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head green">🏆 Kurumsal İlk 20 Aday</div><div class="body"><table id="isTable" class="table"></table></div></div>
+      <div class="card"><div class="head cyan">🧠 Açıklanabilir Institutional AI</div><div class="body"><div id="isExplain" class="comment">Listeden bir hisseye tıklayın. Skor katmanları ve kurumsal adaylık nedeni burada gösterilir.</div><br><table id="isLayerTable" class="table"></table></div></div>
+    </div><br>
+    <div class="card"><div class="head yellow">📊 Tarama Dağılımı</div><div class="body"><table id="isBucketTable" class="table"></table></div></div>
+  </section>
+
 
   <section id="dailyReport" class="hidden">
     <div class="grid g2">
@@ -903,6 +923,66 @@ function exportDayTradingCSV(){
 }
 setTimeout(()=>{const b=$('dtScanBtn'); if(b)b.addEventListener('click',()=>runDayTradingScan().catch(e=>{setStatus('Day Trading AI hatası: '+e.message); if($('dtStatus'))$('dtStatus').textContent='Day Trading AI hatası: '+e.message;})); const e=$('dtExportBtn'); if(e)e.addEventListener('click',exportDayTradingCSV);},700);
 window.dtExplain=dtExplain;
+
+
+/* V24 Institutional Scanner Pro - mevcut institutional-scan API'sini kullanır, yeni API eklemez */
+let institutionalCache=[];
+function isBadge(v){v=Number(v)||0;return `<span class="badge ${v>=78?'bgreen':v>=60?'byellow':'bred'}">${fmt(v,0)}</span>`}
+function isActionClass(a){return String(a||'').includes('İLK')||String(a||'').includes('GÜÇLÜ')?'bgreen':String(a||'').includes('İZLE')?'byellow':'bred'}
+function isRenderSummary(){
+  const best=institutionalCache[0];
+  if($('isBestScore')) $('isBestScore').textContent=best?fmt(best.institutionalScanner.score,0):'-';
+  if($('isInstCount')) $('isInstCount').textContent=institutionalCache.filter(x=>(x.institutionalScanner?.score||0)>=88).length;
+  if($('isStrongCount')) $('isStrongCount').textContent=institutionalCache.filter(x=>(x.institutionalScanner?.score||0)>=78).length;
+  if($('isScanned')) $('isScanned').textContent=institutionalCache.length;
+}
+function isRenderBuckets(){
+  const el=$('isBucketTable'); if(!el)return;
+  const order=['Kurumsal Aday','Güçlü Aday','Aday','Takip','Nötr','Zayıf'];
+  const counts={}; institutionalCache.forEach(x=>{const b=x.institutionalScanner?.bucket||'Zayıf';counts[b]=(counts[b]||0)+1});
+  el.innerHTML='<tr><th>Grup</th><th>Adet</th><th>Oran</th></tr>'+order.map(b=>{const c=counts[b]||0,p=institutionalCache.length?c/institutionalCache.length*100:0;return `<tr><td><b>${b}</b></td><td>${c}</td><td>%${fmt(p,1)}</td></tr>`}).join('');
+}
+function isRenderTable(){
+  const el=$('isTable'); if(!el)return;
+  if(!institutionalCache.length){el.innerHTML='<tr><td>Henüz tarama yapılmadı.</td></tr>';return;}
+  el.innerHTML='<tr><th>#</th><th>Hisse</th><th>Institutional</th><th>Not</th><th>Kurulum</th><th>RVOL</th><th>Para</th><th>RS</th><th>Dip</th><th>Risk</th><th>Giriş</th><th>Stop</th><th>Hedef</th></tr>'+
+    institutionalCache.slice(0,20).map((x,i)=>{const d=x.institutionalScanner||{},c=d.components||{},p=d.plan||{};return `<tr onclick="isExplain('${x.symbol}')" style="cursor:pointer"><td><b>${i+1}</b></td><td><b>${x.symbol}</b></td><td>${isBadge(d.score)}</td><td><b>${d.grade}</b></td><td><span class="badge ${isActionClass(d.action)}">${d.bucket}</span></td><td><b>${fmt(d.rvol20,2)}x</b></td><td>${isBadge(c.moneyFlow)}</td><td>${isBadge(c.relativeStrength)}</td><td>${isBadge(c.dip)}</td><td>${d.riskLabel}</td><td>${tl(p.entryLow)}-${tl(p.entryHigh)}</td><td>${tl(p.stop)}</td><td>${tl(p.target1)}</td></tr>`}).join('');
+}
+function isExplain(symbol){
+  const x=institutionalCache.find(r=>r.symbol===symbol); if(!x||!x.institutionalScanner)return; const d=x.institutionalScanner,p=d.plan||{};
+  $('isExplain').innerHTML=`<b>${symbol} Institutional Scanner Pro:</b><br>Skor: <b>${fmt(d.score,0)}/100</b> • Not: <b>${d.grade}</b> • Grup: <b>${d.bucket}</b> • Aksiyon: <b>${d.action}</b><br><br><b>Kurulum:</b> ${d.setup}<br><b>Plan:</b> Giriş ${tl(p.entryLow)} - ${tl(p.entryHigh)}, Stop ${tl(p.stop)}, Hedef 1 ${tl(p.target1)}, Hedef 2 ${tl(p.target2)}, Risk/Getiri 1:${fmt(p.riskReward,2)}.<br><br><b>Nedenler:</b><br>${(d.reasons||[]).map(r=>'✅ '+r).join('<br>')}<br><br><span class="mini">Bu ekran yatırım tavsiyesi değil; kapanış sonrası kurumsal tarama ve aday sıralama aracıdır. Veri: ${d.source||'gerçek OHLC/hacim'}.</span>`;
+  const names={rvol:'RVOL',relativeStrength:'Göreceli Güç',moneyFlow:'Kurumsal Para',vwap:'VWAP',dip:'Dip Avcısı',trend:'Trend',kap:'KAP/Haber',backtest:'Backtest',momentum:'Momentum',risk:'Risk',liquidity:'Likidite'};
+  $('isLayerTable').innerHTML='<tr><th>Katman</th><th>Puan</th></tr>'+Object.entries(d.components||{}).map(([k,v])=>`<tr><td>${names[k]||k}</td><td>${isBadge(v)}</td></tr>`).join('');
+}
+async function runInstitutionalScanner(){
+  showPage('institutionalScanner',document.querySelector('[data-page="institutionalScanner"]'));
+  institutionalCache=[]; isRenderSummary(); isRenderTable(); isRenderBuckets();
+  $('isStatus').innerHTML='V24 Institutional Scanner Pro taraması başladı. Mevcut institutional-scan API ile gerçek OHLC + hacim verileri parça parça işleniyor...';
+  let offset=0,total=0,chunk=3,done=false;
+  while(!done){
+    const j=await fetchJsonSafe(`/api/institutional-scan?offset=${offset}&limit=${chunk}&t=${Date.now()}`);
+    if(!j.success) throw new Error(j.error||'Institutional tarama alınamadı');
+    total=j.total||total||0;
+    (j.data||[]).filter(x=>x.institutionalScanner).forEach(x=>institutionalCache.push(x));
+    institutionalCache.sort((a,b)=>(b.institutionalScanner?.score||0)-(a.institutionalScanner?.score||0));
+    offset=j.nextOffset||offset+chunk; done=!!j.done;
+    const pctDone=total?Math.min(100,Math.round(offset/total*100)):0;
+    $('isStatus').innerHTML=`<b>${Math.min(offset,total)} / ${total}</b> hisse tarandı — %${pctDone}<div class="barw" style="margin-top:8px"><div class="bar" style="width:${pctDone}%;background:var(--blue)"></div></div>`;
+    isRenderSummary(); isRenderTable(); isRenderBuckets();
+    await new Promise(r=>setTimeout(r,90));
+  }
+  $('isStatus').innerHTML += '<br><b>Tarama tamamlandı. Kurumsal İlk 20 aday listelendi.</b>';
+  if(institutionalCache[0]) isExplain(institutionalCache[0].symbol);
+}
+function exportInstitutionalCSV(){
+  if(!institutionalCache.length){alert('Önce Institutional Scanner taraması çalıştırın.');return;}
+  const rows=[['Hisse','InstitutionalScore','Grade','Bucket','Action','RVOL20','MoneyFlow','RelativeStrength','VWAP','Dip','Trend','KAP','Backtest','Risk','Liquidity','GirisAlt','GirisUst','Stop','Hedef1','Hedef2','Neden']];
+  institutionalCache.forEach(x=>{const d=x.institutionalScanner||{},c=d.components||{},p=d.plan||{};rows.push([x.symbol,d.score,d.grade,d.bucket,d.action,d.rvol20,c.moneyFlow,c.relativeStrength,c.vwap,c.dip,c.trend,c.kap,c.backtest,d.riskLabel,c.liquidity,p.entryLow,p.entryHigh,p.stop,p.target1,p.target2,(d.reasons||[]).join(' | ')])});
+  const csv='\ufeff'+rows.map(r=>r.map(v=>String(v??'').replaceAll(';',',')).join(';')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='v24_institutional_scanner_pro.csv';a.click();
+}
+setTimeout(()=>{const b=$('isScanBtn'); if(b)b.addEventListener('click',()=>runInstitutionalScanner().catch(e=>{setStatus('Institutional Scanner hatası: '+e.message); if($('isStatus'))$('isStatus').textContent='Institutional Scanner hatası: '+e.message;})); const e=$('isExportBtn'); if(e)e.addEventListener('click',exportInstitutionalCSV);},700);
+window.isExplain=isExplain;
 
 init();
 setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]'); if(b)b.addEventListener('click',()=>loadV19().catch(e=>setStatus(e.message))); if($('v19ScanBtn'))$('v19ScanBtn').addEventListener('click',scanV19); if($('v19ExportBtn'))$('v19ExportBtn').addEventListener('click',exportV19);},700);

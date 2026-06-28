@@ -1,11 +1,11 @@
 {
-  "name": "bist-radar-pro-v23-day-trading-ai",
-  "version": "23.0.0-day-trading-ai",
+  "name": "bist-radar-pro-v24-institutional-scanner-pro",
+  "version": "24.0.0-institutional-scanner-pro",
   "type": "module",
   "scripts": {
     "dev": "vercel dev",
     "start": "vercel dev",
-    "test:syntax": "node --check api/stock.js && node --check api/symbols.js && node --check api/scan.js && node --check api/backtest.js && node --check api/learning.js && node --check api/kap.js && node --check api/confidence.js && node --check api/decision.js && node --check api/portfolio-advice.js && node --check api/committee.js && node --check api/dip.js && node --check api/institutional-scan.js && node --check lib/v20-portfolio-engine.js && node --check lib/corporate-news-engine.js && node --check lib/day-trading-engine.js"
+    "test:syntax": "node --check api/stock.js && node --check api/symbols.js && node --check api/scan.js && node --check api/backtest.js && node --check api/learning.js && node --check api/kap.js && node --check api/confidence.js && node --check api/decision.js && node --check api/portfolio-advice.js && node --check api/committee.js && node --check api/dip.js && node --check api/institutional-scan.js && node --check lib/v20-portfolio-engine.js && node --check lib/corporate-news-engine.js && node --check lib/day-trading-engine.js && node --check lib/institutional-scanner-engine.js"
   },
   "dependencies": {}
 }

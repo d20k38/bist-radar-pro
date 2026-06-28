@@ -1,0 +1,16 @@
+BIST Radar Pro V24 Institutional Scanner Pro
+
+Taban: V23 Day Trading AI korunmuştur.
+Yeni API eklenmedi; mevcut /api/institutional-scan endpoint'i genişletildi.
+Random/pseudo fiyat veya hacim verisi kullanılmaz.
+
+Eklenenler:
+- V24 Institutional Scanner Pro sekmesi
+- Institutional Score 0-100
+- Kurumsal aday / güçlü aday / aday / takip dağılımı
+- Skor katmanları: RVOL, Göreceli Güç, Kurumsal Para, VWAP, Dip Avcısı, Trend, KAP/Haber, Backtest, Momentum, Risk, Likidite
+- Açıklanabilir Institutional AI
+- Giriş/stop/hedef alanları V23 gerçek OHLC tabanlı planından alınır
+- CSV dışa aktarım
+
+Not: Bu sistem yatırım tavsiyesi değildir; kapanış sonrası karar destek ve aday sıralama aracıdır.

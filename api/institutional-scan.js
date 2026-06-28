@@ -1,6 +1,7 @@
 import { getSymbols, getOhlcv } from '../lib/provider.js';
 import { analyzeV19Institutional } from '../lib/v19-institutional-engine.js';
 import { analyzeDayTrading } from '../lib/day-trading-engine.js';
+import { analyzeInstitutionalScanner } from '../lib/institutional-scanner-engine.js';
 
 export default async function handler(req,res){
   res.setHeader('Content-Type','application/json; charset=utf-8');
@@ -18,10 +19,12 @@ export default async function handler(req,res){
         const rows = await getOhlcv(symbol,'2y','1d');
         const analysis = analyzeV19Institutional(rows);
         const dayTrading = analyzeDayTrading(rows, benchmarkRows);
-        data.push({ symbol, ...analysis, dayTrading, ok:true });
+        const merged = { symbol, ...analysis, dayTrading, ok:true };
+        merged.institutionalScanner = analyzeInstitutionalScanner(merged);
+        data.push(merged);
       }catch(e){ data.push({ symbol, ok:false, error:e.message }); }
     }
-    const ok = data.filter(x=>x.ok).sort((a,b)=>(b.ai?.dipScore||0)-(a.ai?.dipScore||0));
+    const ok = data.filter(x=>x.ok).sort((a,b)=>(b.institutionalScanner?.score||0)-(a.institutionalScanner?.score||0));
     res.status(200).json({ success:true, count:ok.length, attempted:data.length, total:all.length, offset, limit, nextOffset:offset+symbols.length, done:offset+symbols.length>=all.length, data:ok, errors:data.filter(x=>!x.ok) });
   }catch(e){ res.status(200).json({ success:false, error:e.message, data:[], count:0, total:0, offset:0, done:true }); }
 }
