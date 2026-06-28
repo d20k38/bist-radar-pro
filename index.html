@@ -751,18 +751,27 @@ async function scanAll(silent=false){
   try{
     let offset=0,total=null,chunk=4,guard=0;
     while(true){
+      const beforeOffset=offset;
       const j=await fetchJsonSafe(`/api/scan?limit=${chunk}&offset=${offset}&t=${Date.now()}`);
       if(!j.success) throw new Error(j.error||'API başarısız yanıt verdi');
       total=Number(j.total||0);
       const part=Array.isArray(j.data)?j.data.filter(x=>x&&x.symbol):[];
-      scanCache=scanCache.concat(part);
-      offset=Number(j.nextOffset ?? (offset+chunk));
+      // Aynı hisse tekrar gelirse daha yüksek AI skoruna sahip kayıt korunur.
+      const bySymbol=new Map(scanCache.map(x=>[x.symbol,x]));
+      part.forEach(x=>{const old=bySymbol.get(x.symbol); if(!old || (Number(x.finalScore)||0)>(Number(old.finalScore)||0)) bySymbol.set(x.symbol,x);});
+      scanCache=Array.from(bySymbol.values());
+      offset=Number(j.nextOffset ?? (offset+part.length) ?? (offset+chunk));
+      if(!Number.isFinite(offset) || offset<=beforeOffset){
+        // API ilerleme bilgisi dönmezse sonsuz döngüye girmemek için güvenli çıkış.
+        offset=beforeOffset+Math.max(part.length,chunk);
+      }
       setProgress(Math.min(offset,total||offset), total||offset);
       renderDashboard();
       renderTables();
       if(j.done || !total || offset>=total) break;
-      guard++; if(guard>250) throw new Error('Tarama güvenlik sınırına takıldı. Liste çok büyükse tekrar deneyin.');
-      await new Promise(r=>setTimeout(r,120));
+      guard++;
+      if(guard>2000) throw new Error('Tarama çok uzun sürdü. Bağlantıyı kontrol edip tekrar deneyin.');
+      await new Promise(r=>setTimeout(r,80));
     }
     scanCache.sort((a,b)=>(Number(b.finalScore)||0)-(Number(a.finalScore)||0));
     renderDashboard();renderTables();
