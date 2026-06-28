@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { analyzeNewsImpact } from '../lib/news-engine.js';
 import { analyzeCorporateNews } from '../lib/corporate-news-engine.js';
+import { analyzeLatestKapAI } from '../lib/kap-ai-engine.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -191,6 +192,8 @@ export default async function handler(req,res){
     const latest = filterNews(all, symbol).slice(0,limit);
     const classic = analyzeNewsImpact(latest, symbol || 'GENEL');
     const institutional = analyzeCorporateNews(latest, symbol || 'GENEL');
+    const technicalScore = Number(req.query.technicalScore || req.query.score || 50);
+    const kapAI = analyzeLatestKapAI(latest, symbol || 'GENEL', {score: technicalScore});
     res.status(200).json({
       success:true,
       source,
@@ -199,6 +202,8 @@ export default async function handler(req,res){
       demoData:false,
       note,
       ...(engine==='v22' ? institutional : classic),
+      kapAI,
+      latestKapAI: kapAI,
       institutional
     });
   }catch(e){

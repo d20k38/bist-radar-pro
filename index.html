@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro V29 Explainable AI</title>
+<title>BIST Radar Pro V31 Trading Center & IQS</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro V29 Institutional</div><div class="pill">%100 Gerçek Veri • V29 Explainable AI • V26 Core Engine</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro V31 Institutional</div><div class="pill">%100 Gerçek Veri • V31 Trading Center + IQS • V30 Learning Engine</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -24,7 +24,7 @@
     <button class="tab active" data-page="dashboard">📊 Ana Kontrol</button>
     <button class="tab" data-page="institutionalDashboard">🏛️ V27 Institutional Dashboard</button>
     <button class="tab" data-page="aiAdvisor">🤖 V28 AI Advisor</button>
-    <button class="tab" data-page="explainableAI">🔎 V29 Explainable AI</button>
+    <button class="tab" data-page="explainableAI">🔎 V29.2 XAI + KAP + Financial</button>
     <button class="tab" data-page="analysis">📈 Hisse Analizi</button>
     <button class="tab" data-page="leaders">🔥 En Güçlü 20</button>
     <button class="tab" data-page="safe">💎 Güvenli Kazanç</button>
@@ -32,7 +32,8 @@
     <button class="tab" data-page="risky">⚠️ Riskli Hisseler</button>
     <button class="tab" data-page="patterns">🔎 Formasyonlar</button>
     <button class="tab" data-page="backtestPage">📊 Backtest</button>
-    <button class="tab" data-page="learningPage">🧠 Öğrenen AI</button>
+    <button class="tab" data-page="learningPage">🧠 V30 AI Learning Engine</button>
+    <button class="tab" data-page="tradingCenter">🎯 V31 Trading Center</button>
     <button class="tab" data-page="portfolio">💼 Portföy</button>
     <button class="tab" data-page="portfolioAdvice">🧺 Portföy Önerisi</button>
     <button class="tab" data-page="v20Portfolio">🧪 V20 Portföy Simülasyonu</button>
@@ -134,7 +135,16 @@
     </div><br>
     <div class="card"><div class="head dark">🔎 V29 Explainable AI</div><div class="body">
       <div class="quickFilters"><button class="btn" id="xaiRunBtn">Seçili Hisseyi Açıkla</button><button class="btn gray" id="xaiOpenAnalysisBtn">Hisse Analizine Git</button><button class="btn green" id="xaiExportBtn">XAI CSV</button></div>
-      <div id="xaiNarrative" class="comment">V29, yeni veri üretmez. V26 Core Engine ve ortak AI Decision Engine çıktısını katman katman açıklar: RVOL, kurumsal para, trend, momentum, VWAP, dip, KAP, backtest, risk ve likidite.</div>
+      <div id="xaiNarrative" class="comment">V29.2, Core Engine kararını açıklar; seçilen hissenin son KAP bildirimi ve finansal tablo/finansal KAP katmanını AI kararına bağlar. Demo/random finansal veri kullanılmaz.</div>
+    </div>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card"><div class="head yellow">📢 Son KAP Bildirimi</div><div class="body"><div id="xaiKapLatest" class="comment">Hisse seçip çalıştırın.</div></div></div>
+      <div class="card"><div class="head green">🤖 KAP AI Yorumu</div><div class="body"><div id="xaiKapComment" class="comment">Son bildirim okununca etki, güven ve teknik uyum burada açıklanır.</div></div></div>
+      <div class="card"><div class="head cyan">⏳ KAP Etki Süresi</div><div class="body"><div id="xaiKapHorizon" class="comment">Bugün / 3 gün / 1 hafta / 1 ay etkisi burada görünür.</div></div></div>
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card"><div class="head dark">📊 Financial AI</div><div class="body"><div id="xaiFinancialBox" class="comment">Finansal tablo/finansal KAP katmanı burada açıklanır.</div></div></div>
+      <div class="card"><div class="head cyan">🧾 Finansal Gerekçeler</div><div class="body"><div id="xaiFinancialReasons" class="comment">Kârlılık, büyüme, borçluluk, nakit ve veri kapsamı burada görünür.</div></div></div>
     </div></div><br>
     <div class="grid g2">
       <div class="card"><div class="head green">✅ Kararın Pozitif Nedenleri</div><div class="body"><div id="xaiPositiveBox" class="comment">Hisse seçip çalıştırın.</div></div></div>
@@ -188,14 +198,65 @@
       <div class="card metric"><div class="body"><div class="muted">Güven Düzeltmesi</div><div id="learnAdj" class="v warn">-</div><div class="muted">AI puanına etki</div></div></div>
     </div><br>
     <div class="grid g2">
-      <div class="card"><div class="head dark">🧠 Öğrenen AI Özeti</div><div class="body"><div class="quickFilters"><button class="btn" id="runLearningBtn">Seçili hisseyi öğren</button><button class="btn green" id="saveSignalBtn">Bu sinyali hafızaya kaydet</button><button class="btn gray" id="clearSignalsBtn">Yerel hafızayı temizle</button></div><div id="learningComment" class="comment">Öğrenen AI için hisse seçip düğmeye basın. Sistem geçmiş yıllarda hangi kuralların daha başarılı olduğunu hesaplar.</div><br><table id="learnYearTable" class="table"></table></div></div>
+      <div class="card"><div class="head dark">🧠 V30 AI Learning Engine Özeti</div><div class="body"><div class="quickFilters"><button class="btn" id="runLearningBtn">Seçili hisseyi öğren</button><button class="btn green" id="saveSignalBtn">Bu sinyali hafızaya kaydet</button><button class="btn gray" id="clearSignalsBtn">Yerel hafızayı temizle</button></div><div id="learningComment" class="comment">V30 AI Learning Engine için hisse seçip düğmeye basın. Sistem sinyal kombinasyonlarını farklı zaman ufuklarında öğrenir ve V31 IQS için hazırlık puanı üretir.</div><br><table id="learnYearTable" class="table"></table></div></div>
       <div class="card"><div class="head green">🏆 En İyi Çalışan Kurallar</div><div class="body"><table id="learnRuleTable" class="table"></table></div></div>
+    </div><br>
+
+    <div class="grid g2">
+      <div class="card"><div class="head dark">🧬 En İyi Sinyal Kombinasyonları</div><div class="body"><table id="learnComboTable" class="table"></table></div></div>
+      <div class="card"><div class="head cyan">📌 Bugünkü Sinyal İmzası</div><div class="body"><div id="learnSignatureBox" class="comment">Seçilen hisse için geçmişte en çok çalışan kombinasyon burada görünür.</div></div></div>
+    </div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head green">🧠 V30 Öğrenme Skoru</div><div class="body"><div id="v30LearningBox" class="comment">V30 öğrenme skoru, istikrar, örnek sayısı, başarı ve risk dengesinden üretilir.</div></div></div>
+      <div class="card"><div class="head dark">⭐ V31 IQS Ön Hazırlık</div><div class="body"><table id="v30IqsTable" class="table"></table></div></div>
     </div><br>
     <div class="grid g2">
       <div class="card"><div class="head yellow">📅 Karar Türüne Göre Başarı</div><div class="body"><table id="learnDecisionTable" class="table"></table></div></div>
       <div class="card"><div class="head red">⚠️ Zayıf Kurallar ve Uyarılar</div><div class="body"><table id="learnWeakTable" class="table"></table></div></div>
     </div><br>
     <div class="card"><div class="head cyan">💾 Yerel Sinyal Hafızası</div><div class="body"><div class="comment">Bu alan tarayıcıda saklanır. Alınan sinyalleri daha sonra gerçekleşen fiyatlarla karşılaştırmak için başlangıç hafızası oluşturur.</div><br><table id="signalJournalTable" class="table"></table></div></div>
+  </section>
+
+
+
+  <section id="tradingCenter" class="hidden">
+    <div class="card"><div class="head dark">🎯 V31 Trading Center & Institutional Quality Score</div><div class="body">
+      <div class="quickFilters">
+        <button class="btn" id="tcRefreshBtn">Trading Center Güncelle</button>
+        <button class="btn green" id="tcFullScanBtn">Gerekirse Taramaları Çalıştır</button>
+        <button class="btn gray" id="tcExportBtn">CSV Dışa Aktar</button>
+      </div>
+      <div id="tcNarrative" class="comment">V31; Day, Swing, Pozisyon, Scalping, AI Trading ve AI Model Portföyleri için ortak Core Engine + Explainable AI + Learning Engine verisini kullanır. Scalping modülü günlük OHLC ile sınırlı çalışır; tam kapasite için dakikalık veri gerekir.</div>
+    </div></div>
+
+    <div class="grid g5" style="margin-top:16px">
+      <div class="card metric"><div class="body"><div class="muted">Genel IQS</div><div id="tcIqs" class="v">-</div><div id="tcIqsGrade" class="muted">-</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">En Uygun Tarz</div><div id="tcBestStyle" class="v">-</div><div class="muted">AI seçimi</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Day Adayı</div><div id="tcDayLead" class="v">-</div><div class="muted">Gün içi</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Swing Adayı</div><div id="tcSwingLead" class="v">-</div><div class="muted">3-20 gün</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Pozisyon Adayı</div><div id="tcPositionLead" class="v">-</div><div class="muted">1-12 ay</div></div></div>
+    </div>
+
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card"><div class="head green">📈 Trading Tarzı Skorları</div><div class="body"><table id="tcStyleTable" class="table"></table></div></div>
+      <div class="card"><div class="head cyan">⭐ IQS Katmanları</div><div class="body"><table id="tcIqsTable" class="table"></table></div></div>
+      <div class="card"><div class="head yellow">🤖 AI Trading Yorumu</div><div class="body"><div id="tcAdvisorBox" class="comment">Veri bekleniyor.</div></div></div>
+    </div>
+
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card"><div class="head green">🏆 V31 En İyi Adaylar</div><div class="body"><table id="tcTopTable" class="table"></table></div></div>
+      <div class="card"><div class="head dark">🧺 AI Model Portföyleri</div><div class="body"><table id="tcModelTable" class="table"></table></div></div>
+    </div>
+
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card"><div class="head cyan">🌊 Swing Trading Adayları</div><div class="body"><table id="tcSwingTable" class="table"></table></div></div>
+      <div class="card"><div class="head yellow">🏦 Pozisyon Trading Adayları</div><div class="body"><table id="tcPositionTable" class="table"></table></div></div>
+    </div>
+
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card"><div class="head red">⚡ Scalping Uygunluk</div><div class="body"><div id="tcScalpBox" class="comment">Scalping günlük OHLC ile sadece likidite/volatilite ön elemesi yapar. Dakikalık veri olmadan emir akışı/spread kesin yorumlanamaz.</div><br><table id="tcScalpTable" class="table"></table></div></div>
+      <div class="card"><div class="head green">🧪 Radar Lab / Strategy Optimizer Bağlantısı</div><div class="body"><div id="tcLabBox" class="comment">V31, Radar Lab strateji sonuçlarını Trading Center kararına referans olarak bağlar.</div><br><table id="tcLabTable" class="table"></table></div></div>
+    </div>
   </section>
 
   <section id="portfolio" class="hidden">
@@ -494,7 +555,7 @@ const defaultPortfolio=[{symbol:'MRSHL',lot:286,cost:2470},{symbol:'PAPIL',lot:7
 let portfolio=loadPortfolioLocal();
 const $=id=>document.getElementById(id);const fmt=(x,d=2)=>Number.isFinite(Number(x))?Number(x).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';const tl=x=>fmt(x)+' TL';
 function setStatus(t){$('status').textContent=t}
-const APP_PAGES=['dashboard','institutionalDashboard','aiAdvisor','explainableAI','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','portfolio','portfolioAdvice','v20Portfolio','smartPortfolio','radarLab','dayTradingAI','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional','institutionalScanner'];
+const APP_PAGES=['dashboard','institutionalDashboard','aiAdvisor','explainableAI','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','tradingCenter','portfolio','portfolioAdvice','v20Portfolio','smartPortfolio','radarLab','dayTradingAI','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional','institutionalScanner'];
 function showPage(id,btn){
   APP_PAGES.forEach(x=>{const el=$(x); if(el){el.classList.add('hidden'); el.style.display='none';}});
   const page=$(id); if(page){page.classList.remove('hidden'); page.style.display='block'; document.body.setAttribute('data-page',id);}
@@ -873,13 +934,17 @@ function renderLearning(j){
   if($('learn20Success')) $('learn20Success').textContent='%'+fmt((l.horizons&&l.horizons['20g']?l.horizons['20g'].successRate:0),1);
   if($('learnAdj')) { const adj=Number(l.confidenceAdjustment||0); $('learnAdj').textContent=(adj>=0?'+':'')+fmt(adj,1); $('learnAdj').className='v '+(adj>=2?'ok':adj<=-2?'bad':'warn'); }
   if($('learnAvg')) $('learnAvg').textContent='%'+fmt(l.summary.avgReturn,2);
-  $('learningComment').innerHTML='<b>'+j.symbol+' Öğrenen AI Lite:</b><br>'+l.comment+'<br><br><b>Yorum:</b> Bu modül, 5/20/30 günlük geçmiş sinyal sonuçlarını değerlendirir; güven puanına küçük bir öğrenme düzeltmesi önerir. Geçmiş performans geleceği garanti etmez.';
+  $('learningComment').innerHTML='<b>'+j.symbol+' V30 AI Learning Engine:</b><br>'+l.comment+'<br><br><b>Yorum:</b> Bu modül, tek göstergeleri ve RVOL/CMF/OBV/VWAP gibi sinyal kombinasyonlarını geçmiş gerçek OHLC/hacim üzerinde ölçer; V30 katmanı ayrıca istikrar, piyasa rejimi, öğrenme skoru ve V31 IQS ön puanı üretir. Geçmiş performans geleceği garanti etmez.';
   const yearly=Object.entries(l.yearly||{}).sort((a,b)=>a[0].localeCompare(b[0]));
   $('learnYearTable').innerHTML='<tr><th>Yıl</th><th>Sinyal</th><th>Başarı</th><th>Ort. Getiri</th></tr>'+yearly.map(([y,r])=>`<tr><td><b>${y}</b></td><td>${r.count}</td><td>%${fmt(r.successRate,1)}</td><td>%${fmt(r.avgReturn,2)}</td></tr>`).join('');
-  $('learnRuleTable').innerHTML='<tr><th>Kural</th><th>Örnek</th><th>Başarı</th><th>Ort. Getiri</th></tr>'+(l.topRules||[]).map(r=>`<tr><td><b>${r.name}</b></td><td>${r.count}</td><td>%${fmt(r.successRate,1)}</td><td>%${fmt(r.avgReturn,2)}</td></tr>`).join('');
-  $('learnWeakTable').innerHTML='<tr><th>Zayıf Kural</th><th>Örnek</th><th>Başarı</th><th>Uyarı</th></tr>'+(l.weakRules||[]).map(r=>`<tr><td><b>${r.name}</b></td><td>${r.count}</td><td>%${fmt(r.successRate,1)}</td><td>Tek başına kullanılmamalı</td></tr>`).join('');
+  $('learnRuleTable').innerHTML='<tr><th>Kural</th><th>Örnek</th><th>Başarı</th><th>Ort. Getiri</th><th>Max Düşüş</th></tr>'+(l.topRules||[]).map(r=>`<tr><td><b>${r.name}</b></td><td>${r.count}</td><td>%${fmt(r.successRate,1)}</td><td>%${fmt(r.avgReturn,2)}</td><td>%${fmt(r.maxDrawdown||0,2)}</td></tr>`).join('');
+  if($('learnComboTable')) $('learnComboTable').innerHTML='<tr><th>Kombinasyon</th><th>Örnek</th><th>Başarı</th><th>Ort. Getiri</th><th>Max Düşüş</th></tr>'+(l.topCombos||[]).map(r=>`<tr><td><b>${r.name}</b><br><span class="mini">${(r.rules||[]).join(' + ')}</span></td><td>${r.count}</td><td>%${fmt(r.successRate,1)}</td><td>%${fmt(r.avgReturn,2)}</td><td>%${fmt(r.maxDrawdown||0,2)}</td></tr>`).join('');
+  if($('learnSignatureBox')){const sig=l.signalSignature||{}; $('learnSignatureBox').innerHTML=`<b>${sig.matched||'-'}</b><br>Geçmiş örnek: <b>${fmt(sig.samples||0,0)}</b><br>Başarı: <b>%${fmt(sig.successRate||0,1)}</b><br>Ortalama getiri: <b>%${fmt(sig.avgReturn||0,2)}</b><br>Maksimum düşüş: <b>%${fmt(sig.maxDrawdown||0,2)}</b><br><br><span class="mini">Bu imza, benzer sinyal kombinasyonlarının tarihsel performansını gösterir.</span>`;}
+  if($('v30LearningBox')){const v=l.v30||{}; $('v30LearningBox').innerHTML=`<b>V30 Öğrenme Skoru:</b> <span class="score">${fmt(v.learningScore||0,0)}/100</span> <b>${v.grade||'-'}</b><br>İstikrar: <b>${fmt(v.stability||0,1)}/100</b><br>Tutarlılık: <b>${fmt(v.consistency||0,1)}/100</b><br>Rejim: <b>${v.regime||'-'}</b><br>Pozitif yıl: <b>${fmt(v.positiveYears||0,0)} / ${fmt(v.totalYears||0,0)}</b><br><br><b>AI Aksiyonu:</b> ${v.recommendedAction||'-'}<br><br><span class="mini">${v.explain||''}</span>`;}
+  if($('v30IqsTable')){const iq=(l.v30&&l.v30.iqsPreview)||{}; $('v30IqsTable').innerHTML='<tr><th>IQS Katmanı</th><th>Puan</th></tr>'+[['Trend',iq.trend],['Hacim/Kurumsal Para',iq.volume],['Momentum',iq.momentum],['Backtest',iq.backtest],['Risk',iq.risk],['Learning',iq.learning],['Toplam Ön IQS',iq.total]].map(x=>`<tr><td><b>${x[0]}</b></td><td>${fmt(x[1]||0,0)}</td></tr>`).join('');}
+  $('learnWeakTable').innerHTML='<tr><th>Zayıf Kural</th><th>Örnek</th><th>Başarı</th><th>Max Düşüş</th><th>Uyarı</th></tr>'+(l.weakRules||[]).map(r=>`<tr><td><b>${r.name}</b></td><td>${r.count}</td><td>%${fmt(r.successRate,1)}</td><td>%${fmt(r.maxDrawdown||0,2)}</td><td>Tek başına kullanılmamalı</td></tr>`).join('');
   const dec=Object.entries(l.decisions||{}).sort((a,b)=>(b[1].successRate||0)-(a[1].successRate||0));
-  $('learnDecisionTable').innerHTML='<tr><th>Karar</th><th>Sinyal</th><th>Başarı</th><th>Ort. Getiri</th></tr>'+dec.map(([d,r])=>`<tr><td><span class="badge ${decisionClass(d)}">${d}</span></td><td>${r.count}</td><td>%${fmt(r.successRate,1)}</td><td>%${fmt(r.avgReturn,2)}</td></tr>`).join('');
+  $('learnDecisionTable').innerHTML='<tr><th>Karar</th><th>Sinyal</th><th>Başarı</th><th>Ort. Getiri</th><th>Max Düşüş</th></tr>'+dec.map(([d,r])=>`<tr><td><span class="badge ${decisionClass(d)}">${d}</span></td><td>${r.count}</td><td>%${fmt(r.successRate,1)}</td><td>%${fmt(r.avgReturn,2)}</td><td>%${fmt(r.maxDrawdown||0,2)}</td></tr>`).join('');
 }
 
 function signalJournal(){try{return JSON.parse(localStorage.getItem('bistSignalJournalV1')||'[]')}catch(e){return []}}
@@ -900,11 +965,11 @@ function renderSignalJournal(){
 async function runLearning(){
   const s=$('search').value.toUpperCase().trim()||'PAPIL';
   showPage('learningPage',document.querySelector('[data-page="learningPage"]'));
-  $('learningComment').textContent=s+' için Öğrenen AI geçmiş sinyalleri inceliyor...';
+  $('learningComment').textContent=s+' için V30 AI Learning Engine geçmiş sinyalleri inceliyor...';
   try{
     const j=await fetchJsonSafe('/api/learning?symbol='+encodeURIComponent(s)+'&period=30&t='+Date.now());
     renderLearning(j);
-    setStatus(s+' Öğrenen AI analizi tamamlandı.');
+    setStatus(s+' V30 AI Learning Engine analizi tamamlandı.');
   }catch(e){
     $('learningComment').textContent='Öğrenen AI hatası: '+e.message;
     setStatus('Öğrenen AI hatası: '+e.message);
@@ -1338,6 +1403,48 @@ let xaiLast=null;
 function xaiBadge(score){return `<span class="badge ${Number(score)>=70?'bgreen':Number(score)>=45?'byellow':'bred'}">${fmt(score,0)}</span>`}
 function xaiStatusText(s){return s==='green'?'🟢 Güçlü':s==='yellow'?'🟡 Nötr':'🔴 Zayıf'}
 function xaiDecisionClass(d){return String(d||'').includes('AL')?'ok':String(d||'').includes('RİSK')||String(d||'').includes('ZAYIF')?'bad':'warn'}
+
+function applyKapAIToXAI(x,kapAI){
+  if(!x||!kapAI) return x;
+  const score=Number(kapAI.impactScore||50);
+  const reliability=Number(kapAI.reliabilityScore||0);
+  const kapLayer=(x.layers||[]).find(l=>l.key==='kap'||String(l.label||'').includes('KAP'));
+  const contribution=Number(((score-50)/50*8).toFixed(2));
+  if(kapLayer){
+    kapLayer.value=Math.max(0,Math.min(100,Math.round(score)));
+    kapLayer.contribution=contribution;
+    kapLayer.status=score>=70?'green':score>=45?'yellow':'red';
+    kapLayer.impact=score>=70?'Pozitif':score>=45?'Nötr':'Negatif';
+    kapLayer.explain=`Son KAP: ${kapAI.eventType||'Bildirim'} • ${kapAI.polarity||'Nötr'} • Etki ${Math.round(score)}/100 • Güven ${Math.round(reliability)}/100.`;
+  }
+  x.kapAI=kapAI;
+  if(kapAI.available){
+    const reason=`KAP AI: ${kapAI.eventType} / ${kapAI.polarity} / etki ${Math.round(score)}/100 (${kapAI.title||''})`;
+    if(score>=62){ x.positives=[reason,...(x.positives||[])]; }
+    else if(score<=42){ x.negatives=[reason,...(x.negatives||[])]; }
+    x.trace=[...(x.trace||[]),`Son KAP bildirimi okundu: ${kapAI.eventType||'Bildirim'}; KAP katkısı ${contribution>0?'+':''}${contribution} puan.`];
+    x.shortComment=(x.shortComment||'')+' Son KAP AI yorumu: '+(kapAI.comment||'');
+  }else{
+    x.trace=[...(x.trace||[]),'Seçilen hisse için son KAP bulunamadı; KAP katmanı nötr bırakıldı.'];
+  }
+  x.traffic={green:(x.layers||[]).filter(l=>l.status==='green').length,yellow:(x.layers||[]).filter(l=>l.status==='yellow').length,red:(x.layers||[]).filter(l=>l.status==='red').length};
+  return x;
+}
+function renderKapAIBox(ai){
+  if(!ai){return;}
+  const latest=ai.available?`<b>${ai.date||'-'} • ${ai.eventType||'-'}</b><br>${ai.title||'-'}<br><br><b>Etki:</b> ${fmt(ai.impactScore,0)}/100 • <b>Güven:</b> ${fmt(ai.reliabilityScore,0)}/100 • <b>Duyarlılık:</b> ${ai.polarity||'-'}<br>${ai.url?`<br><a href="${ai.url}" target="_blank" rel="noopener">KAP bildirimi aç</a>`:''}`:`<b>KAP bulunamadı</b><br>${ai.summary||'Canlı KAP/yerel arşivde kayıt yok.'}`;
+  if($('xaiKapLatest')) $('xaiKapLatest').innerHTML=latest;
+  if($('xaiKapComment')) $('xaiKapComment').innerHTML=`<b>AI Özeti:</b><br>${ai.summary||'-'}<br><br><b>AI Yorumu:</b><br>${ai.comment||'-'}<br><br><b>Nedenler:</b><br>${(ai.reasons||[]).map(r=>'✓ '+r).join('<br>')}<br><br><b>Risk:</b><br>${(ai.risks||[]).map(r=>'⚠ '+r).join('<br>')}`;
+  const h=ai.effectHorizon||{};
+  if($('xaiKapHorizon')) $('xaiKapHorizon').innerHTML=`Bugün: <b>${fmt(h.today||50,0)}/100</b><br>3 Gün: <b>${fmt(h.threeDays||50,0)}/100</b><br>1 Hafta: <b>${fmt(h.oneWeek||50,0)}/100</b><br>1 Ay: <b>${fmt(h.oneMonth||50,0)}/100</b><br><br><span class="mini">KAP etkisi kesin fiyat tahmini değildir; haberin teknik görünümle uyumunu gösteren karar destek skorudur.</span>`;
+}
+
+function renderFinancialAIBox(fin){
+  if(!fin) return;
+  if($('xaiFinancialBox')) $('xaiFinancialBox').innerHTML=`<b>Financial AI Skoru:</b> ${fmt(fin.score||50,0)}/100 • <b>Not:</b> ${fin.grade||'-'} • <b>Görünüm:</b> ${fin.polarity||'-'}<br><br><b>Özet:</b><br>${fin.summary||'-'}<br><br><b>Yorum:</b><br>${fin.comment||'-'}<br><br><span class="mini">Kaynak: ${fin.source||'-'} • Random/demo finansal veri kullanılmaz.</span>`;
+  if($('xaiFinancialReasons')) $('xaiFinancialReasons').innerHTML=`<b>Nedenler:</b><br>${(fin.reasons||[]).map(r=>'✓ '+r).join('<br>')||'-'}<br><br><b>Riskler / Sınırlamalar:</b><br>${(fin.risks||[]).map(r=>'⚠ '+r).join('<br>')||'Belirgin sınırlama yok.'}`;
+}
+
 function renderXAI(x){
   if(!x) return; xaiLast=x;
   if($('xaiScore')) $('xaiScore').textContent=fmt(x.score,0);
@@ -1360,9 +1467,19 @@ async function runExplainableAI(){
   try{
     const j=await (await fetch('/api/decision?symbol='+encodeURIComponent(s)+'&t='+Date.now())).json();
     if(!j.success) throw new Error(j.error||'Explainable AI alınamadı');
-    renderXAI(j.explainable);
-    setStatus(s+' için V29 Explainable AI hazır.');
-  }catch(e){ setStatus('V29 Explainable AI hatası: '+e.message); if($('xaiNarrative')) $('xaiNarrative').textContent='V29 Explainable AI hatası: '+e.message; }
+    let x=j.explainable;
+    renderFinancialAIBox(j.financialAI);
+    try{
+      const kj=await (await fetch('/api/kap?symbol='+encodeURIComponent(s)+'&limit=8&ai=1&technicalScore='+encodeURIComponent(x?.score||50)+'&t='+Date.now())).json();
+      const kapAI=kj.kapAI||kj.latestKapAI;
+      renderKapAIBox(kapAI);
+      x=applyKapAIToXAI(x,kapAI);
+    }catch(kerr){
+      renderKapAIBox({available:false,summary:'KAP AI bağlantısı kurulamadı.',comment:kerr.message,effectHorizon:{today:50,threeDays:50,oneWeek:50,oneMonth:50},reasons:['KAP API yanıtı alınamadı'],risks:['KAP katmanı nötr bırakıldı.']});
+    }
+    renderXAI(x);
+    setStatus(s+' için V29.2 Explainable AI + KAP AI + Financial AI hazır.');
+  }catch(e){ setStatus('V29.2 Explainable AI hatası: '+e.message); if($('xaiNarrative')) $('xaiNarrative').textContent='V29.2 Explainable AI hatası: '+e.message; }
 }
 function renderInlineExplainableFromStock(a){
   if(!$('aiDecision')) return;
@@ -1383,9 +1500,112 @@ function renderInlineExplainableFromStock(a){
 }
 function exportXAICSV(){
   const x=xaiLast; if(!x){alert('Önce V29 Explainable AI çalıştırın.');return;}
-  downloadCSV([['Hisse','Karar','Skor','Guven','Risk','Katman','Deger','Agirlik','Katki','Durum','Aciklama'],...(x.layers||[]).map(l=>[x.symbol,x.decision,x.score,x.confidence,x.risk,l.label,l.value,l.weight,l.contribution,l.status,l.explain])],'v29_explainable_ai.csv');
+  downloadCSV([['Hisse','Karar','Skor','Guven','Risk','KAP_Olay','KAP_Etki','KAP_Guven','Financial_Skor','Financial_Gorunum','Katman','Deger','Agirlik','Katki','Durum','Aciklama'],...(x.layers||[]).map(l=>[x.symbol,x.decision,x.score,x.confidence,x.risk,x.kapAI?.eventType||'',x.kapAI?.impactScore||'',x.kapAI?.reliabilityScore||'',x.financialAI?.score||'',x.financialAI?.polarity||'',l.label,l.value,l.weight,l.contribution,l.status,l.explain])],'v29_2_explainable_ai_financial.csv');
 }
 setTimeout(()=>{const r=$('xaiRunBtn'); if(r)r.addEventListener('click',runExplainableAI); const o=$('xaiOpenAnalysisBtn'); if(o)o.addEventListener('click',()=>showPage('analysis',document.querySelector('[data-page="analysis"]'))); const x=$('xaiExportBtn'); if(x)x.addEventListener('click',exportXAICSV); const tab=document.querySelector('[data-page="explainableAI"]'); if(tab)tab.addEventListener('click',()=>setTimeout(runExplainableAI,80));},1000);
+
+
+<script>
+/* V31 Trading Center + IQS - front-end orchestration, no new API */
+let tcRows=[];
+function tcNum(v,d=0){v=Number(v);return Number.isFinite(v)?v:d}
+function tcClamp(v){return Math.max(0,Math.min(100,tcNum(v,0)))}
+function tcGrade(s){s=tcNum(s);return s>=90?'A+':s>=82?'A':s>=74?'B+':s>=65?'B':s>=55?'C+':s>=45?'C':'D'}
+function tcStars(s){const n=Math.max(1,Math.min(5,Math.round(tcNum(s)/20)));return '⭐'.repeat(n)+'☆'.repeat(5-n)}
+function tcBadge(v){return `<span class="badge ${badgeClass(v)}">${fmt(v,0)}</span>`}
+function tcMergeCandidates(){
+  const map=new Map();
+  const put=(sym,obj)=>{if(!sym)return; map.set(sym,{...(map.get(sym)||{symbol:sym}),...obj});};
+  (scanCache||[]).forEach(x=>put(x.symbol,{base:x}));
+  (dayTradingCache||[]).forEach(x=>put(x.symbol,{day:x,dayTrading:x.dayTrading}));
+  (institutionalCache||[]).forEach(x=>put(x.symbol,{inst:x,institutionalScanner:x.institutionalScanner}));
+  return [...map.values()].map(x=>tcScoreCandidate(x)).sort((a,b)=>b.iqs-a.iqs);
+}
+function tcScoreCandidate(x){
+  const b=x.base||{}, d=x.dayTrading||x.day?.dayTrading||{}, ins=x.institutionalScanner||x.inst?.institutionalScanner||{};
+  const comp=ins.components||{};
+  const trend=tcClamp(comp.trend ?? b.trend ?? 50);
+  const volume=tcClamp((tcNum(d.score,0)*0.35)+(tcNum(d.scores?.volume,0)*0.20)+(tcNum(b.money,50)*0.25)+(tcNum(comp.institutionalMoney,50)*0.20));
+  const momentum=tcClamp((tcNum(b.momentum,50)*0.45)+(tcNum(d.scores?.momentum,50)*0.35)+(tcNum(d.scores?.relativeStrength,50)*0.20));
+  const dip=tcClamp(b.dipScore ?? comp.dip ?? b.pattern ?? 50);
+  const kap=tcClamp(b.kapScore ?? x.kapAI?.impactScore ?? 50);
+  const backtest=tcClamp(b.backtestScore ?? comp.backtest ?? x.learningScore ?? 55);
+  const risk=tcClamp(100-(tcNum(b.risk,comp.risk ?? 50)));
+  const liquidity=tcClamp(comp.liquidity ?? (tcNum(d.rvol20,1)>=2?85:tcNum(d.rvol20,1)>=1.3?68:55));
+  const layers={trend,volume,momentum,dip,kap,backtest,risk,liquidity};
+  const iqs=tcClamp(trend*.15+volume*.20+momentum*.15+dip*.10+kap*.10+backtest*.15+risk*.10+liquidity*.05);
+  const day=tcClamp(tcNum(d.score,0)|| (volume*.35+momentum*.30+liquidity*.20+risk*.15));
+  const swing=tcClamp(trend*.28+momentum*.25+volume*.18+backtest*.14+risk*.10+kap*.05);
+  const position=tcClamp(trend*.20+backtest*.20+risk*.15+kap*.12+liquidity*.10+dip*.08+momentum*.08+volume*.07);
+  const scalping=tcClamp(liquidity*.35+volume*.30+momentum*.15+risk*.10+tcClamp(100-tcNum(b.risk,50))*.10);
+  const ai=tcClamp(iqs*.45+day*.15+swing*.18+position*.18+backtest*.04);
+  const best=[['Day Trading',day],['Swing Trading',swing],['Pozisyon Trading',position],['Scalping',scalping],['AI Trading',ai]].sort((a,b)=>b[1]-a[1])[0];
+  const rvol=tcNum(d.rvol20 ?? ins.rvol20 ?? 0,0);
+  return {...x,symbol:x.symbol,base:b,dayTrading:d,institutionalScanner:ins,layers,iqs,dayScore:day,swingScore:swing,positionScore:position,scalpScore:scalping,aiScore:ai,bestStyle:best[0],bestStyleScore:best[1],rvol};
+}
+function tcStyleAverages(rows){
+  const n=rows.length||1;
+  return [
+    ['Day Trading', rows.reduce((s,x)=>s+x.dayScore,0)/n, '1 gün', 'RVOL, VWAP, OBV, CMF, ATR ve göreceli güç ağırlıklı.'],
+    ['Swing Trading', rows.reduce((s,x)=>s+x.swingScore,0)/n, '3-20 gün', 'Trend, momentum, hacim ve backtest dengesine bakar.'],
+    ['Pozisyon Trading', rows.reduce((s,x)=>s+x.positionScore,0)/n, '1-12 ay', 'Trend sürekliliği, risk, KAP/finansal etki ve kalite odaklı.'],
+    ['Scalping', rows.reduce((s,x)=>s+x.scalpScore,0)/n, 'Dakika içi', 'Günlük veriyle sınırlı ön eleme; dakikalık veri gerekir.'],
+    ['AI Trading', rows.reduce((s,x)=>s+x.aiScore,0)/n, 'Dinamik', 'Piyasa koşuluna göre en uygun tarzı seçer.']
+  ].sort((a,b)=>b[1]-a[1]);
+}
+function tcRender(){
+  tcRows=tcMergeCandidates();
+  if(!tcRows.length){
+    if($('tcNarrative')) $('tcNarrative').innerHTML='V31 için önce Ana Kontrol taraması, Day Trading taraması veya Institutional Scanner çalıştırın. Gerekirse “Gerekirse Taramaları Çalıştır” düğmesi bunu sırayla yapar.';
+    return;
+  }
+  const avg=tcRows.reduce((s,x)=>s+x.iqs,0)/tcRows.length;
+  const style=tcStyleAverages(tcRows)[0];
+  const day=tcRows.slice().sort((a,b)=>b.dayScore-a.dayScore)[0];
+  const swing=tcRows.slice().sort((a,b)=>b.swingScore-a.swingScore)[0];
+  const pos=tcRows.slice().sort((a,b)=>b.positionScore-a.positionScore)[0];
+  $('tcIqs').textContent=fmt(avg,0);
+  $('tcIqsGrade').textContent=tcGrade(avg)+' • '+tcStars(avg);
+  $('tcBestStyle').textContent=style[0].replace(' Trading','');
+  $('tcDayLead').textContent=day?day.symbol:'-';
+  $('tcSwingLead').textContent=swing?swing.symbol:'-';
+  $('tcPositionLead').textContent=pos?pos.symbol:'-';
+  $('tcNarrative').innerHTML=`<b>V31 Trading Center:</b> ${tcRows.length} aday ortak Core Engine verisiyle değerlendirildi. Genel IQS <b>${fmt(avg,0)}/100 (${tcGrade(avg)})</b>. Bugünkü en uygun tarz <b>${style[0]}</b> görünüyor. Day lideri <b>${day?.symbol||'-'}</b>, Swing lideri <b>${swing?.symbol||'-'}</b>, Pozisyon lideri <b>${pos?.symbol||'-'}</b>.<br><br><b>Not:</b> Bu ekran yatırım tavsiyesi değil; gerçek OHLC/hacim/KAP/finansal katmanlar üzerinden karar destek skorudur.`;
+  $('tcStyleTable').innerHTML='<tr><th>Tarz</th><th>Skor</th><th>Ufuk</th><th>Mantık</th></tr>'+tcStyleAverages(tcRows).map(r=>`<tr><td><b>${r[0]}</b></td><td>${tcBadge(r[1])}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('');
+  const layers=['trend','volume','momentum','dip','kap','backtest','risk','liquidity'];
+  const names={trend:'Trend Kalitesi',volume:'Hacim Kalitesi',momentum:'Momentum',dip:'Dip Avcısı',kap:'KAP & Haber',backtest:'Backtest / Learning',risk:'Risk Kontrolü',liquidity:'Likidite'};
+  const weights={trend:15,volume:20,momentum:15,dip:10,kap:10,backtest:15,risk:10,liquidity:5};
+  $('tcIqsTable').innerHTML='<tr><th>Katman</th><th>Ağırlık</th><th>Ortalama</th><th>Durum</th></tr>'+layers.map(k=>{const v=tcRows.reduce((s,x)=>s+tcNum(x.layers[k]),0)/tcRows.length;return `<tr><td><b>${names[k]}</b></td><td>%${weights[k]}</td><td>${tcBadge(v)}</td><td>${v>=75?'Güçlü':v>=55?'Nötr':'Zayıf'}</td></tr>`}).join('');
+  $('tcTopTable').innerHTML='<tr><th>#</th><th>Hisse</th><th>IQS</th><th>En Uygun</th><th>Day</th><th>Swing</th><th>Pozisyon</th><th>RVOL</th></tr>'+tcRows.slice(0,20).map((x,i)=>`<tr onclick="openSymbol('${x.symbol}')" style="cursor:pointer"><td>${i+1}</td><td><b>${x.symbol}</b></td><td>${tcBadge(x.iqs)}</td><td>${x.bestStyle} (${fmt(x.bestStyleScore,0)})</td><td>${fmt(x.dayScore,0)}</td><td>${fmt(x.swingScore,0)}</td><td>${fmt(x.positionScore,0)}</td><td>${fmt(x.rvol,2)}x</td></tr>`).join('');
+  $('tcSwingTable').innerHTML='<tr><th>Hisse</th><th>Swing</th><th>Trend</th><th>Momentum</th><th>Risk</th><th>Gerekçe</th></tr>'+tcRows.slice().sort((a,b)=>b.swingScore-a.swingScore).slice(0,15).map(x=>`<tr><td><b>${x.symbol}</b></td><td>${tcBadge(x.swingScore)}</td><td>${fmt(x.layers.trend,0)}</td><td>${fmt(x.layers.momentum,0)}</td><td>${fmt(x.layers.risk,0)}</td><td>3-20 gün için trend + momentum + backtest dengesi.</td></tr>`).join('');
+  $('tcPositionTable').innerHTML='<tr><th>Hisse</th><th>Pozisyon</th><th>IQS</th><th>KAP/Finansal</th><th>Risk</th><th>Gerekçe</th></tr>'+tcRows.slice().sort((a,b)=>b.positionScore-a.positionScore).slice(0,15).map(x=>`<tr><td><b>${x.symbol}</b></td><td>${tcBadge(x.positionScore)}</td><td>${fmt(x.iqs,0)}</td><td>${fmt((x.layers.kap+x.layers.backtest)/2,0)}</td><td>${fmt(x.layers.risk,0)}</td><td>1-12 ay için kalite, risk ve istikrar odaklı.</td></tr>`).join('');
+  $('tcScalpTable').innerHTML='<tr><th>Hisse</th><th>Scalp Ön Eleme</th><th>Likidite</th><th>RVOL</th><th>Uyarı</th></tr>'+tcRows.slice().sort((a,b)=>b.scalpScore-a.scalpScore).slice(0,10).map(x=>`<tr><td><b>${x.symbol}</b></td><td>${tcBadge(x.scalpScore)}</td><td>${fmt(x.layers.liquidity,0)}</td><td>${fmt(x.rvol,2)}x</td><td>Dakikalık veri olmadan sadece ön liste.</td></tr>`).join('');
+  const top=tcRows.slice(0,12), defensive=tcRows.filter(x=>x.layers.risk>=65).slice(0,8), momentum=tcRows.slice().sort((a,b)=>b.dayScore+b.swingScore-a.dayScore-a.swingScore).slice(0,8), position=tcRows.slice().sort((a,b)=>b.positionScore-a.positionScore).slice(0,8);
+  $('tcModelTable').innerHTML='<tr><th>Model</th><th>Hisseler</th><th>Mantık</th></tr>'+[
+    ['AI Dengeli',top.slice(0,8).map(x=>x.symbol).join(', '),'IQS en yüksek, risk/kalite dengesi.'],
+    ['AI Momentum',momentum.map(x=>x.symbol).join(', '),'Day + Swing skoru güçlü.'],
+    ['AI Muhafazakar',defensive.map(x=>x.symbol).join(', '),'Risk kontrolü ve likidite öncelikli.'],
+    ['AI Pozisyon',position.map(x=>x.symbol).join(', '),'Pozisyon trading kalite ve istikrar odaklı.'],
+    ['AI Dip Avcısı',tcRows.slice().sort((a,b)=>b.layers.dip-a.layers.dip).slice(0,8).map(x=>x.symbol).join(', '),'Dip skoru ve tepki potansiyeli.']
+  ].map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]||'-'}</td><td>${r[2]}</td></tr>`).join('');
+  $('tcAdvisorBox').innerHTML=`<b>AI Trading Yorumu:</b><br>${style[0]} şu an diğer tarzlara göre daha avantajlı görünüyor. En güçlü genel adaylar: <b>${tcRows.slice(0,5).map(x=>x.symbol).join(', ')}</b>. Portföy kullanımında tek hisseye yoğunlaşmak yerine model portföy sepetlerinden biri tercih edilebilir.<br><br><b>Kopya Trading yerine:</b> V31, BIST koşullarına daha uygun olan AI Model Portföyleri yaklaşımını kullanır.`;
+  $('tcLabBox').innerHTML=`Radar Lab stratejileri V31 içinde öğrenme katmanına bağlanır. Varsayılan kurallar: RVOL>2, CMF>0, OBV yükseliş, VWAP üzeri, RSI 45-70, KAP puanı>70. V30 Learning skoru V31 IQS'de Backtest/Learning katmanına yansıtılır.`;
+  $('tcLabTable').innerHTML='<tr><th>Strateji</th><th>V31 Kullanımı</th><th>Çıktı</th></tr><tr><td>Day RVOL</td><td>Day Trading skoruna katkı</td><td>Giriş/stop/hedef</td></tr><tr><td>Swing Momentum</td><td>Swing skoruna katkı</td><td>3-20 gün adayları</td></tr><tr><td>Pozisyon Kalite</td><td>Pozisyon skoruna katkı</td><td>1-12 ay model portföy</td></tr>';
+}
+async function tcFullScan(){
+  showPage('tradingCenter',document.querySelector('[data-page="tradingCenter"]'));
+  setStatus('V31 Trading Center için eksik taramalar çalıştırılıyor...');
+  try{ if(!scanCache.length) await scanAll(false); }catch(e){setStatus('Ana tarama uyarısı: '+e.message)}
+  try{ if(!dayTradingCache.length) await runDayTradingScan(false); }catch(e){setStatus('Day Trading tarama uyarısı: '+e.message)}
+  try{ if(!institutionalCache.length) await runInstitutionalScanner(false); }catch(e){setStatus('Institutional tarama uyarısı: '+e.message)}
+  tcRender(); setStatus('V31 Trading Center güncellendi.');
+}
+function tcExport(){
+  if(!tcRows.length){alert('Önce Trading Center güncelleyin.');return;}
+  downloadCSV([['Hisse','IQS','Grade','BestStyle','Day','Swing','Position','Scalping','AI','Trend','Volume','Momentum','Dip','KAP','Backtest','Risk','Liquidity','RVOL'],...tcRows.map(x=>[x.symbol,x.iqs,tcGrade(x.iqs),x.bestStyle,x.dayScore,x.swingScore,x.positionScore,x.scalpScore,x.aiScore,x.layers.trend,x.layers.volume,x.layers.momentum,x.layers.dip,x.layers.kap,x.layers.backtest,x.layers.risk,x.layers.liquidity,x.rvol])],'v31_trading_center_iqs.csv');
+}
+setTimeout(()=>{const r=$('tcRefreshBtn'); if(r)r.addEventListener('click',tcRender); const f=$('tcFullScanBtn'); if(f)f.addEventListener('click',()=>tcFullScan().catch(e=>setStatus('V31 hatası: '+e.message))); const x=$('tcExportBtn'); if(x)x.addEventListener('click',tcExport); const tab=document.querySelector('[data-page="tradingCenter"]'); if(tab)tab.addEventListener('click',()=>setTimeout(tcRender,120));},1100);
+</script>
 
 
 init();
