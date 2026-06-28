@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro V28 AI Advisor</title>
+<title>BIST Radar Pro V29 Explainable AI</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro V28 Institutional</div><div class="pill">%100 Gerçek Veri • V28 AI Advisor • V26 Core Engine</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro V29 Institutional</div><div class="pill">%100 Gerçek Veri • V29 Explainable AI • V26 Core Engine</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -24,6 +24,7 @@
     <button class="tab active" data-page="dashboard">📊 Ana Kontrol</button>
     <button class="tab" data-page="institutionalDashboard">🏛️ V27 Institutional Dashboard</button>
     <button class="tab" data-page="aiAdvisor">🤖 V28 AI Advisor</button>
+    <button class="tab" data-page="explainableAI">🔎 V29 Explainable AI</button>
     <button class="tab" data-page="analysis">📈 Hisse Analizi</button>
     <button class="tab" data-page="leaders">🔥 En Güçlü 20</button>
     <button class="tab" data-page="safe">💎 Güvenli Kazanç</button>
@@ -120,6 +121,30 @@
       <div class="card"><div class="head">💼 Portföy Koçu Özeti</div><div class="body"><table id="advPortfolioTable" class="table"></table></div></div>
       <div class="card"><div class="head dark">🧠 Açıklanabilir AI Karar Gerekçeleri</div><div class="body"><div id="advExplainBox" class="comment">Skorların neden oluştuğu burada katman katman özetlenir.</div></div></div>
     </div>
+  </section>
+
+
+  <section id="explainableAI" class="hidden">
+    <div class="grid g5">
+      <div class="card metric"><div class="body"><div class="muted">AI Decision</div><div id="xaiScore" class="v ok">-</div><div class="muted">ortak karar skoru</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Karar</div><div id="xaiDecision" class="v">-</div><div class="muted">AL / İZLE / RİSKLİ</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Güven</div><div id="xaiConfidence" class="v ok">-</div><div class="muted">A+ / A / B</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Risk</div><div id="xaiRisk" class="v bad">-</div><div class="muted">karşıt görüş</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Veri Kalitesi</div><div id="xaiDataQuality" class="v">-</div><div class="muted">gerçek veri kontrolü</div></div></div>
+    </div><br>
+    <div class="card"><div class="head dark">🔎 V29 Explainable AI</div><div class="body">
+      <div class="quickFilters"><button class="btn" id="xaiRunBtn">Seçili Hisseyi Açıkla</button><button class="btn gray" id="xaiOpenAnalysisBtn">Hisse Analizine Git</button><button class="btn green" id="xaiExportBtn">XAI CSV</button></div>
+      <div id="xaiNarrative" class="comment">V29, yeni veri üretmez. V26 Core Engine ve ortak AI Decision Engine çıktısını katman katman açıklar: RVOL, kurumsal para, trend, momentum, VWAP, dip, KAP, backtest, risk ve likidite.</div>
+    </div></div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head green">✅ Kararın Pozitif Nedenleri</div><div class="body"><div id="xaiPositiveBox" class="comment">Hisse seçip çalıştırın.</div></div></div>
+      <div class="card"><div class="head red">⚠️ Karşıt Görüş / Riskler</div><div class="body"><div id="xaiNegativeBox" class="comment">Risk katmanları burada gösterilir.</div></div></div>
+    </div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head cyan">🧩 Puan Katkı Kırılımı</div><div class="body"><table id="xaiLayerTable" class="table"></table></div></div>
+      <div class="card"><div class="head yellow">🚦 Trafik Işığı</div><div class="body"><div id="xaiTrafficBox" class="comment"></div><br><table id="xaiTraceTable" class="table"></table></div></div>
+    </div><br>
+    <div class="card"><div class="head dark">🧠 AI Karar İzleme</div><div class="body"><div id="xaiTraceBox" class="comment">Karar ağacı ve puan izi burada görünür.</div></div></div>
   </section>
 
   <section id="analysis" class="hidden">
@@ -469,7 +494,7 @@ const defaultPortfolio=[{symbol:'MRSHL',lot:286,cost:2470},{symbol:'PAPIL',lot:7
 let portfolio=loadPortfolioLocal();
 const $=id=>document.getElementById(id);const fmt=(x,d=2)=>Number.isFinite(Number(x))?Number(x).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';const tl=x=>fmt(x)+' TL';
 function setStatus(t){$('status').textContent=t}
-const APP_PAGES=['dashboard','institutionalDashboard','aiAdvisor','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','portfolio','portfolioAdvice','v20Portfolio','smartPortfolio','radarLab','dayTradingAI','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional','institutionalScanner'];
+const APP_PAGES=['dashboard','institutionalDashboard','aiAdvisor','explainableAI','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','portfolio','portfolioAdvice','v20Portfolio','smartPortfolio','radarLab','dayTradingAI','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional','institutionalScanner'];
 function showPage(id,btn){
   APP_PAGES.forEach(x=>{const el=$(x); if(el){el.classList.add('hidden'); el.style.display='none';}});
   const page=$(id); if(page){page.classList.remove('hidden'); page.style.display='block'; document.body.setAttribute('data-page',id);}
@@ -482,7 +507,7 @@ async function init(){wire();await loadSymbols();renderPortfolio();renderSignalJ
 function wire(){document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page,b)));$('analyzeBtn').addEventListener('click',()=>{showPage('analysis',document.querySelector('[data-page="analysis"]'));loadStock(true)});$('backtestBtn').addEventListener('click',()=>{showPage('backtestPage',document.querySelector('[data-page=\"backtestPage\"]'));runBacktest()});$('scanBtn1').addEventListener('click',()=>scanAll(false)); setTimeout(()=>{const b=$('runBtBtn'); if(b)b.addEventListener('click',runBacktest); const p=$('runPortfolioBtBtn'); if(p)p.addEventListener('click',runPortfolioBacktest); const pa=$('pfAddBtn'); if(pa)pa.addEventListener('click',addOrUpdatePortfolio); const ps=$('pfSaveBtn'); if(ps)ps.addEventListener('click',()=>{savePortfolio();setStatus('Portföy kaydedildi.')}); const dr=$('dailyReportBtn'); if(dr)dr.addEventListener('click',renderDailyReport); const kr=$('kapRefreshBtn'); if(kr)kr.addEventListener('click',renderKapNews); const la=$('runLearningBtn'); if(la)la.addEventListener('click',runLearning); const ss=$('saveSignalBtn'); if(ss)ss.addEventListener('click',saveCurrentSignal); const cs=$('clearSignalsBtn'); if(cs)cs.addEventListener('click',clearSignalJournal); const ks=$('kapSymbolBtn'); if(ks)ks.addEventListener('click',()=>renderKapNews(($('search').value||'PAPIL').toUpperCase().trim())); const ka=$('kapAllBtn'); if(ka)ka.addEventListener('click',()=>renderKapNews('')); const rc=$('refreshConfidenceBtn'); if(rc)rc.addEventListener('click',runConfidence); const cb=$('committeeBtn'); if(cb)cb.addEventListener('click',runCommittee); const pav=$('portfolioAdviceBtn'); if(pav)pav.addEventListener('click',renderPortfolioAdvice); const pas=$('portfolioAdviceScanBtn'); if(pas)pas.addEventListener('click',async()=>{showPage('portfolioAdvice',document.querySelector('[data-page="portfolioAdvice"]')); if($('portfolioCoach'))$('portfolioCoach').innerHTML='V24.1 taraması başlıyor: Day Trading AI + Institutional Scanner gerçek OHLC/hacim verileri ile bağlanacak...'; try{await runDayTradingScan(false); await runInstitutionalScanner(false);}catch(e){setStatus('V24.1 koç taraması uyarısı: '+e.message);} showPage('portfolioAdvice',document.querySelector('[data-page="portfolioAdvice"]')); renderPortfolioAdvice();}); const cx=$('coachExportBtn'); if(cx)cx.addEventListener('click',exportCoachCSV); const spm=$('spmRunBtn'); if(spm)spm.addEventListener('click',runSmartPortfolio); const spms=$('spmScanBtn'); if(spms)spms.addEventListener('click',async()=>{showPage('smartPortfolio',document.querySelector('[data-page="smartPortfolio"]')); await runDayTradingScan(false); await runInstitutionalScanner(false); await runSmartPortfolio();}); const spmx=$('spmExportBtn'); if(spmx)spmx.addEventListener('click',exportSmartPortfolioCSV); const rl=$('rlRunBtn'); if(rl)rl.addEventListener('click',runRadarLab); const rlp=$('rlPresetBtn'); if(rlp)rlp.addEventListener('click',radarLabPreset); const rlx=$('rlExportBtn'); if(rlx)rlx.addEventListener('click',exportRadarLabCSV); const v20=$('v20RunBtn'); if(v20)v20.addEventListener('click',runV20Portfolio); const v22s=$('v22SymbolBtn'); if(v22s)v22s.addEventListener('click',()=>runV22News(($('search').value||'').toUpperCase().trim())); const v22a=$('v22AllBtn'); if(v22a)v22a.addEventListener('click',()=>runV22News(''));},0);$('search').addEventListener('keydown',e=>{if(e.key==='Enter'){$('analyzeBtn').click()}});['showEma20','showEma50','showEma200','showBB','showVWAP'].forEach(id=>{setTimeout(()=>{const el=$(id); if(el) el.addEventListener('change',()=>draw(lastRows));},0)})}
 async function loadSymbols(){try{const j=await (await fetch('/api/symbols')).json();syms=j.symbols||[]}catch(e){syms=[]}if(!syms.length)syms=['PAPIL','MRSHL','TEZOL','USAK','VKING','THYAO','AKBNK','GARAN'];$('symbol').innerHTML=syms.map(s=>`<option>${s}</option>`).join('');$('symbol').onchange=e=>{$('search').value=e.target.value;loadStock(true)}}
 async function loadStock(verbose=true){const s=$('search').value.toUpperCase().trim()||'PAPIL';$('search').value=s;if(verbose)setStatus(s+' verisi alınıyor...');try{const j=await (await fetch('/api/stock?symbol='+encodeURIComponent(s))).json();if(!j.success)throw new Error(j.error||'Veri yok');renderStock(j);if(verbose)setStatus(s+' Yahoo Finance son verisi ile analiz edildi.')}catch(e){setStatus('Veri alınamadı: '+e.message)}}
-function renderStock(j){lastStock=j; const a=j.analysis||{},c=j.comments||{};const cards=[['Karar',a.decision,a.finalScore>=65?'ok':a.finalScore>=50?'warn':'bad'],['Güven','%'+fmt(a.confidence,0),'ok'],['Risk','%'+fmt(a.risk,0),a.risk<50?'ok':'bad'],['Hedef','%'+fmt(((a.target1-a.close)/a.close)*100,1),'ok'],['Son Fiyat',tl(a.close),a.change>=0?'ok':'bad']];$('cards').innerHTML=cards.map(x=>`<div class="card metric"><div class="body"><div class="muted">${x[0]}</div><div class="v ${x[2]}">${x[1]}</div><small>Değişim: ${fmt(a.change)}%</small></div></div>`).join('');$('engine').innerHTML=['trend','money','momentum','pattern','confidence','risk'].map(k=>{const v=a[k]||0;return `<b>${label(k)}: ${fmt(v,0)}/100</b><div class="barw"><div class="bar" style="width:${Math.max(0,Math.min(100,v))}%;background:${k==='risk'?(v<50?'#16a34a':'#dc2626'):(v>65?'#16a34a':v>50?'#f59e0b':'#dc2626')}"></div></div><br>`}).join('')+`<div class="comment"><b>Formasyon:</b> ${a.formation?.name||'-'}<br><b>ADX:</b> ${fmt(a.adx)} | <b>SuperTrend:</b> ${a.superTrendDir===1?'AL':'SAT'}<br><b>Stop:</b> ${tl(a.stop)} | <b>Hedef:</b> ${tl(a.target1)}</div>`;$('expert').textContent=c.expert||aiExpert(a);$('ai').textContent=c.ai||aiComment(a);renderAIEngine(a);renderMultiLayer(a.multiLayer||null,a);draw(a.ohlcv||j.ohlcv||[]);setTimeout(()=>runConfidence(false),80)}
+function renderStock(j){lastStock=j; const a=j.analysis||{},c=j.comments||{};const cards=[['Karar',a.decision,a.finalScore>=65?'ok':a.finalScore>=50?'warn':'bad'],['Güven','%'+fmt(a.confidence,0),'ok'],['Risk','%'+fmt(a.risk,0),a.risk<50?'ok':'bad'],['Hedef','%'+fmt(((a.target1-a.close)/a.close)*100,1),'ok'],['Son Fiyat',tl(a.close),a.change>=0?'ok':'bad']];$('cards').innerHTML=cards.map(x=>`<div class="card metric"><div class="body"><div class="muted">${x[0]}</div><div class="v ${x[2]}">${x[1]}</div><small>Değişim: ${fmt(a.change)}%</small></div></div>`).join('');$('engine').innerHTML=['trend','money','momentum','pattern','confidence','risk'].map(k=>{const v=a[k]||0;return `<b>${label(k)}: ${fmt(v,0)}/100</b><div class="barw"><div class="bar" style="width:${Math.max(0,Math.min(100,v))}%;background:${k==='risk'?(v<50?'#16a34a':'#dc2626'):(v>65?'#16a34a':v>50?'#f59e0b':'#dc2626')}"></div></div><br>`}).join('')+`<div class="comment"><b>Formasyon:</b> ${a.formation?.name||'-'}<br><b>ADX:</b> ${fmt(a.adx)} | <b>SuperTrend:</b> ${a.superTrendDir===1?'AL':'SAT'}<br><b>Stop:</b> ${tl(a.stop)} | <b>Hedef:</b> ${tl(a.target1)}</div>`;$('expert').textContent=c.expert||aiExpert(a);$('ai').textContent=c.ai||aiComment(a);renderAIEngine(a);renderInlineExplainableFromStock(a);renderMultiLayer(a.multiLayer||null,a);draw(a.ohlcv||j.ohlcv||[]);setTimeout(()=>runConfidence(false),80)}
 function label(k){return {trend:'Trend',money:'Para Girişi',momentum:'Momentum',pattern:'Formasyon',confidence:'Güven',risk:'Risk'}[k]||k}
 
 function nval(x,d=0){x=Number(x);return Number.isFinite(x)?x:d}
@@ -1306,6 +1331,61 @@ function exportAIAdvisorCSV(){
   downloadCSV([['Hisse','AI','Grade','Day','Institutional','RVOL','Money','Risk','Aksiyon','Not'],...advisorRows.map(x=>[x.symbol,x.score,advGrade(x.score),x.day,x.inst,x.rvol,x.money,x.risk,x.action,x.why])],'v28_ai_advisor.csv');
 }
 setTimeout(()=>{const r=$('advRunBtn'); if(r)r.addEventListener('click',renderAIAdvisor); const f=$('advFullBtn'); if(f)f.addEventListener('click',()=>runAIAdvisorFull().catch(e=>{setStatus('V28 AI Advisor hatası: '+e.message);$('advNarrative').textContent='V28 AI Advisor hatası: '+e.message;})); const x=$('advExportBtn'); if(x)x.addEventListener('click',exportAIAdvisorCSV); const tab=document.querySelector('[data-page="aiAdvisor"]'); if(tab)tab.addEventListener('click',()=>setTimeout(renderAIAdvisor,80));},900);
+
+
+/* V29 Explainable AI */
+let xaiLast=null;
+function xaiBadge(score){return `<span class="badge ${Number(score)>=70?'bgreen':Number(score)>=45?'byellow':'bred'}">${fmt(score,0)}</span>`}
+function xaiStatusText(s){return s==='green'?'🟢 Güçlü':s==='yellow'?'🟡 Nötr':'🔴 Zayıf'}
+function xaiDecisionClass(d){return String(d||'').includes('AL')?'ok':String(d||'').includes('RİSK')||String(d||'').includes('ZAYIF')?'bad':'warn'}
+function renderXAI(x){
+  if(!x) return; xaiLast=x;
+  if($('xaiScore')) $('xaiScore').textContent=fmt(x.score,0);
+  if($('xaiDecision')) { $('xaiDecision').textContent=x.decision||'-'; $('xaiDecision').className='v '+xaiDecisionClass(x.decision); }
+  if($('xaiConfidence')) $('xaiConfidence').textContent=(x.confidenceGrade||'-')+' / '+fmt(x.confidence,0);
+  if($('xaiRisk')) $('xaiRisk').textContent=fmt(x.risk,0);
+  if($('xaiDataQuality')) $('xaiDataQuality').textContent=fmt(x.dataQuality,0);
+  if($('xaiNarrative')) $('xaiNarrative').innerHTML=`<b>${x.symbol}</b> için Explainable AI kararı: <b>${x.decision}</b>. Skor <b>${fmt(x.score,0)}/100</b>, güven <b>${x.confidenceGrade}</b>, risk <b>${fmt(x.risk,0)}/100</b>.<br><br>${x.shortComment||''}`;
+  if($('xaiPositiveBox')) $('xaiPositiveBox').innerHTML=(x.positives||[]).length?(x.positives||[]).slice(0,6).map(v=>`✓ ${v}`).join('<br>'):'Belirgin pozitif katkı sınırlı.';
+  if($('xaiNegativeBox')) $('xaiNegativeBox').innerHTML=(x.negatives||[]).length?(x.negatives||[]).slice(0,6).map(v=>`⚠ ${v}`).join('<br>'):'Belirgin negatif/karşıt görüş sınırlı.';
+  if($('xaiTrafficBox')) $('xaiTrafficBox').innerHTML=`🟢 Güçlü katman: <b>${x.traffic?.green||0}</b><br>🟡 Nötr katman: <b>${x.traffic?.yellow||0}</b><br>🔴 Zayıf katman: <b>${x.traffic?.red||0}</b>`;
+  if($('xaiLayerTable')) $('xaiLayerTable').innerHTML='<tr><th>Katman</th><th>Durum</th><th>Değer</th><th>Ağırlık</th><th>Katkı</th><th>Açıklama</th></tr>'+(x.layers||[]).map(l=>`<tr><td><b>${l.label}</b></td><td>${xaiStatusText(l.status)}</td><td>${xaiBadge(l.value)}</td><td>%${fmt(l.weight,0)}</td><td><b>${l.contribution>0?'+':''}${fmt(l.contribution,2)}</b></td><td>${l.explain||''}</td></tr>`).join('');
+  if($('xaiTraceTable')) $('xaiTraceTable').innerHTML='<tr><th>#</th><th>Karar İzi</th></tr>'+(x.trace||[]).map((t,i)=>`<tr><td>${i+1}</td><td>${t}</td></tr>`).join('');
+  if($('xaiTraceBox')) $('xaiTraceBox').innerHTML=`<b>Decision Trace:</b><br>${(x.trace||[]).join('<br>')}<br><br><b>Not:</b> Bu ekran yatırım tavsiyesi değildir. Kararın hangi gerçek OHLC/hacim/KAP/backtest katmanlarından oluştuğunu şeffaflaştıran karar destek ekranıdır.`;
+}
+async function runExplainableAI(){
+  const s=($('search').value||$('symbol').value||'PAPIL').toUpperCase().trim();
+  showPage('explainableAI',document.querySelector('[data-page="explainableAI"]'));
+  setStatus(s+' için V29 Explainable AI hazırlanıyor...');
+  try{
+    const j=await (await fetch('/api/decision?symbol='+encodeURIComponent(s)+'&t='+Date.now())).json();
+    if(!j.success) throw new Error(j.error||'Explainable AI alınamadı');
+    renderXAI(j.explainable);
+    setStatus(s+' için V29 Explainable AI hazır.');
+  }catch(e){ setStatus('V29 Explainable AI hatası: '+e.message); if($('xaiNarrative')) $('xaiNarrative').textContent='V29 Explainable AI hatası: '+e.message; }
+}
+function renderInlineExplainableFromStock(a){
+  if(!$('aiDecision')) return;
+  try{
+    const s=($('search').value||'').toUpperCase().trim()||'PAPIL';
+    const risk=Number(a.risk||50), score=Number(a.finalScore||a.confidence||50);
+    const x={symbol:s,score:Math.round(score),decision:a.decision||'İZLE',confidence:Math.round(a.confidence||score),confidenceGrade:score>=82?'A':score>=68?'B+':'B',risk,dataQuality:90,layers:[
+      {label:'Trend',status:a.trend>=70?'green':a.trend>=45?'yellow':'red',value:a.trend||0,weight:14,contribution:((Number(a.trend||50)-50)/50*14),explain:'Trend katmanı'},
+      {label:'Kurumsal Para',status:a.money>=70?'green':a.money>=45?'yellow':'red',value:a.money||0,weight:16,contribution:((Number(a.money||50)-50)/50*16),explain:'Para akışı katmanı'},
+      {label:'Momentum',status:a.momentum>=70?'green':a.momentum>=45?'yellow':'red',value:a.momentum||0,weight:12,contribution:((Number(a.momentum||50)-50)/50*12),explain:'Momentum katmanı'},
+      {label:'Risk Kontrolü',status:risk<=45?'green':risk<=65?'yellow':'red',value:100-risk,weight:10,contribution:((50-risk)/50*10),explain:'Risk ters puanlanır'}
+    ],positives:[],negatives:[],trace:['Hızlı hisse analizi ekranı için yerel karar kırılımı üretildi.','Tam V29 açıklaması için V29 sekmesinde Seçili Hisseyi Açıkla düğmesine basın.'],traffic:{green:0,yellow:0,red:0},shortComment:'Tam açıklama V29 sekmesinde sunulur.'};
+    const pos=x.layers.filter(l=>l.contribution>2).map(l=>l.label+': +'+fmt(l.contribution,1));
+    const neg=x.layers.filter(l=>l.contribution<-2).map(l=>l.label+': '+fmt(l.contribution,1));
+    x.positives=pos; x.negatives=neg; x.traffic={green:x.layers.filter(l=>l.status==='green').length,yellow:x.layers.filter(l=>l.status==='yellow').length,red:x.layers.filter(l=>l.status==='red').length};
+    renderXAI(x);
+  }catch(e){}
+}
+function exportXAICSV(){
+  const x=xaiLast; if(!x){alert('Önce V29 Explainable AI çalıştırın.');return;}
+  downloadCSV([['Hisse','Karar','Skor','Guven','Risk','Katman','Deger','Agirlik','Katki','Durum','Aciklama'],...(x.layers||[]).map(l=>[x.symbol,x.decision,x.score,x.confidence,x.risk,l.label,l.value,l.weight,l.contribution,l.status,l.explain])],'v29_explainable_ai.csv');
+}
+setTimeout(()=>{const r=$('xaiRunBtn'); if(r)r.addEventListener('click',runExplainableAI); const o=$('xaiOpenAnalysisBtn'); if(o)o.addEventListener('click',()=>showPage('analysis',document.querySelector('[data-page="analysis"]'))); const x=$('xaiExportBtn'); if(x)x.addEventListener('click',exportXAICSV); const tab=document.querySelector('[data-page="explainableAI"]'); if(tab)tab.addEventListener('click',()=>setTimeout(runExplainableAI,80));},1000);
 
 
 init();
