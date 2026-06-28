@@ -1,6 +1,6 @@
 {
-  "name": "bist-radar-pro-v24-institutional-scanner-pro",
-  "version": "24.0.0-institutional-scanner-pro",
+  "name": "bist-radar-pro-v25-smart-portfolio-radar-lab",
+  "version": "25.0.0-smart-portfolio-radar-lab",
   "type": "module",
   "scripts": {
     "dev": "vercel dev",
