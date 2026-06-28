@@ -1,11 +1,11 @@
 {
-  "name": "bist-radar-pro-v19-1-institutional-controlled",
-  "version": "19.1.1-controlled",
+  "name": "bist-radar-pro-v20-institutional",
+  "version": "20.0.0-institutional",
   "type": "module",
   "scripts": {
     "dev": "vercel dev",
     "start": "vercel dev",
-    "test:syntax": "node --check api/stock.js && node --check api/symbols.js && node --check api/scan.js && node --check api/backtest.js && node --check api/learning.js && node --check api/kap.js && node --check api/confidence.js && node --check api/decision.js && node --check api/portfolio-advice.js && node --check api/committee.js && node --check api/dip.js && node --check api/institutional-scan.js"
+    "test:syntax": "node --check api/stock.js && node --check api/symbols.js && node --check api/scan.js && node --check api/backtest.js && node --check api/learning.js && node --check api/kap.js && node --check api/confidence.js && node --check api/decision.js && node --check api/portfolio-advice.js && node --check api/committee.js && node --check api/dip.js && node --check api/institutional-scan.js && node --check lib/v20-portfolio-engine.js"
   },
   "dependencies": {}
 }

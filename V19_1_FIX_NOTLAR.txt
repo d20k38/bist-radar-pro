@@ -1,0 +1,17 @@
+BIST Radar Pro V19.1 Institutional FIX
+
+Düzeltildi:
+- Cannot read properties of undefined (reading 'dipScore') hatası giderildi.
+- API artık hem analysis hem dip alanını döndürür.
+- Frontend hem yeni hem eski API yanıtlarını normalize eder.
+- Tüm BIST taraması symbols.json listesinin tamamını tarar.
+- symbols.json hisse sayısı: 527
+- A ile başlayan ilk 60 sınırı yoktur.
+- 250 günlük dip cluster analizi güçlendirildi.
+- OBV + CMF + MFI + VWAP ile Kurumsal Toplama Skoru eklendi.
+- AI Güven Puanı yıldızlı gösterilir.
+- Backtest: sinyal sayısı / başarılı sinyal / başarı yüzdesi gösterilir.
+- 50.000 TL portföy optimizasyon butonu eklendi.
+- Math.random / pseudo / demo fiyat kullanılmaz.
+
+API sayısı: 11

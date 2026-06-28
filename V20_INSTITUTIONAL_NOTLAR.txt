@@ -1,0 +1,15 @@
+BIST Radar Pro V20 Institutional
+
+Eklenenler:
+- Mevcut 12 API endpoint sınırı korunmuştur; yeni endpoint eklenmedi.
+- V20 Portföy Simülasyonu sekmesi eklendi.
+- Monte Carlo senaryo motoru gerçek geçmiş OHLC günlük getirilerinden deterministik senaryo üretir.
+- Math.random / demo / pseudo fiyat verisi kullanılmaz.
+- 1 hafta, 2 hafta, 1 ay beklenen getiri ve kötü/iyi senaryo aralıkları hesaplanır.
+- Portföy korelasyon analizi eklendi.
+- Gelişmiş ağırlık optimizasyonu eklendi.
+- Mevcut portföy için Artır / Azalt / Koru aksiyon tablosu eklendi.
+- api/portfolio-advice.js içindeki analyzeSymbol import sorunu düzeltildi; gerçek OHLC -> analyze() akışına alındı.
+
+Not:
+Bu araç yatırım tavsiyesi değildir. Teknik/istatistiksel karar destek ekranıdır.

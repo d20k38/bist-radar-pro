@@ -1,5 +1,6 @@
-import { getSymbols } from '../lib/provider.js';
-import { analyzeSymbol } from '../lib/engine.js';
+import { getSymbols, getOhlcv } from '../lib/provider.js';
+import { analyze } from '../lib/engine.js';
+import { buildV20Portfolio } from '../lib/v20-portfolio-engine.js';
 
 function rrScore(x){
   const target = x.close && x.target1 ? ((x.target1 - x.close) / x.close) * 100 : 0;
@@ -20,16 +21,37 @@ function monthlyPortfolioList(rows){
 }
 
 export default async function handler(req,res){
-  const limit = Math.max(4, Math.min(Number(req.query.limit || 40), 80));
+  const v20Only = String(req.query.v20Only || '') === '1';
+  const limit = v20Only ? 0 : Math.max(4, Math.min(Number(req.query.limit || 40), 80));
   const offset = Math.max(0, Number(req.query.offset || 0));
-  const symbols = (await getSymbols()).slice(offset, offset + limit);
+  const symbols = v20Only ? [] : (await getSymbols()).slice(offset, offset + limit);
   const data = [];
   for (const symbol of symbols) {
     try {
-      const a = await analyzeSymbol(symbol);
+      const rows = await getOhlcv(symbol,'1y','1d');
+      const a = analyze(rows);
       data.push({symbol, ...a});
     } catch (e) {
       data.push({symbol, error: e.message, decision:'VERİ YOK', finalScore:0, confidence:0, risk:100});
+    }
+  }
+  let v20 = null;
+  if (req.query.portfolio) {
+    try {
+      const portfolio = JSON.parse(String(req.query.portfolio));
+      const holdings = Array.isArray(portfolio) ? portfolio.slice(0, 12) : [];
+      const analyses = {};
+      const ohlcv = {};
+      for (const h of holdings) {
+        const sym = String(h.symbol||'').toUpperCase().replace('.IS','').trim();
+        if(!sym) continue;
+        const rows = await getOhlcv(sym,'1y','1d');
+        ohlcv[sym] = rows;
+        analyses[sym] = analyze(rows);
+      }
+      v20 = buildV20Portfolio({holdings, analyses, ohlcv});
+    } catch (e) {
+      v20 = {success:false, error:e.message};
     }
   }
   const avgRisk = data.length ? data.reduce((s,x)=>s+(x.risk||50),0)/data.length : 50;
@@ -43,6 +65,7 @@ export default async function handler(req,res){
     dailyTrade: dailyTradeList(data),
     weeklyPortfolio: weeklyPortfolioList(data),
     monthlyPortfolio: monthlyPortfolioList(data),
-    data
+    data,
+    v20
   });
 }
