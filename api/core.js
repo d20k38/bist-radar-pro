@@ -1,4 +1,4 @@
-const { SYMBOLS, master } = require('./lib/unified-provider');
+const { SYMBOLS, master } = require('../lib/unified-provider');
 
 function send(res, obj, cache='s-maxage=30, stale-while-revalidate=120'){
   try{ res.setHeader('Cache-Control', cache); }catch(_){ }

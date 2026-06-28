@@ -1,19 +1,9 @@
-Vercel Hobby build hatasını kalıcı çözmek için GitHub reposunda api/ klasöründe sadece şu dosya kalmalı:
+R13.1 Vercel Hobby FIX
 
-api/core.js
+GitHub repository api/ klasöründe sadece şu dosya kalmalı:
+- api/core.js
 
-Şunları silin:
-api/backtest.js
-api/committee.js
-api/confidence.js
-api/decision.js
-api/dip.js
-api/institutional-scan.js
-api/kap.js
-api/learning.js
-api/portfolio-advice.js
-api/scan.js
-api/stock.js
-api/symbols.js
-
-api/lib/ klasörü kalabilir.
+ÖNEMLİ:
+- api/lib klasörü de api içinde kalmamalı. Vercel bunu da function olarak sayabilir.
+- lib klasörü proje kökünde olmalı: /lib/unified-provider.js ve /lib/symbols.js
+- Eski api/*.js dosyalarını silin: stock.js, scan.js, decision.js, dip.js, symbols.js, kap.js, backtest.js, confidence.js, committee.js, institutional-scan.js, learning.js, portfolio-advice.js
