@@ -1,6 +1,6 @@
 {
-  "name": "bist-radar-pro-r2-karar-motoru",
-  "version": "1.0.0-r2-decision-engine",
+  "name": "bist-radar-pro-r5-universal-scanner",
+  "version": "1.0.0-r5-universal-scanner",
   "type": "module",
   "scripts": {
     "dev": "vercel dev",

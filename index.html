@@ -22,6 +22,7 @@
   </div>
   <div class="tabs">
     <button class="tab active" data-page="dashboard">🧠 R3 Dashboard + Karar Merkezi</button>
+    <button class="tab" data-page="snapshotCompare">🧪 R6 Kalite Karşılaştırma</button>
     <button class="tab" data-page="dayTradingAI">⚡ Day Trading AI</button>
     <button class="tab" data-page="tradePlanner">🎯 V32 Trade Planner</button>
     <button class="tab" data-page="tradingCenter">🎯 V31 Trading Center</button>
@@ -93,6 +94,35 @@
       <div class="card"><div class="head red">⚠️ Riskli Hisseler</div><div class="body"><div id="dashRisk" class="dashList"></div></div></div>
       <div class="card"><div class="head dark">📢 KAP / Haber Etki Analizi</div><div class="body"><div id="dashKapBox" class="comment">KAP/Haber AI bekleniyor.</div></div></div>
     </div>
+  </section>
+
+  <section id="snapshotCompare" class="hidden">
+    <div class="card"><div class="head dark">🧪 R6 Snapshot Comparison / Kalite Karşılaştırma</div><div class="body">
+      <div class="comment">Önceden aldığınız JSON snapshot dosyasını yükleyin. Sistem, yüklenen o anki karar/fiyat/skorları mevcut gerçek tarama verileriyle karşılaştırır; AL/TUT/SAT kararlarının ne kadar isabetli olduğunu, skor değişimini ve bozulup güçlenen hisseleri raporlar.</div><br>
+      <div class="quickFilters">
+        <input type="file" id="snapshotFile" accept=".json,application/json" style="padding:12px;border:1px solid var(--line);border-radius:14px;background:#fff">
+        <button class="btn green" id="snapshotCompareBtn">JSON Yükle ve Karşılaştır</button>
+        <button class="btn" id="snapshotCurrentBtn">Mevcut Veriden Snapshot JSON İndir</button>
+        <button class="btn gray" id="snapshotExportBtn">Karşılaştırma CSV</button>
+      </div>
+      <div id="snapshotStatus" class="comment">Henüz JSON yüklenmedi. Karşılaştırma için önce güncel tarama yapılır; yoksa sistem R5 Universal Scanner ile küçük partiler halinde gerçek veriyi üretir.</div>
+    </div></div>
+    <br>
+    <div class="grid g5">
+      <div class="card metric"><div class="body"><div class="muted">JSON Kayıt</div><div id="snapOldCount" class="v">-</div><div class="muted">yüklenen tekil hisse</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Eşleşen</div><div id="snapMatchCount" class="v ok">-</div><div class="muted">mevcut veriyle bulunan</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Başarı</div><div id="snapAccuracy" class="v ok">-</div><div class="muted">karar yönü testi</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Ort. Getiri</div><div id="snapAvgReturn" class="v warn">-</div><div class="muted">eşleşenlerde fiyat farkı</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Karar Değişti</div><div id="snapChanged" class="v bad">-</div><div class="muted">AL/TUT/SAT sınıfı</div></div></div>
+    </div>
+    <br>
+    <div class="grid g3">
+      <div class="card"><div class="head green">✅ En İyi Doğrulananlar</div><div class="body"><table id="snapBestTable" class="table"></table></div></div>
+      <div class="card"><div class="head red">⚠️ En Çok Bozulanlar</div><div class="body"><table id="snapWorstTable" class="table"></table></div></div>
+      <div class="card"><div class="head yellow">🔁 Karar Değişimleri</div><div class="body"><table id="snapChangedTable" class="table"></table></div></div>
+    </div>
+    <br>
+    <div class="card"><div class="head dark">📋 Tüm Karşılaştırma Listesi</div><div class="body"><table id="snapAllTable" class="table"></table></div></div>
   </section>
 
 
@@ -605,7 +635,7 @@ const defaultPortfolio=[{symbol:'MRSHL',lot:286,cost:2470},{symbol:'PAPIL',lot:7
 let portfolio=loadPortfolioLocal();
 const $=id=>document.getElementById(id);const fmt=(x,d=2)=>Number.isFinite(Number(x))?Number(x).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';const tl=x=>fmt(x)+' TL';
 function setStatus(t){$('status').textContent=t}
-const APP_PAGES=['dashboard','tradePlanner','institutionalDashboard','aiAdvisor','explainableAI','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','tradingCenter','portfolio','portfolioAdvice','v20Portfolio','smartPortfolio','radarLab','dayTradingAI','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional','institutionalScanner'];
+const APP_PAGES=['dashboard','snapshotCompare','tradePlanner','institutionalDashboard','aiAdvisor','explainableAI','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','tradingCenter','portfolio','portfolioAdvice','v20Portfolio','smartPortfolio','radarLab','dayTradingAI','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional','institutionalScanner'];
 function showPage(id,btn){
   APP_PAGES.forEach(x=>{const el=$(x); if(el){el.classList.add('hidden'); el.style.display='none';}});
   const page=$(id); if(page){page.classList.remove('hidden'); page.style.display='block'; document.body.setAttribute('data-page',id);}
@@ -765,7 +795,7 @@ function setProgress(done,total){
   if(t)t.textContent=total?`${done}/${total} hisse tarandı (%${pct})`:'Tarama bekleniyor.';
 }
 async function scanAll(silent=false){
-  setStatus('R4 performans taraması başlatıldı: küçük partiler, tekilleştirme ve güvenli tekrar deneme aktif...');
+  setStatus('R5 Universal Scanner başlatıldı: tüm sembol evreni küçük partilerle taranıyor, AI fırsat sıralaması güncelleniyor...');
   document.body.classList.add('loading');
   scanCache=[];
   setProgress(0,0);
@@ -798,7 +828,7 @@ async function scanAll(silent=false){
     scanCache.sort((a,b)=>(Number(b.finalScore)||0)-(Number(a.finalScore)||0));
     renderDashboard();renderTables();
     const sec=((Date.now()-started)/1000).toFixed(1);
-    setStatus(`${scanCache.length} tekil hisse tarandı. R4 performans taraması ${sec} sn sürdü.`);
+    setStatus(`${scanCache.length} tekil hisse tarandı. R5 Universal Scanner + AI Opportunity Ranking ${sec} sn sürdü.`);
   }catch(e){
     setStatus('Tarama hatası: '+e.message);
   }finally{
@@ -1234,21 +1264,54 @@ async function loadV18Dip(symbol=null){
 }
 async function scanV18Dip(){
   v18DipScanCache=[];
-  const symRes=await fetch('/api/symbols'); const sj=await symRes.json();
-  const list=(sj.symbols||[]).slice(0,60); // Vercel timeout için tarayıcı tarafında parça parça
-  $('v18ScanStatus').textContent=`0 / ${list.length} hisse tarandı...`;
-  for(let i=0;i<list.length;i++){
-    const s=list[i];
+  const symRes=await fetch('/api/symbols?t='+Date.now());
+  const sj=await symRes.json();
+  const rawList=Array.isArray(sj.symbols)?sj.symbols:[];
+  const seen=new Set();
+  const list=rawList.map(x=>String(x||'').toUpperCase().replace(/\.IS$/,'').trim()).filter(s=>/^[A-Z]{2,6}[A-Z0-9]?$/.test(s) && !seen.has(s) && seen.add(s));
+  const total=list.length;
+  let done=0, failed=0;
+  const batch=6;
+  $('v18ScanStatus').innerHTML=`<b>0 / ${total}</b> hisse tarandı. R5 tüm BIST evreni taraması başlatıldı...<div class="barw" style="margin-top:8px"><div id="v18FullProgress" class="bar" style="width:0%;background:var(--green)"></div></div>`;
+  for(let i=0;i<list.length;i+=batch){
+    const part=list.slice(i,i+batch);
     try{
-      const r=await fetch(`/api/dip?symbol=${encodeURIComponent(s)}&range=1y`);
+      const r=await fetch(`/api/dip?symbols=${encodeURIComponent(part.join(','))}&limit=${batch}&t=${Date.now()}`);
       const j=await r.json();
-      if(j.success) v18DipScanCache.push({symbol:s,...j.dip});
-    }catch(e){}
-    v18DipScanCache.sort((a,b)=>(b.dipScore||0)-(a.dipScore||0));
-    $('v18ScanRows').innerHTML=v18DipScanCache.slice(0,30).map(x=>`<tr><td><b>${x.symbol}</b></td><td>${v18TL(x.currentPrice)}</td><td>${v18Badge(x.dipScore)}</td><td>${v18TL(x.dipRegion.low)} - ${v18TL(x.dipRegion.high)}</td><td>${v18DipLevelPlain(x.currentPrice,x.dipRegion.strongest)}</td><td>%${Math.round(x.successProbability)}</td><td>${x.decision}</td></tr>`).join('');
-    $('v18ScanStatus').textContent=`${i+1} / ${list.length} hisse tarandı.`;
-    await new Promise(r=>setTimeout(r,80));
+      if(j.success && Array.isArray(j.data)){
+        j.data.forEach(item=>{ if(item?.success && item?.dip) v18DipScanCache.push({symbol:item.symbol,...item.dip}); });
+        failed += Array.isArray(j.errors)?j.errors.length:0;
+      }else{
+        // Eski endpoint / batch desteklemezse güvenli şekilde tek tek fallback.
+        for(const s of part){
+          try{
+            const one=await (await fetch(`/api/dip?symbol=${encodeURIComponent(s)}&range=1y&t=${Date.now()}`)).json();
+            if(one.success) v18DipScanCache.push({symbol:s,...one.dip}); else failed++;
+          }catch(e){failed++;}
+        }
+      }
+    }catch(e){
+      for(const s of part){
+        try{
+          const one=await (await fetch(`/api/dip?symbol=${encodeURIComponent(s)}&range=1y&t=${Date.now()}`)).json();
+          if(one.success) v18DipScanCache.push({symbol:s,...one.dip}); else failed++;
+        }catch(err){failed++;}
+      }
+    }
+    done=Math.min(i+part.length,total);
+    // R5: tekilleştir; aynı hisse farklı partiden gelirse en yüksek dip skorunu koru.
+    const map=new Map();
+    for(const x of v18DipScanCache){
+      const prev=map.get(x.symbol);
+      if(!prev || Number(x.dipScore||0)>Number(prev.dipScore||0)) map.set(x.symbol,x);
+    }
+    v18DipScanCache=[...map.values()].sort((a,b)=>(b.dipScore||0)-(a.dipScore||0));
+    $('v18ScanRows').innerHTML=v18DipScanCache.slice(0,50).map(x=>`<tr><td><b>${x.symbol}</b></td><td>${v18TL(x.currentPrice)}</td><td>${v18Badge(x.dipScore)}</td><td>${v18TL(x.dipRegion.low)} - ${v18TL(x.dipRegion.high)}</td><td>${v18DipLevelPlain(x.currentPrice,x.dipRegion.strongest)}</td><td>%${Math.round(x.successProbability)}</td><td>${x.decision}</td></tr>`).join('');
+    const pct=total?Math.round(done/total*100):0;
+    $('v18ScanStatus').innerHTML=`<b>${done} / ${total}</b> hisse tarandı (%${pct}). Başarılı tekil: <b>${v18DipScanCache.length}</b>${failed?` • Veri alınamayan: <b>${failed}</b>`:''}<div class="barw" style="margin-top:8px"><div id="v18FullProgress" class="bar" style="width:${pct}%;background:var(--green)"></div></div>`;
+    await new Promise(r=>setTimeout(r,70));
   }
+  $('v18ScanStatus').innerHTML += '<div style="margin-top:8px"><b>R5 Universal Scanner:</b> İlk 60 sınırı kaldırıldı; tüm sembol evreni tarandı ve en iyi 50 dip adayı listelendi.</div>';
 }
 function exportV18DipCSV(){
   const rows=[['Hisse','Son Fiyat','Dip Skoru','Dip Alt','Dip Üst','Güçlü Seviye','Başarı','Karar']];
@@ -1877,6 +1940,142 @@ function tcExport(){
 }
 setTimeout(()=>{const r=$('tcRefreshBtn'); if(r)r.addEventListener('click',tcRender); const f=$('tcFullScanBtn'); if(f)f.addEventListener('click',()=>tcFullScan().catch(e=>setStatus('V31 hatası: '+e.message))); const x=$('tcExportBtn'); if(x)x.addEventListener('click',tcExport); const tab=document.querySelector('[data-page="tradingCenter"]'); if(tab)tab.addEventListener('click',()=>setTimeout(tcRender,120));},1100);
 
+
+
+
+/* R6 Snapshot Comparison / Kalite Karşılaştırma
+   Kullanıcının yüklediği JSON snapshot ile mevcut gerçek tarama verilerini karşılaştırır. */
+let snapshotRows=[], snapshotCompareRows=[];
+function snapNum(v,d=0){v=Number(v);return Number.isFinite(v)?v:d}
+function snapDecisionGroup(d){
+  d=String(d||'').toUpperCase();
+  if(d.includes('GÜÇLÜ')||d==='AL'||d.includes(' AL')) return 'AL';
+  if(d.includes('SAT')||d.includes('KAÇ')||d.includes('RİSK')||d.includes('UZAK')) return 'SAT';
+  return 'TUT';
+}
+function snapNormalizeItem(x){
+  const d=x?.r2Decision||x?.decisionEngine||{};
+  const m=x?.master||d?.master||{};
+  const scores=m?.scores||d?.scores||{};
+  const symbol=String(x?.symbol||x?.hisse||x?.kod||d?.symbol||m?.symbol||'').toUpperCase().replace(/\.IS$/,'').trim();
+  const close=snapNum(x?.close ?? x?.price ?? x?.sonFiyat ?? x?.son_fiyat ?? x?.last ?? m?.price?.close, NaN);
+  const score=snapNum(x?.finalScore ?? x?.score ?? x?.ai ?? x?.AI ?? d?.score ?? scores.ai, 0);
+  const decision=String(x?.decision ?? x?.karar ?? d?.action ?? m?.decision?.label ?? 'TUT').toUpperCase();
+  return {
+    symbol, close, decision, group:snapDecisionGroup(decision), score,
+    confidence:snapNum(x?.confidence ?? x?.guven ?? d?.confidence ?? scores.confidence,0),
+    iqs:snapNum(x?.iqs ?? x?.quality ?? scores.iqs,0),
+    day:snapNum(x?.day ?? x?.dayScore ?? scores.day,0),
+    raw:x
+  };
+}
+function snapExtractArray(json){
+  if(Array.isArray(json)) return json;
+  const keys=['data','results','rows','stocks','symbols','snapshot','items','decisions','master'];
+  for(const k of keys){ if(Array.isArray(json?.[k])) return json[k]; }
+  if(json && typeof json==='object'){
+    const vals=Object.values(json);
+    if(vals.length && vals.every(v=>v&&typeof v==='object')) return vals;
+  }
+  return [];
+}
+function snapUnique(rows){
+  const map=new Map();
+  (rows||[]).map(snapNormalizeItem).filter(x=>x.symbol).forEach(x=>{
+    const prev=map.get(x.symbol);
+    if(!prev || snapNum(x.score)>snapNum(prev.score)) map.set(x.symbol,x);
+  });
+  return [...map.values()].sort((a,b)=>snapNum(b.score)-snapNum(a.score));
+}
+function snapCurrentRows(){
+  const base=(typeof r3Unique==='function'?r3Unique(scanCache):scanCache)||[];
+  return snapUnique(base.map(x=>({
+    symbol:x.symbol, close:x.close, decision:x.decision, finalScore:x.finalScore,
+    confidence:x.confidence, iqs:x.iqs, day:x.day
+  })));
+}
+function snapSuccess(oldGroup, ret){
+  if(!Number.isFinite(ret)) return null;
+  if(oldGroup==='AL') return ret>0;
+  if(oldGroup==='SAT') return ret<0;
+  return Math.abs(ret)<=3;
+}
+function snapBuildComparison(oldRows, curRows){
+  const curMap=new Map(curRows.map(x=>[x.symbol,x]));
+  return oldRows.map(o=>{
+    const c=curMap.get(o.symbol);
+    const ret=(c && Number.isFinite(o.close) && o.close>0 && Number.isFinite(c.close))?((c.close-o.close)/o.close*100):NaN;
+    const curGroup=c?snapDecisionGroup(c.decision):'YOK';
+    const success=snapSuccess(o.group,ret);
+    return {
+      symbol:o.symbol, old:o, current:c||null, oldDecision:o.decision, currentDecision:c?.decision||'YOK',
+      oldGroup:o.group, currentGroup:curGroup, oldScore:o.score, currentScore:c?.score||0,
+      scoreDiff:(c?snapNum(c.score)-snapNum(o.score):null), oldClose:o.close, currentClose:c?.close,
+      returnPct:ret, success, changed:!!c && o.group!==curGroup, missing:!c
+    }
+  });
+}
+function snapTable(rows,mode='all'){
+  if(!rows.length) return '<tr><td>Karşılaştırma verisi yok.</td></tr>';
+  return '<tr><th>#</th><th>Hisse</th><th>Eski Karar</th><th>Yeni Karar</th><th>Eski AI</th><th>Yeni AI</th><th>Fiyat Değişimi</th><th>Sonuç</th></tr>'+rows.map((r,i)=>{
+    const res=r.missing?'Veri yok':r.success===true?'✅ Doğrulandı':r.success===false?'❌ Yanıldı':'-';
+    const cls=r.success===true?'bgreen':r.success===false?'bred':'byellow';
+    return `<tr><td>${i+1}</td><td><b>${r.symbol}</b></td><td>${r.oldDecision}</td><td>${r.currentDecision}</td><td>${fmt(r.oldScore,0)}</td><td>${fmt(r.currentScore,0)}</td><td>${Number.isFinite(r.returnPct)?'%'+fmt(r.returnPct,2):'-'}</td><td><span class="badge ${cls}">${res}</span></td></tr>`
+  }).join('')
+}
+function snapRender(){
+  const rows=snapshotCompareRows;
+  const matched=rows.filter(x=>!x.missing);
+  const tested=matched.filter(x=>x.success!==null);
+  const acc=tested.length?tested.filter(x=>x.success).length/tested.length*100:0;
+  const avg=matched.length?matched.reduce((s,x)=>s+(Number.isFinite(x.returnPct)?x.returnPct:0),0)/matched.length:0;
+  const changed=matched.filter(x=>x.changed);
+  if($('snapOldCount'))$('snapOldCount').textContent=snapshotRows.length;
+  if($('snapMatchCount'))$('snapMatchCount').textContent=matched.length;
+  if($('snapAccuracy'))$('snapAccuracy').textContent=tested.length?'%'+fmt(acc,1):'-';
+  if($('snapAvgReturn'))$('snapAvgReturn').textContent=matched.length?'%'+fmt(avg,2):'-';
+  if($('snapChanged'))$('snapChanged').textContent=changed.length;
+  const best=[...matched].sort((a,b)=>(b.returnPct||-999)-(a.returnPct||-999)).slice(0,10);
+  const worst=[...matched].sort((a,b)=>(a.returnPct||999)-(b.returnPct||999)).slice(0,10);
+  if($('snapBestTable'))$('snapBestTable').innerHTML=snapTable(best);
+  if($('snapWorstTable'))$('snapWorstTable').innerHTML=snapTable(worst);
+  if($('snapChangedTable'))$('snapChangedTable').innerHTML=snapTable(changed.slice(0,20));
+  if($('snapAllTable'))$('snapAllTable').innerHTML=snapTable(rows.slice(0,80));
+  if($('snapshotStatus'))$('snapshotStatus').innerHTML=`<b>R6 Kalite Karşılaştırma:</b> ${snapshotRows.length} JSON kaydı okundu, ${matched.length} hisse mevcut veriyle eşleşti. Karar yönü başarı oranı ${tested.length?'%'+fmt(acc,1):'hesaplanamadı'}. Ortalama fiyat farkı ${matched.length?'%'+fmt(avg,2):'-'}. Eksik mevcut veri ${rows.filter(x=>x.missing).length}.`;
+}
+async function snapCompareUploaded(){
+  const file=$('snapshotFile')?.files?.[0];
+  if(!file){alert('Önce JSON dosyası seçin.');return;}
+  try{
+    if(!scanCache.length){ setStatus('R6 için güncel tarama hazırlanıyor...'); await scanAll(false); }
+    const text=await file.text();
+    const json=JSON.parse(text);
+    snapshotRows=snapUnique(snapExtractArray(json));
+    const current=snapCurrentRows();
+    snapshotCompareRows=snapBuildComparison(snapshotRows,current);
+    snapRender();
+    setStatus(`R6 karşılaştırma tamamlandı: ${snapshotRows.length} snapshot, ${current.length} güncel kayıt.`);
+  }catch(e){
+    setStatus('R6 JSON karşılaştırma hatası: '+e.message);
+    if($('snapshotStatus'))$('snapshotStatus').textContent='JSON okunamadı veya güncel veri üretilemedi: '+e.message;
+  }
+}
+function snapDownloadCurrent(){
+  const rows=snapCurrentRows();
+  if(!rows.length){alert('Önce tarama yapın.');return;}
+  const payload={createdAt:new Date().toISOString(),source:'BIST Radar Pro R6 current snapshot',data:rows};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='bist_radar_snapshot_'+new Date().toISOString().slice(0,10)+'.json'; a.click(); URL.revokeObjectURL(a.href);
+}
+function snapExportCSV(){
+  if(!snapshotCompareRows.length){alert('Önce JSON yükleyip karşılaştırın.');return;}
+  downloadCSV([['Hisse','EskiKarar','YeniKarar','EskiAI','YeniAI','EskiFiyat','YeniFiyat','Getiri%','Basari','KararDegisti','Eksik'],...snapshotCompareRows.map(r=>[r.symbol,r.oldDecision,r.currentDecision,r.oldScore,r.currentScore,r.oldClose,r.currentClose,Number.isFinite(r.returnPct)?r.returnPct:'',r.success===true?'Başarılı':r.success===false?'Başarısız':'-',r.changed?'Evet':'Hayır',r.missing?'Evet':'Hayır'])],'r6_snapshot_comparison.csv');
+}
+setTimeout(()=>{
+  const c=$('snapshotCompareBtn'); if(c)c.addEventListener('click',()=>snapCompareUploaded());
+  const d=$('snapshotCurrentBtn'); if(d)d.addEventListener('click',snapDownloadCurrent);
+  const x=$('snapshotExportBtn'); if(x)x.addEventListener('click',snapExportCSV);
+},600);
 
 init();
 setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]'); if(b)b.addEventListener('click',()=>loadV19().catch(e=>setStatus(e.message))); if($('v19ScanBtn'))$('v19ScanBtn').addEventListener('click',scanV19); if($('v19ExportBtn'))$('v19ExportBtn').addEventListener('click',exportV19);},700);
