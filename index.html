@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro R18 Indicator Engine 100</title>
+<title>BIST Radar Pro R19 AI Decision Engine</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/r10-runtime.js"></script>
 <script>
@@ -92,7 +92,7 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro R18 Indicator Engine 100</div><div class="pill">%100 Gerçek OHLCV • R18 Indicator Engine 100 • Tek Hisse Debug</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro R19 AI Decision Engine</div><div class="pill">%100 Gerçek OHLCV • R19 AI Decision Engine • AL/TUT/SAT</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -101,8 +101,8 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
   </div>
   <div class="tabs">
     <button class="tab active" data-page="dashboard">🧠 R3 Dashboard + Karar Merkezi</button>
-    <button class="tab" data-page="diagnosticPage">🧪 R18 Indicator Engine 100</button>
-    <button class="tab" data-page="coreValidatorPage">🔬 R18 Indicator Engine 100</button>
+    <button class="tab" data-page="diagnosticPage">🧪 R19 AI Decision Engine</button>
+    <button class="tab" data-page="coreValidatorPage">🔬 R19 AI Decision Engine</button>
     <button class="tab" data-page="r9Suite">🏛️ R9 Institutional AI Suite</button>
     <button class="tab" data-page="snapshotCompare">🧪 R6 Kalite Karşılaştırma</button>
     <button class="tab" data-page="dayTradingAI">⚡ Day Trading AI</button>
@@ -759,7 +759,7 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
 
 
   <section id="coreValidatorPage" class="hidden">
-    <div class="card"><div class="head dark">🔬 R18 Indicator Engine 100 / Tek Hisse Debug</div><div class="body">
+    <div class="card"><div class="head dark">🔬 R19 AI Decision Engine / Tek Hisse Debug</div><div class="body">
       <div class="quickFilters">
         <button class="btn green" id="r16SelectedBtn">Seçili Hisse Zincirini Test Et</button>
         <button class="btn" id="r16PapilBtn">PAPIL Test</button>
@@ -783,7 +783,7 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
   </section>
 
   <section id="diagnosticPage" class="hidden">
-    <div class="card"><div class="head dark">🧪 R18 Indicator Engine 100 / Veri Sağlığı</div><div class="body">
+    <div class="card"><div class="head dark">🧪 R19 AI Decision Engine / Veri Sağlığı</div><div class="body">
       <div class="quickFilters">
         <button class="btn green" id="diagSelectedBtn">Seçili Hisseyi Test Et</button>
         <button class="btn" id="diagBatchBtn">İlk 20 Hisseyi Test Et</button>
@@ -1047,7 +1047,7 @@ async function scanAll(silent=false){
     setProgress(total||offset,total||offset);
     if(ok===0){
       const sample=(window.scanErrors||[]).slice(0,3).map(e=>`${e.symbol||('offset '+(e.offset??'-'))}: ${e.error||e.message||'hata'}`).join(' • ');
-      setStatus(`${scanCache.length} tekil hisse üretildi. Başarılı analiz: 0. R18 Indicator Engine 100: veri zinciri kırıldı. İlk hata: ${sample||'Diagnostic Mode ile kontrol edin.'} Tarama ${sec} sn sürdü.`);
+      setStatus(`${scanCache.length} tekil hisse üretildi. Başarılı analiz: 0. R19 AI Decision Engine: veri zinciri kırıldı. İlk hata: ${sample||'Diagnostic Mode ile kontrol edin.'} Tarama ${sec} sn sürdü.`);
     }else{
       setStatus(`${scanCache.length} tekil hisse üretildi. Başarılı analiz: ${ok}. Hatalı/atlanmış parti veya sembol: ${errCount}. Tarama ${sec} sn sürdü.`);
     }
@@ -2715,7 +2715,7 @@ setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]')
 
 
 <script>
-// R18 Indicator Engine 100 UI
+// R19 AI Decision Engine UI
 (function(){
   let diagRows=[];
   function diagOk(v){return v?'<span class="badge bgreen">✓</span>':'<span class="badge bred">✕</span>'}
@@ -2789,7 +2789,7 @@ setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]')
 
 
 <script>
-// R18 Indicator Engine 100 UI
+// R19 AI Decision Engine UI
 (function(){
   let lastR16=null;
   function okBadge(v){return v?'<span class="badge bgreen">✓</span>':'<span class="badge bred">✕</span>'}
@@ -2803,7 +2803,7 @@ setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]')
     const rv=steps.find(x=>x.key==='rvol');
     if($('r16Rvol')) $('r16Rvol').textContent=rv?.value!=null?fmt(rv.value,2)+'x':'-';
     if($('r16Master')) $('r16Master').textContent=j?.master?'✓':'✕';
-    if($('r16Summary')) $('r16Summary').innerHTML=`<b>R18 Indicator Engine 100:</b> ${j?.symbol||'-'} için zincir testi tamamlandı. Başarı: <b>${j?.success?'Evet':'Hayır'}</b>. Health: <b>${j?.healthScore||0}%</b>. Süre: <b>${j?.durationMs||0} ms</b>.`;
+    if($('r16Summary')) $('r16Summary').innerHTML=`<b>R19 AI Decision Engine:</b> ${j?.symbol||'-'} için zincir testi tamamlandı. Başarı: <b>${j?.success?'Evet':'Hayır'}</b>. Health: <b>${j?.healthScore||0}%</b>. Süre: <b>${j?.durationMs||0} ms</b>.`;
     const table=$('r16StepTable');
     if(table){
       table.innerHTML='<tr><th>Adım</th><th>Durum</th><th>Detay</th></tr>'+steps.map(st=>{
@@ -2824,14 +2824,14 @@ setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]')
   window.runR16Validator=async function(symbol){
     showPage('coreValidatorPage', document.querySelector('[data-page="coreValidatorPage"]'));
     const sym=(symbol||$('search')?.value||$('symbol')?.value||'PAPIL').toUpperCase().trim();
-    setStatus('R18 Indicator Engine 100 çalışıyor: '+sym);
+    setStatus('R19 AI Decision Engine çalışıyor: '+sym);
     try{
       const j=await fetchJsonSafe(`/api/core?action=validate&symbol=${encodeURIComponent(sym)}&t=${Date.now()}`,{timeout:25000,retries:0});
       renderR16(j);
-      setStatus('R18 Indicator Engine 100 tamamlandı: '+sym);
+      setStatus('R19 AI Decision Engine tamamlandı: '+sym);
       return j;
     }catch(e){
-      setStatus('R18 Indicator Engine 100 hatası: '+e.message);
+      setStatus('R19 AI Decision Engine hatası: '+e.message);
       if($('r16Summary')) $('r16Summary').textContent='R16 hata: '+e.message;
       throw e;
     }
