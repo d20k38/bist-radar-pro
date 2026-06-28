@@ -1807,6 +1807,28 @@ async function scanV19(){
   }
   $('v19ScanStatus').innerHTML += '<div style="margin-top:8px"><b>En iyi 30 Dip Adayı listelendi. Veri alınamayan kodlar otomatik atlandı.</b></div>';
 }
+function exportV19(){
+  if(!Array.isArray(v19Cache) || !v19Cache.length){
+    alert('Önce V19 Institutional taramasını çalıştırın.');
+    return;
+  }
+  const rows=[
+    ['Hisse','Son Fiyat','Dip Skoru','AI Güven','Kurumsal','Dip Bölgesi Alt','Dip Bölgesi Üst','Güçlü Seviye','Karar'],
+    ...v19Cache.map(x=>[
+      x.symbol||'',
+      x.currentPrice||'',
+      x.ai?.dipScore||'',
+      x.ai?.aiTrust||'',
+      x.ai?.institutional||'',
+      x.dipRegion?.low||'',
+      x.dipRegion?.high||'',
+      x.dipRegion?.strongest||'',
+      x.ai?.decision||''
+    ])
+  ];
+  downloadCSV(rows,'v19_institutional_dip_adaylari.csv');
+}
+
 function optimizeV19Portfolio(amount=50000){
   if(!v19Cache.length) return alert('Önce Tümünü Tara çalıştırın.');
   const top=v19Cache.slice(0,8);
