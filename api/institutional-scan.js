@@ -1,5 +1,6 @@
 import { getSymbols, getOhlcv } from '../lib/provider.js';
 import { analyzeV19Institutional } from '../lib/v19-institutional-engine.js';
+import { analyzeDayTrading } from '../lib/day-trading-engine.js';
 
 export default async function handler(req,res){
   res.setHeader('Content-Type','application/json; charset=utf-8');
@@ -9,12 +10,15 @@ export default async function handler(req,res){
     const requested = req.query.limit === 'all' ? 3 : Number(req.query.limit || 3);
     const limit = Math.max(1, Math.min(requested, 3));
     const symbols = all.slice(offset, offset + limit);
+    let benchmarkRows = [];
+    try{ benchmarkRows = await getOhlcv('XU100','1y','1d'); }catch(e){}
     const data = [];
     for(const symbol of symbols){
       try{
         const rows = await getOhlcv(symbol,'2y','1d');
         const analysis = analyzeV19Institutional(rows);
-        data.push({ symbol, ...analysis, ok:true });
+        const dayTrading = analyzeDayTrading(rows, benchmarkRows);
+        data.push({ symbol, ...analysis, dayTrading, ok:true });
       }catch(e){ data.push({ symbol, ok:false, error:e.message }); }
     }
     const ok = data.filter(x=>x.ok).sort((a,b)=>(b.ai?.dipScore||0)-(a.ai?.dipScore||0));

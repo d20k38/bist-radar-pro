@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro V22 Institutional - Kurumsal Haber Motoru</title>
+<title>BIST Radar Pro V23 Institutional - Day Trading AI</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro V22 Institutional</div><div class="pill">%100 Gerçek Veri • V20 Portföy • V22 Kurumsal Haber Motoru</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro V23 Institutional</div><div class="pill">%100 Gerçek Veri • V20 Portföy • V22 Haber • V23 Day Trading AI</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -36,6 +36,7 @@
     <button class="tab" data-page="dailyReport">📰 Günlük AI Raporu</button>
     <button class="tab" data-page="kapPage">📢 KAP/Haber AI</button>
     <button class="tab" data-page="v22News">🏢 V22 Kurumsal Haber Motoru</button>
+    <button class="tab" data-page="dayTradingAI">⚡ V23 Day Trading AI</button>
     <button class="tab" data-page="confidencePage">🧩 Güven Katmanları</button>
     <button class="tab" data-page="committeePage">🏛️ AI Yatırım Komitesi</button>
     <button class="tab" data-page="v19Institutional">🏦 V19 Institutional</button>
@@ -169,6 +170,24 @@
       <div class="card"><div class="head yellow">⚖️ Optimize Ağırlık</div><div class="body"><table id="v20OptTable" class="table"></table></div></div>
     </div><br>
     <div class="card"><div class="head red">💼 Mevcut Portföy Revizyonu</div><div class="body"><table id="v20ActionTable" class="table"></table></div></div>
+  </section>
+
+
+  <section id="dayTradingAI" class="hidden">
+    <div class="grid g4">
+      <div class="card metric"><div class="body"><div class="muted">En Yüksek Day Skoru</div><div id="dtBestScore" class="v ok">-</div><div class="muted">0-100</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">RVOL Lideri</div><div id="dtRvolLeader" class="v ok">-</div><div class="muted">20 günlük ortalamaya göre</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Güçlü Aday</div><div id="dtStrongCount" class="v ok">-</div><div class="muted">skor ≥ 72</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Taranan</div><div id="dtScanned" class="v warn">-</div><div class="muted">gerçek OHLC + hacim</div></div></div>
+    </div><br>
+    <div class="card"><div class="head dark">⚡ V23 Day Trading AI</div><div class="body">
+      <div class="quickFilters"><button class="btn" id="dtScanBtn">Yarın İçin Day Trading Taraması</button><button class="btn gray" id="dtExportBtn">CSV Dışa Aktar</button></div>
+      <div id="dtStatus" class="comment">Borsa kapanışı sonrası çalıştırın. Sistem RVOL, VWAP, OBV, CMF, MFI, ATR ve göreceli güç bileşenleriyle yarın izlenecek adayları sıralar. Random/pseudo veri kullanılmaz.</div>
+    </div></div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head green">🏆 Yarının En Güçlü 20 Day Trading Adayı</div><div class="body"><table id="dtTable" class="table"></table></div></div>
+      <div class="card"><div class="head cyan">🔍 Seçili Aday Açıklaması</div><div class="body"><div id="dtExplain" class="comment">Listeden bir hisseye tıklayın. Skorun neden oluştuğu ve giriş/stop/hedef planı burada gösterilir.</div><br><table id="dtLayerTable" class="table"></table></div></div>
+    </div>
   </section>
 
   <section id="dailyReport" class="hidden">
@@ -316,7 +335,7 @@ const defaultPortfolio=[{symbol:'MRSHL',lot:286,cost:2470},{symbol:'PAPIL',lot:7
 let portfolio=loadPortfolioLocal();
 const $=id=>document.getElementById(id);const fmt=(x,d=2)=>Number.isFinite(Number(x))?Number(x).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';const tl=x=>fmt(x)+' TL';
 function setStatus(t){$('status').textContent=t}
-const APP_PAGES=['dashboard','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','portfolio','portfolioAdvice','v20Portfolio','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional'];
+const APP_PAGES=['dashboard','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','portfolio','portfolioAdvice','v20Portfolio','dayTradingAI','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional'];
 function showPage(id,btn){
   APP_PAGES.forEach(x=>{const el=$(x); if(el){el.classList.add('hidden'); el.style.display='none';}});
   const page=$(id); if(page){page.classList.remove('hidden'); page.style.display='block'; document.body.setAttribute('data-page',id);}
@@ -829,6 +848,61 @@ function v19Chart(a){const low=Math.min(a.levels.stop,a.dipRegion.low), high=Mat
 async function loadV19(symbol=null){const s=(symbol||$('search').value||$('symbol').value||'PAPIL').toUpperCase();setStatus(`V19 gerçek veri analizi alınıyor: ${s}`);const j=await (await fetch(`/api/dip?symbol=${encodeURIComponent(s)}`)).json();if(!j.success)throw new Error(j.error||'V19 analizi alınamadı');const a=j.analysis;$('v19DipScore').textContent=Math.round(a.ai.dipScore);$('v19Trust').textContent=Math.round(a.ai.aiTrust);$('v19Inst').textContent=Math.round(a.ai.institutional);$('v19Decision').textContent=a.ai.decision;const cl=(a.supportClusters||[])[0]||{};$('v19Region').innerHTML=`<div class="kpi"><b>Son Fiyat</b><span>${v19TL(a.currentPrice)}</span></div><div class="kpi"><b>Dip Kümesi</b><span>${v19TL(a.dipRegion.low)} - ${v19TL(a.dipRegion.high)}</span></div><div class="kpi"><b>250 Günlük Güçlü Seviye</b><span>${dipLevelText(a.currentPrice,a.dipRegion.strongest)}</span></div><div class="kpi"><b>Test Sayısı</b><span>${cl.touches||0}</span></div><div class="kpi"><b>Ortalama Tepki</b><span>%${fmt(cl.avgReaction||0,2)}</span></div>`;$('v19Time').innerHTML=`<div class="kpi"><b>Dip Olgunluğu</b><span>%${Math.round(a.ai.maturity)}</span></div><div class="kpi"><b>Tahmini Süre</b><span>${a.ai.duration}</span></div><div class="kpi"><b>Falling Knife</b><span>${Math.round(a.ai.fallingKnife)}/100</span></div><div class="kpi"><b>Backtest Başarı</b><span>%${fmt(a.backtest.successRate,1)}</span></div>`;$('v19Levels').innerHTML=`<div class="kpi"><b>İlk Alım</b><span>${v19TL(a.levels.firstBuy)}</span></div><div class="kpi"><b>Güçlü Alım</b><span>${v19TL(a.levels.strongBuy)}</span></div><div class="kpi"><b>Stop</b><span>${v19TL(a.levels.stop)}</span></div><div class="kpi"><b>İlk Hedef</b><span>${v19TL(a.levels.firstTarget)}</span></div><div class="kpi"><b>Ana Hedef</b><span>${v19TL(a.levels.mainTarget)}</span></div><div class="kpi"><b>Risk/Getiri</b><span>${fmt(a.levels.riskReward,2)}</span></div>`;$('v19Chart').innerHTML=v19Chart(a);$('v19AI').textContent=a.aiText;$('v19Layers').innerHTML=Object.entries(a.scores).map(([k,v])=>`<tr><td>${({'support':'Destek','rsi':'RSI','macd':'MACD','ema':'EMA','bollinger':'Bollinger','volume':'Hacim','money':'Para Girişi','adx':'ADX','atr':'ATR','cluster':'Dip Kümesi','backtest':'Backtest'}[k]||k)}</td><td>${v19Badge(v)}</td><td>${v19Bar(v)}</td></tr>`).join('');$('v19Indicators').innerHTML=Object.entries(a.indicators).map(([k,v])=>`<tr><td>${k.toUpperCase()}</td><td><b>${fmt(v,2)}</b></td></tr>`).join('');setStatus(`${s} için V19 Institutional analiz hazır. Random veri yok.`)}
 async function scanV19(){v19Cache=[];const sj=await (await fetch('/api/symbols')).json();const list=sj.symbols||[];$('v19ScanStatus').textContent=`0 / ${list.length} hisse tarandı...`;for(let i=0;i<list.length;i++){const s=list[i];try{const j=await (await fetch(`/api/dip?symbol=${encodeURIComponent(s)}`)).json();if(j.success)v19Cache.push({symbol:s,...j.analysis})}catch(e){}v19Cache.sort((a,b)=>(b.ai?.dipScore||0)-(a.ai?.dipScore||0));$('v19Rows').innerHTML=v19Cache.slice(0,30).map(x=>`<tr><td><b>${x.symbol}</b></td><td>${v19TL(x.currentPrice)}</td><td>${v19Badge(x.ai.dipScore)}</td><td>${v19Badge(x.ai.aiTrust)}</td><td>${v19TL(x.dipRegion.low)} - ${v19TL(x.dipRegion.high)}</td><td>${dipLevelPlain(x.currentPrice,x.dipRegion.strongest)}</td><td>${x.ai.decision}</td></tr>`).join('');$('v19ScanStatus').textContent=`${i+1} / ${list.length} hisse tarandı.`;await new Promise(r=>setTimeout(r,60));}}
 function exportV19(){const rows=[['Hisse','Son Fiyat','Dip Skoru','AI Güven','Dip Alt','Dip Üst','Güçlü Seviye','Karar']];v19Cache.forEach(x=>rows.push([x.symbol,x.currentPrice,x.ai.dipScore,x.ai.aiTrust,x.dipRegion.low,x.dipRegion.high,x.dipRegion.strongest,x.ai.decision]));const csv='\ufeff'+rows.map(r=>r.join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='v19_institutional_dip_tarama.csv';a.click();}
+
+
+/* V23 Day Trading AI - mevcut API sayısını artırmadan institutional-scan verisini kullanır */
+let dayTradingCache=[];
+function dtBadge(v){v=Number(v)||0;return `<span class="badge ${v>=72?'bgreen':v>=60?'byellow':'bred'}">${fmt(v,0)}</span>`}
+function dtActionClass(a){return String(a||'').includes('İLK')||String(a||'').includes('GÜÇLÜ')?'bgreen':String(a||'').includes('İZLE')?'byellow':'bred'}
+function dtRenderSummary(){
+  const best=dayTradingCache[0];
+  if($('dtBestScore')) $('dtBestScore').textContent=best?fmt(best.dayTrading.score,0):'-';
+  const rv=[...dayTradingCache].sort((a,b)=>(b.dayTrading.rvol20||0)-(a.dayTrading.rvol20||0))[0];
+  if($('dtRvolLeader')) $('dtRvolLeader').textContent=rv?`${rv.symbol} ${fmt(rv.dayTrading.rvol20,2)}x`:'-';
+  if($('dtStrongCount')) $('dtStrongCount').textContent=dayTradingCache.filter(x=>(x.dayTrading.score||0)>=72).length;
+  if($('dtScanned')) $('dtScanned').textContent=dayTradingCache.length;
+}
+function dtRenderTable(){
+  const el=$('dtTable'); if(!el)return;
+  if(!dayTradingCache.length){el.innerHTML='<tr><td>Henüz tarama yapılmadı.</td></tr>';return;}
+  el.innerHTML='<tr><th>#</th><th>Hisse</th><th>Skor</th><th>Aksiyon</th><th>RVOL20</th><th>VWAP</th><th>CMF</th><th>MFI</th><th>ATR%</th><th>RS</th><th>Giriş</th><th>Stop</th><th>Hedef</th></tr>'+
+    dayTradingCache.slice(0,20).map((x,i)=>{const d=x.dayTrading||{},p=d.plan||{},rs=d.scores?.relativeStrength||0;return `<tr onclick="dtExplain('${x.symbol}')" style="cursor:pointer"><td><b>${i+1}</b></td><td><b>${x.symbol}</b></td><td>${dtBadge(d.score)}</td><td><span class="badge ${dtActionClass(d.action)}">${d.action}</span></td><td><b>${fmt(d.rvol20,2)}x</b></td><td>${tl(d.vwap20)}</td><td>${fmt(d.cmf20,3)}</td><td>${fmt(d.mfi14,1)}</td><td>%${fmt(d.atrPct,2)}</td><td>${dtBadge(rs)}</td><td>${tl(p.entryLow)}-${tl(p.entryHigh)}</td><td>${tl(p.stop)}</td><td>${tl(p.target1)}</td></tr>`}).join('');
+}
+function dtExplain(symbol){
+  const x=dayTradingCache.find(r=>r.symbol===symbol); if(!x||!x.dayTrading)return; const d=x.dayTrading,p=d.plan||{};
+  $('dtExplain').innerHTML=`<b>${symbol} Day Trading AI:</b><br>Skor: <b>${fmt(d.score,0)}/100</b> • Aksiyon: <b>${d.action}</b> • Açılış yukarı eğilim olasılığı: <b>%${fmt(d.openBias,0)}</b><br><br><b>Plan:</b> Giriş ${tl(p.entryLow)} - ${tl(p.entryHigh)}, Stop ${tl(p.stop)}, Hedef 1 ${tl(p.target1)}, Hedef 2 ${tl(p.target2)}, Risk/Getiri 1:${fmt(p.riskReward,2)}.<br><br><b>Nedenler:</b><br>${(d.reasons||[]).map(r=>'✅ '+r).join('<br>')}<br><br><span class="mini">${d.relative?.status||''}. Bu ekran yatırım tavsiyesi değil, kapanış sonrası aday sıralama aracıdır.</span>`;
+  const names={rvol:'RVOL20',rvol5:'RVOL5',vwap:'VWAP',relativeStrength:'Göreceli Güç',obv:'OBV',cmf:'CMF',mfi:'MFI',atr:'ATR',momentum:'Momentum',liquidity:'Likidite'};
+  $('dtLayerTable').innerHTML='<tr><th>Katman</th><th>Puan</th></tr>'+Object.entries(d.scores||{}).map(([k,v])=>`<tr><td>${names[k]||k}</td><td>${dtBadge(v)}</td></tr>`).join('');
+}
+async function runDayTradingScan(){
+  showPage('dayTradingAI',document.querySelector('[data-page="dayTradingAI"]'));
+  dayTradingCache=[]; dtRenderSummary(); dtRenderTable();
+  $('dtStatus').innerHTML='V23 Day Trading AI taraması başladı. Gerçek OHLC + hacim verileri parçalı işleniyor...';
+  let offset=0,total=0,chunk=3,done=false;
+  while(!done){
+    const j=await fetchJsonSafe(`/api/institutional-scan?offset=${offset}&limit=${chunk}&t=${Date.now()}`);
+    if(!j.success) throw new Error(j.error||'Day Trading taraması alınamadı');
+    total=j.total||total||0;
+    (j.data||[]).filter(x=>x.dayTrading).forEach(x=>dayTradingCache.push(x));
+    dayTradingCache.sort((a,b)=>(b.dayTrading?.score||0)-(a.dayTrading?.score||0));
+    offset=j.nextOffset||offset+chunk; done=!!j.done;
+    const pctDone=total?Math.min(100,Math.round(offset/total*100)):0;
+    $('dtStatus').innerHTML=`<b>${Math.min(offset,total)} / ${total}</b> hisse tarandı — %${pctDone}<div class="barw" style="margin-top:8px"><div class="bar" style="width:${pctDone}%;background:var(--green)"></div></div>`;
+    dtRenderSummary(); dtRenderTable();
+    await new Promise(r=>setTimeout(r,90));
+  }
+  $('dtStatus').innerHTML += '<br><b>Tarama tamamlandı. En güçlü 20 aday listelendi.</b>';
+  if(dayTradingCache[0]) dtExplain(dayTradingCache[0].symbol);
+}
+function exportDayTradingCSV(){
+  if(!dayTradingCache.length){alert('Önce Day Trading taraması çalıştırın.');return;}
+  const rows=[['Hisse','Skor','Aksiyon','RVOL20','RVOL5','VWAP','CMF','MFI','ATR%','RS','GirisAlt','GirisUst','Stop','Hedef1','Hedef2','Neden']];
+  dayTradingCache.forEach(x=>{const d=x.dayTrading||{},p=d.plan||{};rows.push([x.symbol,d.score,d.action,d.rvol20,d.rvol5,d.vwap20,d.cmf20,d.mfi14,d.atrPct,d.scores?.relativeStrength,p.entryLow,p.entryHigh,p.stop,p.target1,p.target2,(d.reasons||[]).join(' | ')])});
+  const csv='\ufeff'+rows.map(r=>r.map(v=>String(v??'').replaceAll(';',',')).join(';')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='v23_day_trading_ai.csv';a.click();
+}
+setTimeout(()=>{const b=$('dtScanBtn'); if(b)b.addEventListener('click',()=>runDayTradingScan().catch(e=>{setStatus('Day Trading AI hatası: '+e.message); if($('dtStatus'))$('dtStatus').textContent='Day Trading AI hatası: '+e.message;})); const e=$('dtExportBtn'); if(e)e.addEventListener('click',exportDayTradingCSV);},700);
+window.dtExplain=dtExplain;
 
 init();
 setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]'); if(b)b.addEventListener('click',()=>loadV19().catch(e=>setStatus(e.message))); if($('v19ScanBtn'))$('v19ScanBtn').addEventListener('click',scanV19); if($('v19ExportBtn'))$('v19ExportBtn').addEventListener('click',exportV19);},700);
