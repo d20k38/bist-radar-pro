@@ -771,23 +771,22 @@ async function loadV19(symbol=null){
 }
 async function scanV19(){
   v19Cache=[];
-  const sj=await (await fetch('/api/symbols')).json();
-  const list=sj.symbols||[];
-  $('v19ScanStatus').innerHTML=`<b>0 / ${list.length}</b> hisse tarandı <div class="barw" style="margin-top:8px"><div id="v19Progress" class="bar" style="width:0%;background:var(--green)"></div></div>`;
-  for(let i=0;i<list.length;i++){
-    const s=list[i];
-    try{
-      const raw=await (await fetch(`/api/dip?symbol=${encodeURIComponent(s)}`)).json();
-      if(raw.success) v19Cache.push({symbol:s,...v19Normalize(raw)});
-    }catch(e){}
+  let offset=0, total=0, done=false, chunk=3;
+  $('v19ScanStatus').innerHTML=`<b>0 / ?</b> hisse tarandı <div class="barw" style="margin-top:8px"><div id="v19Progress" class="bar" style="width:0%;background:var(--green)"></div></div>`;
+  while(!done){
+    const j=await (await fetch(`/api/institutional-scan?offset=${offset}&limit=${chunk}&t=${Date.now()}`)).json();
+    if(!j.success) throw new Error(j.error||'Institutional tarama alınamadı');
+    total=j.total||total||0;
+    (j.data||[]).forEach(x=>v19Cache.push(x));
     v19Cache.sort((a,b)=>(b.ai?.dipScore||0)-(a.ai?.dipScore||0));
-    const pctDone=Math.round((i+1)/list.length*100);
-    const pr=$('v19Progress'); if(pr) pr.style.width=pctDone+'%';
+    offset=j.nextOffset||offset+chunk;
+    done=!!j.done;
+    const pctDone=total?Math.min(100,Math.round(offset/total*100)):0;
     $('v19Rows').innerHTML=v19Cache.slice(0,30).map(x=>`<tr><td><b>${x.symbol}</b></td><td>${v19TL(x.currentPrice)}</td><td>${v19Badge(x.ai.dipScore)}</td><td>${v19Badge(x.ai.aiTrust)} ${v19Stars(x.ai.aiTrust)}</td><td>${v19TL(x.dipRegion.low)} - ${v19TL(x.dipRegion.high)}</td><td>${v19TL(x.dipRegion.strongest)}</td><td>${x.ai.decision}</td></tr>`).join('');
-    $('v19ScanStatus').innerHTML=`<b>${i+1} / ${list.length}</b> hisse tarandı — %${pctDone}<div class="barw" style="margin-top:8px"><div id="v19Progress" class="bar" style="width:${pctDone}%;background:var(--green)"></div></div>`;
-    await new Promise(r=>setTimeout(r,60));
+    $('v19ScanStatus').innerHTML=`<b>${Math.min(offset,total)} / ${total}</b> hisse tarandı — %${pctDone}<div class="barw" style="margin-top:8px"><div id="v19Progress" class="bar" style="width:${pctDone}%;background:var(--green)"></div></div>`;
+    await new Promise(r=>setTimeout(r,90));
   }
-  $('v19ScanStatus').innerHTML += '<div style="margin-top:8px"><b>En iyi 30 Dip Adayı listelendi.</b></div>';
+  $('v19ScanStatus').innerHTML += '<div style="margin-top:8px"><b>En iyi 30 Dip Adayı listelendi. Veri alınamayan kodlar otomatik atlandı.</b></div>';
 }
 function optimizeV19Portfolio(amount=50000){
   if(!v19Cache.length) return alert('Önce Tümünü Tara çalıştırın.');
