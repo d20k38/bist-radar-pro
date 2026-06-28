@@ -1,14 +1,3 @@
-import {getOhlcv} from '../lib/provider.js';
-import {analyze} from '../lib/engine.js';
+import {getCoreAnalysis} from '../lib/core-engine.js';
 import {buildDecisionPayload} from '../lib/ai-decision-engine.js';
-export default async function handler(req,res){
-  try{
-    const symbol=String(req.query.symbol||'PAPIL').toUpperCase();
-    const rows=await getOhlcv(symbol,'1y','1d');
-    const analysis=analyze(rows);
-    const decision=buildDecisionPayload(symbol,analysis);
-    res.status(200).json({success:true,symbol,decision,analysis});
-  }catch(e){
-    res.status(200).json({success:false,error:e.message});
-  }
-}
+export default async function handler(req,res){res.setHeader('Content-Type','application/json; charset=utf-8');try{const symbol=String(req.query.symbol||'PAPIL').toUpperCase();const core=await getCoreAnalysis(symbol,{range:'1y',includeV19:true});const decision=buildDecisionPayload(core.symbol,core.analysis);res.status(200).json({success:true,symbol:core.symbol,decision,analysis:core.analysis,dayTrading:core.dayTrading,institutional:core.institutional,quality:core.quality,core:core.meta});}catch(e){res.status(200).json({success:false,error:e.message});}}
