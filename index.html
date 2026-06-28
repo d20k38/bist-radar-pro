@@ -743,7 +743,7 @@ function showPage(id,btn){
 }
 function badgeClass(score,risk=false){score=Number(score)||0;if(risk)return score<35?'bgreen':score<60?'byellow':'bred';return score>=65?'bgreen':score>=50?'byellow':'bred'}
 function decisionClass(d){return d==='GÜÇLÜ AL'||d==='AL'?'bgreen':d==='İZLE'?'byellow':d==='BEKLE'?'bblue':'bred'}
-async function init(){wire();await loadSymbols();renderPortfolio();renderSignalJournal();await loadStock(false);await scanAll(true);renderKapNews()}
+async function init(){wire();await loadSymbols();renderPortfolio();renderSignalJournal();await loadStock(false);renderDashboard();renderTables();setStatus('R9.4 hızlı açılış: Tam tarama için Tarama düğmesine basın.');renderKapNews()}
 function wire(){document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page,b)));$('analyzeBtn').addEventListener('click',()=>{showPage('analysis',document.querySelector('[data-page="analysis"]'));loadStock(true)});$('backtestBtn').addEventListener('click',()=>{showPage('backtestPage',document.querySelector('[data-page=\"backtestPage\"]'));runBacktest()});$('scanBtn1').addEventListener('click',()=>scanAll(false)); setTimeout(()=>{const b=$('runBtBtn'); if(b)b.addEventListener('click',runBacktest); const p=$('runPortfolioBtBtn'); if(p)p.addEventListener('click',runPortfolioBacktest); const pa=$('pfAddBtn'); if(pa)pa.addEventListener('click',addOrUpdatePortfolio); const ps=$('pfSaveBtn'); if(ps)ps.addEventListener('click',()=>{savePortfolio();setStatus('Portföy kaydedildi.')}); const pfa=$('pfAnalyzeBtn'); if(pfa)pfa.addEventListener('click',()=>analyzePortfolioNow(false)); const pfc=$('pfClearBtn'); if(pfc)pfc.addEventListener('click',clearPortfolio); const pfj=$('pfExportJsonBtn'); if(pfj)pfj.addEventListener('click',exportPortfolioJson); const pfcsv=$('pfExportCsvBtn'); if(pfcsv)pfcsv.addEventListener('click',exportPortfolioCsv); const pfi=$('pfImportJson'); if(pfi)pfi.addEventListener('change',e=>{const f=e.target.files&&e.target.files[0]; if(f)importPortfolioJson(f); e.target.value='';}); const dr=$('dailyReportBtn'); if(dr)dr.addEventListener('click',renderDailyReport); const kr=$('kapRefreshBtn'); if(kr)kr.addEventListener('click',renderKapNews); const la=$('runLearningBtn'); if(la)la.addEventListener('click',runLearning); const ss=$('saveSignalBtn'); if(ss)ss.addEventListener('click',saveCurrentSignal); const cs=$('clearSignalsBtn'); if(cs)cs.addEventListener('click',clearSignalJournal); const ks=$('kapSymbolBtn'); if(ks)ks.addEventListener('click',()=>renderKapNews(($('search').value||'PAPIL').toUpperCase().trim())); const ka=$('kapAllBtn'); if(ka)ka.addEventListener('click',()=>renderKapNews('')); const rc=$('refreshConfidenceBtn'); if(rc)rc.addEventListener('click',runConfidence); const cb=$('committeeBtn'); if(cb)cb.addEventListener('click',runCommittee); const pav=$('portfolioAdviceBtn'); if(pav)pav.addEventListener('click',renderPortfolioAdvice); const pas=$('portfolioAdviceScanBtn'); if(pas)pas.addEventListener('click',async()=>{showPage('portfolioAdvice',document.querySelector('[data-page="portfolioAdvice"]')); if($('portfolioCoach'))$('portfolioCoach').innerHTML='V24.1 taraması başlıyor: Day Trading AI + Institutional Scanner gerçek OHLC/hacim verileri ile bağlanacak...'; try{await runDayTradingScan(false); await runInstitutionalScanner(false);}catch(e){setStatus('V24.1 koç taraması uyarısı: '+e.message);} showPage('portfolioAdvice',document.querySelector('[data-page="portfolioAdvice"]')); renderPortfolioAdvice();}); const cx=$('coachExportBtn'); if(cx)cx.addEventListener('click',exportCoachCSV); const spm=$('spmRunBtn'); if(spm)spm.addEventListener('click',runSmartPortfolio); const spms=$('spmScanBtn'); if(spms)spms.addEventListener('click',async()=>{showPage('smartPortfolio',document.querySelector('[data-page="smartPortfolio"]')); await runDayTradingScan(false); await runInstitutionalScanner(false); await runSmartPortfolio();}); const spmx=$('spmExportBtn'); if(spmx)spmx.addEventListener('click',exportSmartPortfolioCSV); const rl=$('rlRunBtn'); if(rl)rl.addEventListener('click',runRadarLab); const rlp=$('rlPresetBtn'); if(rlp)rlp.addEventListener('click',radarLabPreset); const rlx=$('rlExportBtn'); if(rlx)rlx.addEventListener('click',exportRadarLabCSV); const v20=$('v20RunBtn'); if(v20)v20.addEventListener('click',runV20Portfolio); const v22s=$('v22SymbolBtn'); if(v22s)v22s.addEventListener('click',()=>runV22News(($('search').value||'').toUpperCase().trim())); const v22a=$('v22AllBtn'); if(v22a)v22a.addEventListener('click',()=>runV22News(''));},0);$('search').addEventListener('keydown',e=>{if(e.key==='Enter'){$('analyzeBtn').click()}});['showEma20','showEma50','showEma200','showBB','showVWAP'].forEach(id=>{setTimeout(()=>{const el=$(id); if(el) el.addEventListener('change',()=>draw(lastRows));},0)})}
 async function loadSymbols(){try{const j=await (await fetch('/api/symbols')).json();syms=j.symbols||[]}catch(e){syms=[]}if(!syms.length)syms=['PAPIL','MRSHL','TEZOL','USAK','VKING','THYAO','AKBNK','GARAN'];$('symbol').innerHTML=syms.map(s=>`<option>${s}</option>`).join('');$('symbol').onchange=e=>{$('search').value=e.target.value;loadStock(true)}}
 async function loadStock(verbose=true){const s=$('search').value.toUpperCase().trim()||'PAPIL';$('search').value=s;if(verbose)setStatus(s+' verisi alınıyor...');try{const j=await (await fetch('/api/stock?symbol='+encodeURIComponent(s))).json();if(!j.success)throw new Error(j.error||'Veri yok');renderStock(j);if(verbose)setStatus(s+' Yahoo Finance son verisi ile analiz edildi.')}catch(e){setStatus('Veri alınamadı: '+e.message)}}
@@ -900,7 +900,7 @@ async function scanAll(silent=false){
   setProgress(0,0);
   const started=Date.now();
   try{
-    let offset=0,total=null,chunk=6,guard=0,failStreak=0;
+    let offset=0,total=null,chunk=18,guard=0,failStreak=0;
     while(true){
       const j=await fetchJsonSafe(`/api/scan?limit=${chunk}&offset=${offset}&t=${Date.now()}`,{timeout:12000,retries:1});
       if(!j.success) throw new Error(j.error||'API başarısız yanıt verdi');
@@ -911,7 +911,7 @@ async function scanAll(silent=false){
       offset=Number(j.nextOffset ?? (offset+chunk));
       setProgress(Math.min(offset,total||offset), total||offset);
       // R4: Her partide ağır tablo çizimi yerine aralıklı render. UI donmasını azaltır.
-      if(guard%3===0 || j.done || offset>=total){
+      if(guard%5===0 || j.done || offset>=total){
         scanCache.sort((a,b)=>(Number(b.finalScore)||0)-(Number(a.finalScore)||0));
         renderDashboard();
         renderTables();
@@ -922,7 +922,7 @@ async function scanAll(silent=false){
       guard++;
       if(guard>Math.ceil((total||604)/Math.max(chunk,1))+25) throw new Error('R4 güvenlik çıkışı: beklenenden fazla parti denendi.');
       if(failStreak>=5) throw new Error('Arka arkaya boş API yanıtı alındı. Veri sağlayıcı geçici olarak cevap vermiyor olabilir.');
-      await new Promise(r=>setTimeout(r,45));
+      await new Promise(r=>setTimeout(r,10));
     }
     scanCache.sort((a,b)=>(Number(b.finalScore)||0)-(Number(a.finalScore)||0));
     renderDashboard();renderTables();
@@ -1510,11 +1510,37 @@ function dtExplain(symbol){
   const names={rvol:'RVOL20',rvol5:'RVOL5',vwap:'VWAP',relativeStrength:'Göreceli Güç',obv:'OBV',cmf:'CMF',mfi:'MFI',atr:'ATR',momentum:'Momentum',liquidity:'Likidite'};
   $('dtLayerTable').innerHTML='<tr><th>Katman</th><th>Puan</th></tr>'+Object.entries(d.scores||{}).map(([k,v])=>`<tr><td>${names[k]||k}</td><td>${dtBadge(v)}</td></tr>`).join('');
 }
+
+function buildDayTradingCacheFromScan(){
+  if(!Array.isArray(scanCache)||!scanCache.length) return [];
+  dayTradingCache=[...scanCache].filter(x=>x&&x.symbol).map(x=>{
+    const score=Number(x.day||x.dayTradingScore||x.finalScore||x.iqs||0);
+    const close=Number(x.close||x.price||0);
+    const risk=Number(x.risk||50);
+    const atr=Math.max(close*0.02, close*(risk/100)*0.04);
+    return {...x, dayTrading:{
+      score, action:score>=82?'GÜÇLÜ AL':score>=68?'AL':score>=55?'İZLE':score>=42?'TUT':'UZAK DUR',
+      rvol20:x.rvol||x.relativeVolume||0, rvol5:x.rvol5||0, vwap20:x.vwap||0,
+      cmf20:x.cmf||0, mfi14:x.mfi||0, atrPct:close?atr/close*100:0,
+      scores:{relativeStrength:x.relativeStrength||x.rs||score, rvol:x.rvolScore||score, vwap:x.vwapScore||score, obv:x.obvScore||score, cmf:x.cmfScore||score},
+      plan:{entryLow:close?close*0.995:0, entryHigh:close?close*1.005:0, stop:close?close-atr:0, target1:close?close+atr*1.8:0, target2:close?close+atr*3:0},
+      reasons:['R9.4 hızlı mod: genel tarama sonucundan üretildi','Master Stock Object kullanıldı']
+    }};
+  }).sort((a,b)=>(b.dayTrading?.score||0)-(a.dayTrading?.score||0)).slice(0,60);
+  return dayTradingCache;
+}
+
 async function runDayTradingScan(show=true){
   if(show) showPage('dayTradingAI',document.querySelector('[data-page="dayTradingAI"]'));
+  if(Array.isArray(scanCache)&&scanCache.length){
+    buildDayTradingCacheFromScan(); dtRenderSummary(); dtRenderTable();
+    if($('dtStatus'))$('dtStatus').innerHTML='<b>R9.4 hızlı mod:</b> Day Trading listesi mevcut Universal Scanner verisinden üretildi. Tekrar API taraması yapılmadı.';
+    if(dayTradingCache[0]) dtExplain(dayTradingCache[0].symbol);
+    return;
+  }
   dayTradingCache=[]; dtRenderSummary(); dtRenderTable();
   $('dtStatus').innerHTML='V23 Day Trading AI taraması başladı. Gerçek OHLC + hacim verileri parçalı işleniyor...';
-  let offset=0,total=0,chunk=3,done=false;
+  let offset=0,total=0,chunk=12,done=false;
   while(!done){
     const j=await fetchJsonSafe(`/api/institutional-scan?offset=${offset}&limit=${chunk}&t=${Date.now()}`);
     if(!j.success) throw new Error(j.error||'Day Trading taraması alınamadı');
@@ -1525,7 +1551,7 @@ async function runDayTradingScan(show=true){
     const pctDone=total?Math.min(100,Math.round(offset/total*100)):0;
     $('dtStatus').innerHTML=`<b>${Math.min(offset,total)} / ${total}</b> hisse tarandı — %${pctDone}<div class="barw" style="margin-top:8px"><div class="bar" style="width:${pctDone}%;background:var(--green)"></div></div>`;
     dtRenderSummary(); dtRenderTable();
-    await new Promise(r=>setTimeout(r,90));
+    await new Promise(r=>setTimeout(r,15));
   }
   $('dtStatus').innerHTML += '<br><b>Tarama tamamlandı. En güçlü 20 aday listelendi.</b>';
   if(dayTradingCache[0]) dtExplain(dayTradingCache[0].symbol);
@@ -1670,11 +1696,37 @@ function isExplain(symbol){
   const names={rvol:'RVOL',relativeStrength:'Göreceli Güç',moneyFlow:'Kurumsal Para',vwap:'VWAP',dip:'Dip Avcısı',trend:'Trend',kap:'KAP/Haber',backtest:'Backtest',momentum:'Momentum',risk:'Risk',liquidity:'Likidite'};
   $('isLayerTable').innerHTML='<tr><th>Katman</th><th>Puan</th></tr>'+Object.entries(d.components||{}).map(([k,v])=>`<tr><td>${names[k]||k}</td><td>${isBadge(v)}</td></tr>`).join('');
 }
+
+function buildInstitutionalCacheFromScan(){
+  if(!Array.isArray(scanCache)||!scanCache.length) return [];
+  institutionalCache=[...scanCache].filter(x=>x&&x.symbol).map(x=>{
+    const score=Number(x.iqs||x.institutional||x.finalScore||0);
+    const close=Number(x.close||x.price||0);
+    const risk=Number(x.risk||50);
+    return {...x, institutionalScanner:{
+      score, grade:score>=85?'A+':score>=75?'A':score>=65?'B':score>=50?'C':'D',
+      bucket:score>=85?'Kurumsal Aday':score>=70?'Güçlü Aday':score>=55?'Takip':'Zayıf',
+      action:score>=80?'AL / ARTIR':score>=62?'TUT / İZLE':score>=48?'ZAYIF İZLE':'UZAK DUR',
+      rvol20:x.rvol||0, riskLabel:risk>=65?'Yüksek':risk>=45?'Orta':'Düşük',
+      components:{moneyFlow:x.money||score, relativeStrength:x.relativeStrength||score, vwap:x.vwapScore||score, dip:x.dipScore||score, trend:x.trend||score, kap:x.kapScore||0, backtest:x.backtest||0, risk:100-risk, liquidity:x.liquidity||score},
+      plan:{entryLow:close?close*0.995:0, entryHigh:close?close*1.005:0, stop:close?close*0.965:0, target1:close?close*1.045:0, target2:close?close*1.08:0},
+      reasons:['R9.4 hızlı mod: Universal Scanner/Master Stock Object verisinden üretildi']
+    }};
+  }).sort((a,b)=>(b.institutionalScanner?.score||0)-(a.institutionalScanner?.score||0)).slice(0,80);
+  return institutionalCache;
+}
+
 async function runInstitutionalScanner(show=true){
   if(show) showPage('institutionalScanner',document.querySelector('[data-page="institutionalScanner"]'));
+  if(Array.isArray(scanCache)&&scanCache.length){
+    buildInstitutionalCacheFromScan(); isRenderSummary(); isRenderTable(); isRenderBuckets();
+    if($('isStatus'))$('isStatus').innerHTML='<b>R9.4 hızlı mod:</b> Institutional liste mevcut Universal Scanner verisinden üretildi. Tekrar API taraması yapılmadı.';
+    if(institutionalCache[0]) isExplain(institutionalCache[0].symbol);
+    return;
+  }
   institutionalCache=[]; isRenderSummary(); isRenderTable(); isRenderBuckets();
   $('isStatus').innerHTML='V24 Institutional Scanner Pro taraması başladı. Mevcut institutional-scan API ile gerçek OHLC + hacim verileri parça parça işleniyor...';
-  let offset=0,total=0,chunk=3,done=false;
+  let offset=0,total=0,chunk=12,done=false;
   while(!done){
     const j=await fetchJsonSafe(`/api/institutional-scan?offset=${offset}&limit=${chunk}&t=${Date.now()}`);
     if(!j.success) throw new Error(j.error||'Institutional tarama alınamadı');
@@ -1685,7 +1737,7 @@ async function runInstitutionalScanner(show=true){
     const pctDone=total?Math.min(100,Math.round(offset/total*100)):0;
     $('isStatus').innerHTML=`<b>${Math.min(offset,total)} / ${total}</b> hisse tarandı — %${pctDone}<div class="barw" style="margin-top:8px"><div class="bar" style="width:${pctDone}%;background:var(--blue)"></div></div>`;
     isRenderSummary(); isRenderTable(); isRenderBuckets();
-    await new Promise(r=>setTimeout(r,90));
+    await new Promise(r=>setTimeout(r,15));
   }
   $('isStatus').innerHTML += '<br><b>Tarama tamamlandı. Kurumsal İlk 20 aday listelendi.</b>';
   if(institutionalCache[0]) isExplain(institutionalCache[0].symbol);
@@ -2391,8 +2443,8 @@ function r9Render(){
 async function r9RunFull(){
   showPage('r9Suite',document.querySelector('[data-page="r9Suite"]'));
   try{ if(!scanCache.length) await scanAll(false); }catch(e){setStatus('R9 ana tarama uyarısı: '+e.message)}
-  try{ if(!dayTradingCache.length) await runDayTradingScan(false); }catch(e){setStatus('R9 Day Trading uyarısı: '+e.message)}
-  try{ if(!institutionalCache.length) await runInstitutionalScanner(false); }catch(e){setStatus('R9 Institutional uyarısı: '+e.message)}
+  try{ if(!dayTradingCache.length) buildDayTradingCacheFromScan(); }catch(e){setStatus('R9 Day Trading hızlı mod uyarısı: '+e.message)}
+  try{ if(!institutionalCache.length) buildInstitutionalCacheFromScan(); }catch(e){setStatus('R9 Institutional hızlı mod uyarısı: '+e.message)}
   try{ await runSmartPortfolio(); }catch(e){setStatus('R9 Smart Portfolio uyarısı: '+e.message)}
   showPage('r9Suite',document.querySelector('[data-page="r9Suite"]')); r9Render();
 }

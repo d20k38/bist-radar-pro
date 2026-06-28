@@ -14,3 +14,10 @@ Taban: R7 Indicator Engine.
 
 ## R9 Institutional AI Suite
 Bu sürümde V20 Simülasyon, Smart Portfolio, Fırsat Avcısı ve Formasyonlar aynı karar/veri mimarisi altında birleştirildi. R9 yeni API eklemez; mevcut tarama, day trading, institutional, portföy ve karar motoru sonuçlarını tek suite ekranında özetler.
+
+
+R9.4 PERFORMANCE FIX
+- Açılışta otomatik tam tarama kapatıldı.
+- Universal Scanner parti boyutu artırıldı.
+- Day Trading ve Institutional listeleri, tam tarama sonrası tekrar API çağırmadan Master Stock Object verisinden türetilir.
+- UI render sıklığı düşürüldü, bekleme süreleri azaltıldı.
