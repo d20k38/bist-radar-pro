@@ -16,3 +16,10 @@ Yeni ekran/özellik eklemeden, R1'de kurulan Master Stock Object verisini tek bi
 
 ## Not
 Bu sürüm yatırım tavsiyesi üretmez; gerçek OHLC/hacim ve mevcut veri katmanlarına dayalı karar destek skoru üretir.
+
+
+## R7 Indicator Engine
+- `lib/indicator-engine.js` eklendi.
+- OHLC/hacim verilerinden geniş gösterge paketi tek merkezde hesaplanır.
+- Master Stock Object içine `layers.indicators` ve `metrics.indicatorCount` bağlandı.
+- Yeni API eklenmedi, random/demo veri eklenmedi.
