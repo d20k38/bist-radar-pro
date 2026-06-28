@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro V25 Smart Portfolio Manager + Radar Lab</title>
+<title>BIST Radar Pro V27 Institutional Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro V25 Institutional</div><div class="pill">%100 Gerçek Veri • V25 Smart Portfolio Manager • Radar Lab • V24.1 Coach</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro V27 Institutional</div><div class="pill">%100 Gerçek Veri • V27 Institutional Dashboard • V26 Core Engine</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -22,6 +22,7 @@
   </div>
   <div class="tabs">
     <button class="tab active" data-page="dashboard">📊 Ana Kontrol</button>
+    <button class="tab" data-page="institutionalDashboard">🏛️ V27 Institutional Dashboard</button>
     <button class="tab" data-page="analysis">📈 Hisse Analizi</button>
     <button class="tab" data-page="leaders">🔥 En Güçlü 20</button>
     <button class="tab" data-page="safe">💎 Güvenli Kazanç</button>
@@ -64,6 +65,32 @@
     <div class="grid g2">
       <div class="card"><div class="head red">⚠️ Riskli Hisseler</div><div class="body"><div id="dashRisk" class="dashList"></div></div></div>
       <div class="card"><div class="head dark">📢 KAP / Haber Etki Analizi</div><div class="body"><div id="dashKapBox" class="comment">KAP/Haber AI bekleniyor.</div></div></div>
+    </div>
+  </section>
+
+
+
+  <section id="institutionalDashboard" class="hidden">
+    <div class="grid g5">
+      <div class="card metric"><div class="body"><div class="muted">Piyasa Sağlığı</div><div id="v27Market" class="v ok">-</div><div class="muted">Core Engine ortak skor</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Institutional Aday</div><div id="v27InstCount" class="v ok">-</div><div class="muted">skor 80+</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">RVOL Lideri</div><div id="v27RvolLead" class="v warn">-</div><div class="muted">hacim patlaması</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Portföy Sağlığı</div><div id="v27Portfolio" class="v ok">-</div><div class="muted">V25 koç skoru</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Risk Uyarısı</div><div id="v27Risk" class="v bad">-</div><div class="muted">yüksek riskli aday</div></div></div>
+    </div><br>
+    <div class="card"><div class="head dark">🏛️ V27 Institutional Dashboard</div><div class="body"><div class="quickFilters"><button class="btn" id="v27RefreshBtn">Dashboard Güncelle</button><button class="btn gray" id="v27FullScanBtn">Day + Institutional Tara</button><button class="btn green" id="v27ExportBtn">Dashboard CSV</button></div><div id="v27Summary" class="comment">V27, yeni hesaplama yapmaz; V26 Core Engine, V23 Day Trading, V24 Institutional Scanner ve V25 Portfolio Manager sonuçlarını tek ekranda birleştirir.</div></div></div><br>
+    <div class="grid g3">
+      <div class="card"><div class="head green">🔥 İlk 20 Kurumsal Aday</div><div class="body"><table id="v27TopTable" class="table"></table></div></div>
+      <div class="card"><div class="head yellow">⚡ Relative Volume Liderleri</div><div class="body"><table id="v27RvolTable" class="table"></table></div></div>
+      <div class="card"><div class="head cyan">💧 Kurumsal Para Akışı</div><div class="body"><table id="v27MoneyTable" class="table"></table></div></div>
+    </div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head">💼 Portföy ve Rotasyon</div><div class="body"><table id="v27PortfolioTable" class="table"></table></div></div>
+      <div class="card"><div class="head red">⚠️ Risk ve Fırsat Uyarıları</div><div class="body"><table id="v27AlertTable" class="table"></table></div></div>
+    </div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head dark">📢 KAP / Haber Etkisi</div><div class="body"><div id="v27KapBox" class="comment">KAP/Haber AI çalıştırılırsa burada canlı sonuçlar özetlenir. Timeout durumunda JSON dışı cevap gösterilmez; son gerçek arşiv/önbellek kullanılır.</div></div></div>
+      <div class="card"><div class="head green">🧠 AI Advisor Mini Rapor</div><div class="body"><div id="v27Advisor" class="comment">Dashboard güncellendiğinde piyasa, RVOL, kurumsal para, portföy ve risk tek paragrafta özetlenir.</div></div></div>
     </div>
   </section>
 
@@ -414,7 +441,7 @@ const defaultPortfolio=[{symbol:'MRSHL',lot:286,cost:2470},{symbol:'PAPIL',lot:7
 let portfolio=loadPortfolioLocal();
 const $=id=>document.getElementById(id);const fmt=(x,d=2)=>Number.isFinite(Number(x))?Number(x).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';const tl=x=>fmt(x)+' TL';
 function setStatus(t){$('status').textContent=t}
-const APP_PAGES=['dashboard','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','portfolio','portfolioAdvice','v20Portfolio','smartPortfolio','radarLab','dayTradingAI','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional','institutionalScanner'];
+const APP_PAGES=['dashboard','institutionalDashboard','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','portfolio','portfolioAdvice','v20Portfolio','smartPortfolio','radarLab','dayTradingAI','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional','institutionalScanner'];
 function showPage(id,btn){
   APP_PAGES.forEach(x=>{const el=$(x); if(el){el.classList.add('hidden'); el.style.display='none';}});
   const page=$(id); if(page){page.classList.remove('hidden'); page.style.display='block'; document.body.setAttribute('data-page',id);}
@@ -1127,6 +1154,61 @@ async function runRadarLab(){
   $('rlExplain').innerHTML=`<b>Strateji:</b> ${$('rlRVOL').checked?'RVOL > '+rvolMin+', ':''}${$('rlCMF').checked?'CMF > 0, ':''}${$('rlOBV').checked?'OBV yükseliyor, ':''}${$('rlVWAP').checked?'VWAP üstü, ':''}${$('rlRSI').checked?'RSI '+rsiMin+'-'+rsiMax+', ':''}${$('rlKAP').checked?'KAP puanı filtresi seçili; geçmiş KAP skoru her tarih için bulunmadığından teknik backtest dışlanmadan çalıştırıldı.':''}<br><br><b>Not:</b> Radar Lab yatırım tavsiyesi değildir. Sonuçlar geçmiş verideki istatistiksel davranışı gösterir; geleceği garanti etmez.`;
 }
 function exportRadarLabCSV(){if(!radarLabRows.length){alert('Önce Radar Lab backtest çalıştırın.');return;} downloadCSV([['Tarih','Giriş','Çıkış','Getiri','Enİyi','MaksDüşüş','RVOL','CMF','RSI'],...radarLabRows.map(x=>[x.date,x.entry,x.exit,x.ret,x.best,x.dd,x.rvol,x.cmf,x.rsi])],'radar_lab_backtest.csv')}
+
+
+/* V27 Institutional Dashboard - V26 Core Engine çıktılarının tek ekran birleşimi */
+let v27Rows=[];
+function v27Score(x){
+  const inst=Number(x.institutionalScanner?.score||0), day=Number(x.dayTrading?.score||0), base=Number(x.finalScore||0), iqs=Number(x.iqs?.score||0);
+  const vals=[inst,day,base,iqs].filter(v=>v>0);
+  return Math.round(vals.length?vals.reduce((s,v)=>s+v,0)/vals.length:0);
+}
+function v27BuildRows(){
+  const map=new Map();
+  function put(sym,obj){if(!sym)return; const old=map.get(sym)||{symbol:sym}; map.set(sym,{...old,...obj});}
+  scanCache.forEach(x=>put(x.symbol,{base:x}));
+  dayTradingCache.forEach(x=>put(x.symbol,{day:x,dayTrading:x.dayTrading}));
+  institutionalCache.forEach(x=>put(x.symbol,{inst:x,institutionalScanner:x.institutionalScanner}));
+  smartPortfolioOpps.forEach(x=>put(x.symbol,{smartOpp:x}));
+  return [...map.values()].map(x=>{
+    const base=x.base||{}, day=x.day||{}, inst=x.inst||{}, ds=day.dayTrading||x.dayTrading||{}, is=inst.institutionalScanner||x.institutionalScanner||{};
+    const score=v27Score({...base,dayTrading:ds,institutionalScanner:is});
+    const rvol=Number(ds.rvol20||is.rvol20||base.rvol20||0);
+    const money=Number(is.components?.moneyFlow||base.money||base.moneyFlow||0);
+    const risk=Number(base.risk||is.components?.risk||50);
+    const action=score>=85?'Kurumsal aday':score>=75?'Güçlü takip':score>=62?'İzle':'Zayıf';
+    return {symbol:x.symbol,score,rvol,money,risk,day:Math.round(ds.score||0),inst:Math.round(is.score||0),action,why:(is.reasons||ds.reasons||base.reasons||[]).slice(0,2).join(' | ')};
+  }).sort((a,b)=>b.score-a.score);
+}
+function v27MiniTable(rows,cols){return rows.length?'<tr>'+cols.map(c=>`<th>${c[0]}</th>`).join('')+'</tr>'+rows.map(r=>'<tr>'+cols.map(c=>`<td>${c[2]?c[2](r[c[1]],r):r[c[1]]}</td>`).join('')+'</tr>').join(''):'<tr><td>Henüz veri yok. Day + Institutional Tara düğmesine basın.</td></tr>'}
+function v27Render(){
+  showPage('institutionalDashboard',document.querySelector('[data-page="institutionalDashboard"]'));
+  v27Rows=v27BuildRows();
+  const top=v27Rows.slice(0,20), avg=v27Rows.length?v27Rows.reduce((s,x)=>s+x.score,0)/v27Rows.length:0, instCount=v27Rows.filter(x=>x.score>=80).length, riskCount=v27Rows.filter(x=>x.risk>=70).length;
+  const rvolLead=[...v27Rows].sort((a,b)=>b.rvol-a.rvol)[0];
+  $('v27Market').textContent=v27Rows.length?fmt(avg,0):'-'; $('v27InstCount').textContent=v27Rows.length?instCount:'-'; $('v27RvolLead').textContent=rvolLead?`${rvolLead.symbol} ${fmt(rvolLead.rvol,1)}x`:'-'; $('v27Risk').textContent=v27Rows.length?riskCount:'-';
+  const pfScore=smartPortfolioRows.length?smartPortfolioRows.reduce((s,x)=>s+x.score,0)/smartPortfolioRows.length:0; $('v27Portfolio').textContent=pfScore?fmt(pfScore,0):'-';
+  $('v27TopTable').innerHTML=v27MiniTable(top.slice(0,20),[['Hisse','symbol',(v,r)=>`<b>${v}</b>`],['V27','score',v=>isBadge(v)],['Day','day',v=>dtBadge(v)],['Inst.','inst',v=>isBadge(v)],['Aksiyon','action']]);
+  $('v27RvolTable').innerHTML=v27MiniTable([...v27Rows].sort((a,b)=>b.rvol-a.rvol).slice(0,15),[['Hisse','symbol',(v)=>`<b>${v}</b>`],['RVOL','rvol',v=>fmt(v,2)+'x'],['V27','score',v=>isBadge(v)],['Not','why']]);
+  $('v27MoneyTable').innerHTML=v27MiniTable([...v27Rows].sort((a,b)=>b.money-a.money).slice(0,15),[['Hisse','symbol',(v)=>`<b>${v}</b>`],['Para','money',v=>isBadge(v)],['V27','score',v=>isBadge(v)],['Not','why']]);
+  const pset=new Set(portfolio.map(p=>p.symbol));
+  const pfRows=portfolio.map(p=>v27Rows.find(x=>x.symbol===p.symbol)||{symbol:p.symbol,score:0,action:'Taranmadı',risk:0,why:'V27 tarama bekleniyor'});
+  $('v27PortfolioTable').innerHTML=v27MiniTable(pfRows,[['Hisse','symbol',(v)=>`<b>${v}</b>`],['V27','score',v=>v?isBadge(v):'-'],['Risk','risk',v=>v?fmt(v,0):'-'],['Aksiyon','action'],['Not','why']]);
+  const opp=v27Rows.filter(x=>!pset.has(x.symbol)&&x.score>=78).slice(0,8);
+  const risky=v27Rows.filter(x=>x.risk>=70).slice(0,7);
+  $('v27AlertTable').innerHTML='<tr><th>Tür</th><th>Hisse</th><th>Skor/Risk</th><th>Not</th></tr>'+[...opp.map(x=>`<tr><td>Yeni fırsat</td><td><b>${x.symbol}</b></td><td>${isBadge(x.score)}</td><td>${x.why||x.action}</td></tr>`),...risky.map(x=>`<tr><td>Risk</td><td><b>${x.symbol}</b></td><td>${fmt(x.risk,0)}</td><td>Risk yüksek; stop/pozisyon büyüklüğü kontrol edilmeli.</td></tr>`)].join('') || '<tr><td>Uyarı yok.</td></tr>';
+  $('v27Summary').innerHTML=`<b>V27 Institutional Dashboard:</b><br><b>${v27Rows.length}</b> hisse ortak ekranda toplandı. Piyasa sağlığı <b>${fmt(avg,0)}/100</b>, kurumsal aday sayısı <b>${instCount}</b>, RVOL lideri <b>${rvolLead?`${rvolLead.symbol} (${fmt(rvolLead.rvol,2)}x)`:'-'}</b>.<br><br>Bu ekran ayrı veri üretmez; V26 Core Engine ve mevcut V23/V24/V25 sonuçlarını tek panelde birleştirir.`;
+  $('v27Advisor').innerHTML=`Bugünkü kurumsal görünümde ilk sıradaki adaylar <b>${top.slice(0,5).map(x=>x.symbol).join(', ')||'-'}</b>. Portföy dışı güçlü fırsatlar <b>${opp.slice(0,5).map(x=>x.symbol).join(', ')||'-'}</b>. Portföyde zayıf veya taranmamış kalanlar <b>${pfRows.filter(x=>x.score<62).map(x=>x.symbol).join(', ')||'yok'}</b>. Bu rapor yatırım tavsiyesi değil, gerçek OHLC/hacim verilerine dayalı karar destek özetidir.`;
+  setStatus('V27 Institutional Dashboard güncellendi.');
+}
+async function v27FullScan(){
+  showPage('institutionalDashboard',document.querySelector('[data-page="institutionalDashboard"]'));
+  $('v27Summary').innerHTML='V27 için V23 Day Trading AI ve V24 Institutional Scanner çalıştırılıyor...';
+  await runDayTradingScan(false); await runInstitutionalScanner(false); await runSmartPortfolio(); v27Render();
+}
+function exportV27CSV(){if(!v27Rows.length)v27Rows=v27BuildRows(); if(!v27Rows.length){alert('Önce V27 Dashboard güncelleyin.');return;} downloadCSV([['Hisse','V27','Day','Institutional','RVOL','Money','Risk','Aksiyon','Not'],...v27Rows.map(x=>[x.symbol,x.score,x.day,x.inst,x.rvol,x.money,x.risk,x.action,x.why])],'v27_institutional_dashboard.csv')}
+setTimeout(()=>{const b=$('v27RefreshBtn'); if(b)b.addEventListener('click',v27Render); const s=$('v27FullScanBtn'); if(s)s.addEventListener('click',()=>v27FullScan().catch(e=>{setStatus('V27 tarama hatası: '+e.message);$('v27Summary').textContent='V27 tarama hatası: '+e.message;})); const x=$('v27ExportBtn'); if(x)x.addEventListener('click',exportV27CSV); const tab=document.querySelector('[data-page="institutionalDashboard"]'); if(tab)tab.addEventListener('click',()=>setTimeout(v27Render,80));},800);
+
 
 init();
 setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]'); if(b)b.addEventListener('click',()=>loadV19().catch(e=>setStatus(e.message))); if($('v19ScanBtn'))$('v19ScanBtn').addEventListener('click',scanV19); if($('v19ExportBtn'))$('v19ExportBtn').addEventListener('click',exportV19);},700);
