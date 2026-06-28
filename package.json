@@ -1,10 +1,10 @@
 {
-  "name": "bist-radar-pro-r5-universal-scanner",
-  "version": "1.0.0-r5-universal-scanner",
-  "type": "module",
-  "scripts": {
-    "dev": "vercel dev",
-    "start": "vercel dev",
-    "test:syntax": "node --check api/stock.js && node --check api/symbols.js && node --check api/scan.js && node --check api/backtest.js && node --check api/learning.js && node --check api/kap.js && node --check api/confidence.js && node --check api/decision.js && node --check api/portfolio-advice.js && node --check api/committee.js && node --check api/dip.js && node --check api/institutional-scan.js && node --check lib/v20-portfolio-engine.js && node --check lib/corporate-news-engine.js && node --check lib/day-trading-engine.js && node --check lib/institutional-scanner-engine.js && node --check lib/core-engine.js && node --check lib/explainable-ai-engine.js && node --check lib/kap-ai-engine.js && node --check lib/financial-ai-engine.js && node --check lib/learning-engine.js && node --check lib/data-layer.js && node --check lib/decision-layer.js"
-  }
+  "name": "bist-radar-pro-r12",
+  "version": "12.0.0",
+  "private": true,
+  "type": "commonjs",
+  "dependencies": {
+    "yahoo-finance2": "^2.13.3"
+  },
+  "engines": {"node": ">=18"}
 }

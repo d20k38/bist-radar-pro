@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro R10 Codebase Refactor</title>
+<title>BIST Radar Pro R12 Unified Data Provider</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/r10-runtime.js"></script>
 <script>
@@ -67,7 +67,7 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro R10 Institutional</div><div class="pill">%100 Gerçek Veri • R10 Codebase Refactor • Modüler Uyumluluk Katmanı</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro R12 Institutional</div><div class="pill">%100 Gerçek OHLCV • R12 Unified Data Provider • Hacim Sağlığı</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -2499,5 +2499,135 @@ setTimeout(()=>{const a=$('r9RunBtn'); if(a)a.addEventListener('click',r9Render)
 
 setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]'); if(b)b.addEventListener('click',()=>loadV19().catch(e=>setStatus(e.message))); if($('v19ScanBtn'))$('v19ScanBtn').addEventListener('click',scanV19); if($('v19ExportBtn'))$('v19ExportBtn').addEventListener('click',exportV19);},900);
 </script>
+
+<script id="r11-1-compat-layer">
+(function(){
+  'use strict';
+  const W=window;
+  const $id=(id)=>document.getElementById(id);
+  const safeHtml=(v)=>String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const fmtN=(v,d=0)=>Number.isFinite(Number(v))?Number(v).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';
+  const pct=(v)=>Number.isFinite(Number(v))?'%'+fmtN(v,0):'-';
+  const badge=(v)=>{const n=Number(v)||0;return `<span class="badge ${n>=75?'good':n>=55?'warn':'bad'}">${fmtN(n,0)}</span>`};
+
+  // R11.1 Compatibility Layer: eski global fonksiyon çağrıları uygulamayı durdurmasın.
+  if(typeof W.renderMultiLayer!=='function'){
+    W.renderMultiLayer=function(multiLayer, analysis){
+      const target=$id('multiLayer')||$id('multiLayerBox')||$id('xaiMultiLayer')||$id('engine');
+      if(!target) return;
+      const a=analysis||{};
+      const ml=multiLayer||a.multiLayer||{};
+      const rows=[
+        ['Trend', ml.trend ?? a.trend],
+        ['Momentum', ml.momentum ?? a.momentum],
+        ['Kurumsal Para', ml.money ?? a.money],
+        ['Hacim/RVOL', ml.volume ?? a.rvolScore ?? a.dayTrading?.rvolScore],
+        ['Risk', ml.risk ?? a.risk],
+        ['Güven', ml.confidence ?? a.confidence]
+      ].filter(x=>x[1]!==undefined && x[1]!==null);
+      const html=rows.length?`<div class="comment"><b>Çok Katmanlı AI Özeti</b><table class="table"><tr><th>Katman</th><th>Skor</th></tr>${rows.map(r=>`<tr><td>${safeHtml(r[0])}</td><td>${badge(r[1])}</td></tr>`).join('')}</table></div>`:`<div class="comment">Çok katmanlı veri henüz oluşmadı. Tarama/analiz sonrası dolar.</div>`;
+      // Engine alanı mevcutsa eski içeriği ezmemek için sona ekle.
+      if(target.id==='engine' && !target.dataset.r111MultiLayerAdded){target.insertAdjacentHTML('beforeend',html);target.dataset.r111MultiLayerAdded='1';}
+      else if(target.id!=='engine') target.innerHTML=html;
+    };
+  }
+
+  if(typeof W.renderAIEngine!=='function'){
+    W.renderAIEngine=function(a){
+      const el=$id('aiEngine')||$id('aiEngineBox');
+      if(!el) return;
+      el.innerHTML=`<div class="comment"><b>AI Motoru:</b> Karar ${safeHtml(a?.decision||'-')} • Skor ${fmtN(a?.finalScore||a?.score||0,0)} • Güven ${pct(a?.confidence||0)}</div>`;
+    };
+  }
+  if(typeof W.renderInlineExplainableFromStock!=='function'){
+    W.renderInlineExplainableFromStock=function(a){
+      const el=$id('inlineExplain')||$id('xaiInline')||$id('explainBox');
+      if(!el) return;
+      const reasons=[];
+      if((a?.rvol||0)>1.5) reasons.push('RVOL güçlü');
+      if((a?.money||0)>60) reasons.push('Kurumsal para olumlu');
+      if((a?.trend||0)>60) reasons.push('Trend olumlu');
+      if((a?.risk||50)<55) reasons.push('Risk kabul edilebilir');
+      el.innerHTML=`<div class="comment"><b>Neden?</b> ${reasons.length?reasons.map(safeHtml).join(' • '):'Yeterli açıklama verisi yok.'}</div>`;
+    };
+  }
+  if(typeof W.runConfidence!=='function'){
+    W.runConfidence=function(show=true){
+      const a=W.lastStock?.analysis||{};
+      const el=$id('confidenceBox')||$id('confidenceResult')||$id('confidenceTable');
+      const score=Number(a.confidence||a.finalScore||0)||0;
+      const dataOk=Number(a.dataHealth||a.integrity||0)||0;
+      if(el) el.innerHTML=`<div class="comment"><b>Güven Katmanları</b><br>AI Güven: <b>${pct(score)}</b><br>Veri Sağlığı: <b>${dataOk?pct(dataOk):'analiz sonrası hesaplanır'}</b><br>Risk: <b>${fmtN(a.risk||50,0)}</b></div>`;
+      if(show && typeof W.setStatus==='function') W.setStatus('Güven katmanı güncellendi.');
+      return {confidence:score,dataHealth:dataOk};
+    };
+  }
+  if(typeof W.runCommittee!=='function'){
+    W.runCommittee=function(){
+      const el=$id('committeeBox')||$id('committeeResult');
+      if(el) el.innerHTML='<div class="comment"><b>AI Komite:</b> Karar motoru, Day Trading, IQS ve risk katmanlarını ortak değerlendirir. Tam sonuç için tarama/analiz çalıştırın.</div>';
+      return true;
+    };
+  }
+  if(typeof W.renderKapNews!=='function'){
+    W.renderKapNews=async function(symbol){
+      const el=$id('kapList')||$id('kapNews')||$id('kapBox');
+      try{
+        if(el) el.innerHTML='KAP verisi alınıyor...';
+        const url='/api/kap'+(symbol?('?symbol='+encodeURIComponent(symbol)):'');
+        const r=await fetch(url,{cache:'no-store'});
+        const j=await r.json().catch(()=>({success:false,error:'API JSON döndürmedi'}));
+        if(!j.success) throw new Error(j.error||'KAP verisi alınamadı');
+        const arr=Array.isArray(j.data)?j.data:(Array.isArray(j.items)?j.items:[]);
+        if(el) el.innerHTML=arr.length?'<table class="table"><tr><th>Tarih</th><th>Hisse</th><th>Başlık</th></tr>'+arr.slice(0,20).map(x=>`<tr><td>${safeHtml(x.date||x.publishDate||'-')}</td><td>${safeHtml(x.symbol||symbol||'-')}</td><td>${safeHtml(x.title||x.subject||'-')}</td></tr>`).join('')+'</table>':'KAP bildirimi bulunamadı.';
+        return arr;
+      }catch(e){ if(el)el.innerHTML='<div class="comment">KAP verisi alınamadı: '+safeHtml(e.message)+'</div>'; return []; }
+    };
+  }
+  if(typeof W.dailyTradeList!=='function'){
+    W.dailyTradeList=function(rows){
+      const src=rows||W.dayTradingCache||W.scanCache||[];
+      return src.slice().map(x=>({symbol:x.symbol,score:x.dayScore||x.score||x.ai||0,action:x.action||x.decision||'İZLE',rvol:x.rvol||x.rvol20||0})).sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,20);
+    };
+  }
+
+  // Day Trading ekranı boş/hatalı kalmasın: cache varsa hızlı tablo üret.
+  if(typeof W.renderDayTradingFromCache!=='function'){
+    W.renderDayTradingFromCache=function(){
+      const table=$id('dtTable');
+      const status=$id('dtStatus');
+      const rows=(W.dayTradingCache&&W.dayTradingCache.length?W.dayTradingCache:W.scanCache||[]).slice().map(x=>({
+        symbol:x.symbol,
+        score:Number(x.dayScore||x.dayTrading?.score||x.score||x.ai||0)||0,
+        action:x.action||x.decision||((Number(x.dayScore||x.score||0)>=75)?'GÜÇLÜ AL':(Number(x.dayScore||x.score||0)>=60?'AL':'İZLE')),
+        rvol:x.rvol||x.rvol20||x.indicators?.volume?.rvol20,
+        vwap:x.vwap||x.indicators?.volume?.vwap,
+        cmf:x.cmf||x.indicators?.volume?.cmf,
+        mfi:x.mfi||x.indicators?.volume?.mfi
+      })).filter(x=>x.symbol).sort((a,b)=>b.score-a.score).slice(0,20);
+      if(status) status.innerHTML=rows.length?`<b>${rows.length}</b> Day Trading adayı mevcut cache/veri havuzundan üretildi.`:'Day Trading için önce Universal Scanner / küçük parçalarla tarama çalıştırın.';
+      if(table) table.innerHTML=rows.length?'<tr><th>#</th><th>Hisse</th><th>Skor</th><th>Aksiyon</th><th>RVOL20</th><th>VWAP</th><th>CMF</th><th>MFI</th></tr>'+rows.map((x,i)=>`<tr><td>${i+1}</td><td><b>${safeHtml(x.symbol)}</b></td><td>${badge(x.score)}</td><td><b>${safeHtml(x.action)}</b></td><td>${Number.isFinite(Number(x.rvol))&&Number(x.rvol)>0?fmtN(x.rvol,2)+'x':'veri yetersiz'}</td><td>${Number.isFinite(Number(x.vwap))&&Number(x.vwap)>0?fmtN(x.vwap,2)+' TL':'veri yetersiz'}</td><td>${Number.isFinite(Number(x.cmf))?fmtN(x.cmf,3):'veri yetersiz'}</td><td>${Number.isFinite(Number(x.mfi))?fmtN(x.mfi,1):'veri yetersiz'}</td></tr>`).join(''):'<tr><td>Day Trading verisi yok.</td></tr>';
+      return rows;
+    };
+  }
+
+  // Mevcut runDayTradingScan hata verirse fallback tablo üret.
+  const oldRun=W.runDayTradingScan;
+  if(typeof oldRun==='function' && !oldRun.__r111Wrapped){
+    const wrapped=async function(show=true){
+      try{return await oldRun.apply(this,arguments);}catch(e){
+        if(typeof W.setStatus==='function') W.setStatus('Day Trading uyarısı: '+e.message+'; mevcut veri havuzundan liste üretiliyor.');
+        return W.renderDayTradingFromCache();
+      }
+    };
+    wrapped.__r111Wrapped=true; W.runDayTradingScan=wrapped;
+  }
+
+  W.addEventListener('error',function(ev){
+    if(typeof W.setStatus==='function') W.setStatus('Uygulama hatası yakalandı: '+(ev.message||'bilinmeyen hata'));
+  });
+})();
+</script>
+
 </body>
 </html>

@@ -1,2 +1,11 @@
-import {getCoreAnalysis} from '../lib/core-engine.js';import {comments} from '../lib/engine.js';
-export default async function handler(req,res){res.setHeader('Content-Type','application/json; charset=utf-8');try{const symbol=String(req.query.symbol||'PAPIL').toUpperCase();const allowed=new Set(['3mo','6mo','1y','2y','5y']);const range=allowed.has(String(req.query.range||'1y'))?String(req.query.range||'1y'):'1y';const core=await getCoreAnalysis(symbol,{range,includeV19:true});const analysis=core.analysis;res.status(200).json({success:true,symbol:core.symbol,analysis,comments:comments(core.symbol,analysis),ohlcv:core.rows,dayTrading:core.dayTrading,institutional:core.institutional,quality:core.quality,core:core.meta})}catch(e){res.status(200).json({success:false,error:e.message})}}
+const { master } = require('./lib/unified-provider');
+module.exports = async function handler(req,res){
+  try{
+    const symbol = String(req.query.symbol||'').toUpperCase().trim();
+    if(!symbol) return res.status(400).json({success:false,error:'symbol gerekli'});
+    const period = req.query.range || req.query.period || '1y';
+    const m = await master(symbol,{period});
+    res.setHeader('Cache-Control','s-maxage=60, stale-while-revalidate=300');
+    res.status(200).json({ ...m, rows:m.ohlcv });
+  }catch(e){ res.status(200).json({success:false,error:e.message||String(e),provider:'R12 unified'}); }
+};
