@@ -1,5 +1,0 @@
-{
-  "version": "v16.9",
-  "description": "Öğrenen AI modülü geçmiş sinyalleri yıllara ve kurallara göre değerlendirir.",
-  "rules": ["EMA50_USTU", "EMA200_USTU", "MACD_POZITIF", "RSI_SAGLIKLI", "ADX_GUCLU", "SUPERTREND_AL", "HACIM_USTU", "FORMASYON_DESTEK", "RISK_KONTROLLU", "PARA_GIRISI"]
-}
