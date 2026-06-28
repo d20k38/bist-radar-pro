@@ -20,3 +20,11 @@ Yeni API eklenmedi; Vercel Hobby 12 API sınırı korunur. Demo/random veri kull
 - Day Trading liderinden doğrudan plan oluşturulabilir.
 - Yeni API eklenmedi; 12 API sınırı korunur.
 - Random/pseudo veri eklenmedi.
+
+## V32.1 AI Karar Motoru
+- AI Decision Center / Karar Motoru eklendi.
+- Dip Avcısı listesinde aynı hissenin tekrar etmesi engellendi.
+- Dip mesafesi, AI Final, IQS, Day, Kurumsal, başarı ve karar sütunları eklendi.
+- Her hisse tek satırda AL/TUT/SAT kararına bağlandı.
+- Her satırdan Explain ve Trade Planner açılır.
+- Yeni API eklenmedi; Vercel Hobby sınırı için 12 endpoint korundu.
