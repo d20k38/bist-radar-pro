@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro R15 Core Stabilization</title>
+<title>BIST Radar Pro R16 Core Validator</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/r10-runtime.js"></script>
 <script>
@@ -92,7 +92,7 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro R15 Core Stabilization</div><div class="pill">%100 Gerçek OHLCV • R15 Core Stabilization • Veri Zinciri</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro R16 Core Validator</div><div class="pill">%100 Gerçek OHLCV • R16 Core Validator • Tek Hisse Debug</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -102,6 +102,7 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
   <div class="tabs">
     <button class="tab active" data-page="dashboard">🧠 R3 Dashboard + Karar Merkezi</button>
     <button class="tab" data-page="diagnosticPage">🧪 R14 Diagnostic Mode</button>
+    <button class="tab" data-page="coreValidatorPage">🔬 R16 Core Validator</button>
     <button class="tab" data-page="r9Suite">🏛️ R9 Institutional AI Suite</button>
     <button class="tab" data-page="snapshotCompare">🧪 R6 Kalite Karşılaştırma</button>
     <button class="tab" data-page="dayTradingAI">⚡ Day Trading AI</button>
@@ -755,6 +756,32 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
 
 
 
+
+
+  <section id="coreValidatorPage" class="hidden">
+    <div class="card"><div class="head dark">🔬 R16 Core Validator / Tek Hisse Debug</div><div class="body">
+      <div class="quickFilters">
+        <button class="btn green" id="r16SelectedBtn">Seçili Hisse Zincirini Test Et</button>
+        <button class="btn" id="r16PapilBtn">PAPIL Test</button>
+        <button class="btn gray" id="r16CsvBtn">R16 CSV</button>
+      </div>
+      <div id="r16Summary" class="comment">R16 tüm piyasayı taramaz; tek hisse için Symbols → OHLCV → Volume → Indicator → Decision → Master Object zincirinin hangi adımda kırıldığını gösterir.</div>
+    </div></div>
+    <br>
+    <div class="grid g5">
+      <div class="card metric"><div class="body"><div class="muted">Hisse</div><div id="r16Symbol" class="v">-</div><div class="muted">test edilen</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Health</div><div id="r16Health" class="v">-</div><div class="muted">veri zinciri</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Karar</div><div id="r16Decision" class="v ok">-</div><div class="muted">Decision Engine</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">RVOL</div><div id="r16Rvol" class="v warn">-</div><div class="muted">hacim sağlığı</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Master</div><div id="r16Master" class="v">-</div><div class="muted">object</div></div></div>
+    </div>
+    <br>
+    <div class="grid g2">
+      <div class="card"><div class="head green">✅ Adım Adım Core Zinciri</div><div class="body"><table id="r16StepTable" class="table"></table></div></div>
+      <div class="card"><div class="head red">⚠️ İlk Kırılan Nokta</div><div class="body"><div id="r16FatalBox" class="comment">Henüz test çalışmadı.</div><br><table id="r16MasterTable" class="table"></table></div></div>
+    </div>
+  </section>
+
   <section id="diagnosticPage" class="hidden">
     <div class="card"><div class="head dark">🧪 R14 Diagnostic Mode / Veri Sağlığı</div><div class="body">
       <div class="quickFilters">
@@ -786,7 +813,7 @@ const defaultPortfolio=[{symbol:'MRSHL',lot:286,cost:2470},{symbol:'PAPIL',lot:7
 let portfolio=loadPortfolioLocal();
 const $=id=>document.getElementById(id);const fmt=(x,d=2)=>x!==null&&x!==undefined&&x!==''&&Number.isFinite(Number(x))?Number(x).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';const tl=x=>fmt(x)+' TL';const rvolText=x=>(x!==null&&x!==undefined&&x!==''&&Number.isFinite(Number(x))&&Number(x)>0)?fmt(x,2)+'x':'veri yetersiz';
 function setStatus(t){$('status').textContent=t}
-const APP_PAGES=['dashboard','diagnosticPage','r9Suite','snapshotCompare','tradePlanner','institutionalDashboard','aiAdvisor','explainableAI','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','tradingCenter','portfolio','portfolioAdvice','v20Portfolio','smartPortfolio','radarLab','dayTradingAI','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional','institutionalScanner'];
+const APP_PAGES=['dashboard','diagnosticPage','coreValidatorPage','r9Suite','snapshotCompare','tradePlanner','institutionalDashboard','aiAdvisor','explainableAI','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','tradingCenter','portfolio','portfolioAdvice','v20Portfolio','smartPortfolio','radarLab','dayTradingAI','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional','institutionalScanner'];
 function showPage(id,btn){
   APP_PAGES.forEach(x=>{const el=$(x); if(el){el.classList.add('hidden'); el.style.display='none';}});
   const page=$(id); if(page){page.classList.remove('hidden'); page.style.display='block'; document.body.setAttribute('data-page',id);}
@@ -2756,6 +2783,70 @@ setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]')
     const b=$('diagBatchBtn'); if(b)b.addEventListener('click',()=>runR14Diagnostic('batch'));
     const c=$('diagCsvBtn'); if(c)c.addEventListener('click',exportR14DiagnosticCSV);
     const tab=document.querySelector('[data-page="diagnosticPage"]'); if(tab)tab.addEventListener('click',()=>setTimeout(()=>{ if($('diagTable') && !$('diagTable').innerHTML) runR14Diagnostic('symbol').catch(()=>{}); },80));
+  },900);
+})();
+</script>
+
+
+<script>
+// R16 Core Validator UI
+(function(){
+  let lastR16=null;
+  function okBadge(v){return v?'<span class="badge bgreen">✓</span>':'<span class="badge bred">✕</span>'}
+  function stepLabel(k){return ({symbol:'Sembol',ohlcv_fetch:'OHLCV alımı',ohlc_depth:'OHLC gün sayısı',volume_depth:'Hacim serisi',indicator_engine:'Indicator Engine',rvol:'RVOL',vwap:'VWAP',cmf:'CMF',mfi:'MFI',decision_engine:'Decision Engine',master_object:'Master Stock Object'})[k]||k;}
+  function renderR16(j){
+    lastR16=j;
+    const steps=Array.isArray(j?.steps)?j.steps:[];
+    if($('r16Symbol')) $('r16Symbol').textContent=j?.symbol||'-';
+    if($('r16Health')) $('r16Health').textContent=(j?.healthScore!=null?j.healthScore+'%':'-');
+    if($('r16Decision')) $('r16Decision').textContent=j?.master?.decision || steps.find(x=>x.key==='decision_engine')?.decision || '-';
+    const rv=steps.find(x=>x.key==='rvol');
+    if($('r16Rvol')) $('r16Rvol').textContent=rv?.value!=null?fmt(rv.value,2)+'x':'-';
+    if($('r16Master')) $('r16Master').textContent=j?.master?'✓':'✕';
+    if($('r16Summary')) $('r16Summary').innerHTML=`<b>R16 Core Validator:</b> ${j?.symbol||'-'} için zincir testi tamamlandı. Başarı: <b>${j?.success?'Evet':'Hayır'}</b>. Health: <b>${j?.healthScore||0}%</b>. Süre: <b>${j?.durationMs||0} ms</b>.`;
+    const table=$('r16StepTable');
+    if(table){
+      table.innerHTML='<tr><th>Adım</th><th>Durum</th><th>Detay</th></tr>'+steps.map(st=>{
+        const detail=Object.entries(st).filter(([k])=>!['key','ok','sample','stack'].includes(k)).map(([k,v])=>`${k}: ${typeof v==='number'?fmt(v,3):String(v)}`).join('<br>');
+        return `<tr><td><b>${stepLabel(st.key)}</b></td><td>${okBadge(st.ok)}</td><td>${detail||'-'}</td></tr>`;
+      }).join('');
+    }
+    const fatal=j?.firstFatal || steps.find(x=>!x.ok && ['ohlcv_fetch','indicator_engine','decision_engine','master_object'].includes(x.key));
+    if($('r16FatalBox')) $('r16FatalBox').innerHTML=fatal?`<b>İlk kritik kırılma:</b> ${stepLabel(fatal.key)}<br>${fatal.message||fatal.error||'Detay yok.'}<br><span class="mini">Bu nokta düzeltilmeden toplu tarama sağlıklı sonuç üretmez.</span>`:'Kritik kırılma yok; tek hisse zinciri Master Object üretti.';
+    const mt=$('r16MasterTable');
+    if(mt){
+      const m=j?.master||{}; const ind=m.indicators||{};
+      mt.innerHTML='<tr><th>Alan</th><th>Değer</th></tr>'+[
+        ['Fiyat',m.price],['AI Skor',m.score],['Karar',m.decision],['Güven',m.confidence],['RVOL',ind.rvol20],['VWAP',ind.vwap],['CMF',ind.cmf],['MFI',ind.mfi],['Son Hacim',ind.lastVolume],['Ort. Hacim 20',ind.avgVolume20]
+      ].map(([a,b])=>`<tr><td><b>${a}</b></td><td>${b==null?'-':(typeof b==='number'?fmt(b,3):b)}</td></tr>`).join('');
+    }
+  }
+  window.runR16Validator=async function(symbol){
+    showPage('coreValidatorPage', document.querySelector('[data-page="coreValidatorPage"]'));
+    const sym=(symbol||$('search')?.value||$('symbol')?.value||'PAPIL').toUpperCase().trim();
+    setStatus('R16 Core Validator çalışıyor: '+sym);
+    try{
+      const j=await fetchJsonSafe(`/api/core?action=validate&symbol=${encodeURIComponent(sym)}&t=${Date.now()}`,{timeout:25000,retries:0});
+      renderR16(j);
+      setStatus('R16 Core Validator tamamlandı: '+sym);
+      return j;
+    }catch(e){
+      setStatus('R16 Core Validator hatası: '+e.message);
+      if($('r16Summary')) $('r16Summary').textContent='R16 hata: '+e.message;
+      throw e;
+    }
+  };
+  window.exportR16CSV=function(){
+    if(!lastR16){alert('Önce R16 testi çalıştırın.');return;}
+    const rows=lastR16.steps||[];
+    const csv=['step;ok;message;value'].concat(rows.map(r=>`"${stepLabel(r.key)}";"${r.ok}";"${String(r.message||r.error||'').replace(/"/g,'""')}";"${String(r.value??r.score??r.decision??'').replace(/"/g,'""')}"`)).join('\n');
+    const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='r16_core_validator.csv'; a.click(); URL.revokeObjectURL(a.href);
+  };
+  setTimeout(()=>{
+    const a=$('r16SelectedBtn'); if(a)a.addEventListener('click',()=>runR16Validator());
+    const b=$('r16PapilBtn'); if(b)b.addEventListener('click',()=>runR16Validator('PAPIL'));
+    const c=$('r16CsvBtn'); if(c)c.addEventListener('click',exportR16CSV);
+    const tab=document.querySelector('[data-page="coreValidatorPage"]'); if(tab)tab.addEventListener('click',()=>setTimeout(()=>{ if($('r16StepTable') && !$('r16StepTable').innerHTML) runR16Validator().catch(()=>{}); },80));
   },900);
 })();
 </script>

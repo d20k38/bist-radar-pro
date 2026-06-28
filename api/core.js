@@ -197,6 +197,75 @@ async function handleDiagnostic(req,res){
   }
 }
 
+
+async function handleValidate(req,res){
+  const symbol = String(req.query.symbol || 'PAPIL').toUpperCase().trim();
+  const period = req.query.range || req.query.period || '1y';
+  const started = Date.now();
+  const steps = [];
+  const add = (key, ok, detail={}) => steps.push({ key, ok: !!ok, ...detail });
+  try{
+    add('symbol', !!symbol, { symbol });
+    if(!symbol) return send(res,{success:false,symbol,steps,error:'symbol gerekli'}, 'no-store');
+    const provider = getProvider();
+    let hist=null, ind=null, scores=null, masterObj=null;
+    try{
+      hist = await provider.fetchOHLCV(symbol, period, '1d');
+      const rows = hist.rows || [];
+      const posVol = rows.filter(r=>Number.isFinite(Number(r.volume)) && Number(r.volume)>0).length;
+      add('ohlcv_fetch', rows.length>0, { rows: rows.length, sample: rows.slice(-2), message: rows.length ? 'OHLCV alındı' : 'OHLCV boş' });
+      add('ohlc_depth', rows.length>=50, { rows: rows.length, required:50 });
+      add('volume_depth', posVol>=20, { positiveVolumes: posVol, required:20 });
+      try{
+        ind = provider.indicators(rows);
+        add('indicator_engine', !!ind, { message: ind ? 'indicator üretildi' : 'indicator boş' });
+        add('rvol', ind?.rvol20!=null && Number.isFinite(Number(ind.rvol20)) && Number(ind.rvol20)>0, { value: ind?.rvol20, lastVolume: ind?.lastVolume, avgVolume20: ind?.avgVolume20 });
+        add('vwap', ind?.vwap!=null && Number.isFinite(Number(ind.vwap)) && Number(ind.vwap)>0, { value: ind?.vwap });
+        add('cmf', ind?.cmf!=null && Number.isFinite(Number(ind.cmf)), { value: ind?.cmf });
+        add('mfi', ind?.mfi!=null && Number.isFinite(Number(ind.mfi)), { value: ind?.mfi });
+      }catch(e){
+        add('indicator_engine', false, { message: e.message || String(e), stack: String(e.stack||'').slice(0,600) });
+      }
+      try{
+        if(ind){
+          scores = provider.scoreFromIndicators(ind);
+          add('decision_engine', !!scores && scores.finalScore!=null, { score:scores?.finalScore, decision:scores?.decision, confidence:scores?.confidence });
+        }else{
+          add('decision_engine', false, { message:'indicator olmadığı için karar üretilemedi' });
+        }
+      }catch(e){
+        add('decision_engine', false, { message: e.message || String(e), stack: String(e.stack||'').slice(0,600) });
+      }
+      try{
+        masterObj = await provider.master(symbol,{period});
+        add('master_object', !!masterObj?.success, { success:masterObj?.success, score:masterObj?.score, decision:masterObj?.decision, confidence:masterObj?.confidence, price:masterObj?.price, error:masterObj?.error });
+      }catch(e){
+        add('master_object', false, { message: e.message || String(e), stack: String(e.stack||'').slice(0,800) });
+      }
+    }catch(e){
+      add('ohlcv_fetch', false, { message: e.message || String(e), stack: String(e.stack||'').slice(0,800) });
+    }
+    const fatalStages = ['ohlcv_fetch','indicator_engine','decision_engine','master_object'];
+    const fatal = steps.filter(x=>!x.ok && fatalStages.includes(x.key));
+    const success = fatal.length===0;
+    return send(res,{
+      success,
+      symbol,
+      period,
+      source:'R16 core-validator',
+      healthScore: Math.round(steps.filter(x=>x.ok).length / Math.max(1,steps.length) * 100),
+      steps,
+      failed: steps.filter(x=>!x.ok),
+      firstFatal: fatal[0] || null,
+      master: masterObj ? {symbol:masterObj.symbol, price:masterObj.price, score:masterObj.score, decision:masterObj.decision, confidence:masterObj.confidence, dataHealth:masterObj.dataHealth, indicators:masterObj.indicators} : null,
+      durationMs: Date.now()-started,
+      timestamp:new Date().toISOString()
+    }, 'no-store');
+  }catch(e){
+    return send(res,{success:false,symbol,source:'R16 core-validator',error:e.message||String(e),steps,durationMs:Date.now()-started}, 'no-store');
+  }
+}
+
 async function handleCommittee(req,res){
   const s=String(req.query.symbol||'').toUpperCase().trim();
   if(!s) return bad(res,'symbol gerekli');
@@ -210,7 +279,7 @@ module.exports = async function handler(req,res){
       symbols:handleSymbols, stock:handleStock, quote:handleStock, decision:handleDecision,
       dip:handleDip, scan:handleScan, 'institutional-scan':handleScan, institutional:handleScan,
       'portfolio-advice':handlePortfolio, portfolio:handlePortfolio,
-      kap:handleKap, news:handleKap, diagnostic:handleDiagnostic, diagnose:handleDiagnostic, health:handleDiagnostic, stabilize:handleDiagnostic, learning:handleLearning, backtest:handleBacktest, committee:handleCommittee
+      kap:handleKap, news:handleKap, diagnostic:handleDiagnostic, diagnose:handleDiagnostic, health:handleDiagnostic, stabilize:handleDiagnostic, validate:handleValidate, validator:handleValidate, corevalidator:handleValidate, learning:handleLearning, backtest:handleBacktest, committee:handleCommittee
     };
     const fn = map[action];
     if(!fn) return bad(res,'Bilinmeyen core action: '+(action||'-'));

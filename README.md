@@ -1,13 +1,15 @@
-# BIST Radar Pro R15 Core Stabilization
+# BIST Radar Pro R16 Core Validator
 
-Bu sürüm yeni özellik eklemez. Amaç çekirdek veri zincirini stabilize etmektir.
+Amaç: tüm piyasayı taramadan önce tek bir hisse için çekirdek veri zincirini adım adım doğrulamak.
 
-## Odak
-- Symbols → OHLCV → Indicator → Decision → Master Object zinciri denetlenir.
-- /api/core?action=scan artık stageSummary ve diagnostic alanları döndürür.
-- Başarılı analiz 0 ise hata yutulmaz; ilk hata sebepleri ekrana aktarılır.
-- API function sayısı 1 olarak korunur: api/core.js.
+R16 şunları gösterir:
+- Sembol doğrulama
+- OHLCV alımı
+- OHLC derinliği
+- Hacim serisi
+- RVOL / VWAP / CMF / MFI
+- Decision Engine
+- Master Stock Object
 
-## Not
-Eğer başarılı analiz yine 0 ise R14/R15 Diagnostic Mode ile şu URL kontrol edilmelidir:
-/api/core?action=diagnostic&symbol=PAPIL
+Yeni özellik eklenmedi; debug/stabilizasyon sürümüdür.
+API function sayısı: 1 (`api/core.js`).
