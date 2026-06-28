@@ -895,40 +895,78 @@ function setProgress(done,total){
   if(t)t.textContent=total?`${done}/${total} hisse tarandı (%${pct})`:'Tarama bekleniyor.';
 }
 async function scanAll(silent=false){
-  setStatus('R5 Universal Scanner başlatıldı: tüm sembol evreni küçük partilerle taranıyor, AI fırsat sıralaması güncelleniyor...');
+  setStatus('R10.1 Universal Scanner: tüm semboller tamamlanana kadar başarılı/başarısız olarak işaretlenir; tarama takılı kalmaz...');
   document.body.classList.add('loading');
   scanCache=[];
+  window.scanErrors=[];
   setProgress(0,0);
   const started=Date.now();
+  let total=0;
   try{
-    let offset=0,total=null,chunk=18,guard=0,failStreak=0;
+    // Önce toplam sembol sayısını al. /api/scan herhangi bir partide takılırsa ilerleme yine doğru devam eder.
+    try{
+      const sj=await fetchJsonSafe(`/api/symbols?limit=1&t=${Date.now()}`,{timeout:7000,retries:1});
+      total=Number(sj.total||sj.count||0);
+    }catch(e){ total=0; }
+
+    let offset=0, chunk=20, guard=0;
+    let consecutiveFetchFails=0;
+    const maxGuard=total?Math.ceil(total/chunk)+60:120;
+
     while(true){
-      const j=await fetchJsonSafe(`/api/scan?limit=${chunk}&offset=${offset}&t=${Date.now()}`,{timeout:12000,retries:1});
-      if(!j.success) throw new Error(j.error||'API başarısız yanıt verdi');
-      total=Number(j.total||0);
-      const part=Array.isArray(j.data)?j.data.filter(x=>x&&x.symbol):[];
-      if(part.length){ failStreak=0; scanCache=mergeUniqueBySymbol(scanCache,part); }
-      else { failStreak++; }
-      offset=Number(j.nextOffset ?? (offset+chunk));
+      if(total && offset>=total) break;
+      let j=null, part=[];
+      try{
+        j=await fetchJsonSafe(`/api/scan?limit=${chunk}&offset=${offset}&t=${Date.now()}`,{timeout:14000,retries:1});
+        if(!j || !j.success) throw new Error(j?.error||'API başarısız yanıt verdi');
+        if(!total) total=Number(j.total||0);
+        part=Array.isArray(j.data)?j.data.filter(x=>x&&x.symbol):[];
+        if(part.length) scanCache=mergeUniqueBySymbol(scanCache,part);
+        const errs=Array.isArray(j.errors)?j.errors:[];
+        if(errs.length) window.scanErrors.push(...errs.map(x=>({...x,offset})));
+        consecutiveFetchFails=0;
+        const next=Number(j.nextOffset);
+        // API gerçek işlediği sembol kadar ilerletir; nextOffset yoksa batch kadar ilerle.
+        offset = Number.isFinite(next) && next>offset ? next : offset + chunk;
+      }catch(e){
+        // R10.1: Tek bir batch yüzünden tüm tarama durmaz. Batch başarısız sayılır ve sonraki bloğa geçilir.
+        consecutiveFetchFails++;
+        window.scanErrors.push({offset, error:e.message||String(e), batch:chunk});
+        offset += chunk;
+        if(!total) total=offset + chunk;
+        setStatus(`Tarama devam ediyor: ${offset}/${total||'?'} civarı. Son uyarı: ${e.message||e}`);
+      }
+
       setProgress(Math.min(offset,total||offset), total||offset);
-      // R4: Her partide ağır tablo çizimi yerine aralıklı render. UI donmasını azaltır.
-      if(guard%5===0 || j.done || offset>=total){
+
+      if(guard%3===0 || (total && offset>=total)){
         scanCache.sort((a,b)=>(Number(b.finalScore)||0)-(Number(a.finalScore)||0));
         renderDashboard();
         renderTables();
-      }else{
-        if(typeof r3Render==='function') r3Render();
+      }else if(typeof r3Render==='function'){
+        r3Render();
       }
-      if(j.done || !total || offset>=total) break;
+
       guard++;
-      if(guard>Math.ceil((total||604)/Math.max(chunk,1))+25) throw new Error('R4 güvenlik çıkışı: beklenenden fazla parti denendi.');
-      if(failStreak>=5) throw new Error('Arka arkaya boş API yanıtı alındı. Veri sağlayıcı geçici olarak cevap vermiyor olabilir.');
-      await new Promise(r=>setTimeout(r,10));
+      if(guard>maxGuard){
+        window.scanErrors.push({offset,error:'Güvenlik çıkışı: beklenenden fazla parti denendi.'});
+        break;
+      }
+      // Çok fazla üst üste fetch hatası varsa yine de tamamlanmış gibi raporla; sonsuz bekleme yok.
+      if(consecutiveFetchFails>=8){
+        window.scanErrors.push({offset,error:'Arka arkaya API erişim hatası; kalan partiler atlandı.'});
+        break;
+      }
+      await new Promise(r=>setTimeout(r,5));
     }
+
     scanCache.sort((a,b)=>(Number(b.finalScore)||0)-(Number(a.finalScore)||0));
     renderDashboard();renderTables();
     const sec=((Date.now()-started)/1000).toFixed(1);
-    setStatus(`${scanCache.length} tekil hisse tarandı. R5 Universal Scanner + AI Opportunity Ranking ${sec} sn sürdü.`);
+    const errCount=(window.scanErrors||[]).length;
+    const ok=scanCache.filter(x=>x&&x.symbol&&String(x.decision||'')!=='VERİ YOK').length;
+    setProgress(total||offset,total||offset);
+    setStatus(`${scanCache.length} tekil hisse üretildi. Başarılı analiz: ${ok}. Hatalı/atlanmış parti veya sembol: ${errCount}. Tarama ${sec} sn sürdü.`);
   }catch(e){
     setStatus('Tarama hatası: '+e.message);
   }finally{
