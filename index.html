@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro V27 Institutional Dashboard</title>
+<title>BIST Radar Pro V28 AI Advisor</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro V27 Institutional</div><div class="pill">%100 Gerçek Veri • V27 Institutional Dashboard • V26 Core Engine</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro V28 Institutional</div><div class="pill">%100 Gerçek Veri • V28 AI Advisor • V26 Core Engine</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -23,6 +23,7 @@
   <div class="tabs">
     <button class="tab active" data-page="dashboard">📊 Ana Kontrol</button>
     <button class="tab" data-page="institutionalDashboard">🏛️ V27 Institutional Dashboard</button>
+    <button class="tab" data-page="aiAdvisor">🤖 V28 AI Advisor</button>
     <button class="tab" data-page="analysis">📈 Hisse Analizi</button>
     <button class="tab" data-page="leaders">🔥 En Güçlü 20</button>
     <button class="tab" data-page="safe">💎 Güvenli Kazanç</button>
@@ -91,6 +92,33 @@
     <div class="grid g2">
       <div class="card"><div class="head dark">📢 KAP / Haber Etkisi</div><div class="body"><div id="v27KapBox" class="comment">KAP/Haber AI çalıştırılırsa burada canlı sonuçlar özetlenir. Timeout durumunda JSON dışı cevap gösterilmez; son gerçek arşiv/önbellek kullanılır.</div></div></div>
       <div class="card"><div class="head green">🧠 AI Advisor Mini Rapor</div><div class="body"><div id="v27Advisor" class="comment">Dashboard güncellendiğinde piyasa, RVOL, kurumsal para, portföy ve risk tek paragrafta özetlenir.</div></div></div>
+    </div>
+  </section>
+
+
+  <section id="aiAdvisor" class="hidden">
+    <div class="grid g5">
+      <div class="card metric"><div class="body"><div class="muted">Piyasa Sağlığı</div><div id="advMarket" class="v ok">-</div><div class="muted">ortak skor</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Güçlü Aday</div><div id="advStrong" class="v ok">-</div><div class="muted">skor 78+</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">RVOL Alarmı</div><div id="advRvol" class="v warn">-</div><div class="muted">RVOL 2+</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Portföy Riski</div><div id="advPfRisk" class="v bad">-</div><div class="muted">Smart Portfolio</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">KAP Etkisi</div><div id="advKap" class="v">-</div><div class="muted">haber motoru</div></div></div>
+    </div><br>
+    <div class="card"><div class="head dark">🤖 V28 AI Advisor</div><div class="body">
+      <div class="quickFilters"><button class="btn" id="advRunBtn">AI Advisor Raporu Oluştur</button><button class="btn gray" id="advFullBtn">Tara + Rapor Oluştur</button><button class="btn green" id="advExportBtn">Advisor CSV</button></div>
+      <div id="advNarrative" class="comment">V28, ayrı veri üretmez. V26 Core Engine, V23 Day Trading AI, V24 Institutional Scanner, V25 Smart Portfolio Manager ve V27 Dashboard sonuçlarını tek günlük karar destek raporuna dönüştürür.</div>
+    </div></div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head green">✅ Bugünün Öncelikli Aksiyonları</div><div class="body"><table id="advActionTable" class="table"></table></div></div>
+      <div class="card"><div class="head yellow">⚡ RVOL ve Günlük Trade İzleme</div><div class="body"><table id="advTradeTable" class="table"></table></div></div>
+    </div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head cyan">💧 Kurumsal Para / Sektör Eğilimi</div><div class="body"><div id="advSectorBox" class="comment">Rapor oluşturulunca güçlü para akışı ve sektör/tema özeti burada görünür.</div></div></div>
+      <div class="card"><div class="head red">⚠️ Risk ve Koruma Planı</div><div class="body"><table id="advRiskTable" class="table"></table></div></div>
+    </div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head">💼 Portföy Koçu Özeti</div><div class="body"><table id="advPortfolioTable" class="table"></table></div></div>
+      <div class="card"><div class="head dark">🧠 Açıklanabilir AI Karar Gerekçeleri</div><div class="body"><div id="advExplainBox" class="comment">Skorların neden oluştuğu burada katman katman özetlenir.</div></div></div>
     </div>
   </section>
 
@@ -441,7 +469,7 @@ const defaultPortfolio=[{symbol:'MRSHL',lot:286,cost:2470},{symbol:'PAPIL',lot:7
 let portfolio=loadPortfolioLocal();
 const $=id=>document.getElementById(id);const fmt=(x,d=2)=>Number.isFinite(Number(x))?Number(x).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';const tl=x=>fmt(x)+' TL';
 function setStatus(t){$('status').textContent=t}
-const APP_PAGES=['dashboard','institutionalDashboard','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','portfolio','portfolioAdvice','v20Portfolio','smartPortfolio','radarLab','dayTradingAI','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional','institutionalScanner'];
+const APP_PAGES=['dashboard','institutionalDashboard','aiAdvisor','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','portfolio','portfolioAdvice','v20Portfolio','smartPortfolio','radarLab','dayTradingAI','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional','institutionalScanner'];
 function showPage(id,btn){
   APP_PAGES.forEach(x=>{const el=$(x); if(el){el.classList.add('hidden'); el.style.display='none';}});
   const page=$(id); if(page){page.classList.remove('hidden'); page.style.display='block'; document.body.setAttribute('data-page',id);}
@@ -1208,6 +1236,76 @@ async function v27FullScan(){
 }
 function exportV27CSV(){if(!v27Rows.length)v27Rows=v27BuildRows(); if(!v27Rows.length){alert('Önce V27 Dashboard güncelleyin.');return;} downloadCSV([['Hisse','V27','Day','Institutional','RVOL','Money','Risk','Aksiyon','Not'],...v27Rows.map(x=>[x.symbol,x.score,x.day,x.inst,x.rvol,x.money,x.risk,x.action,x.why])],'v27_institutional_dashboard.csv')}
 setTimeout(()=>{const b=$('v27RefreshBtn'); if(b)b.addEventListener('click',v27Render); const s=$('v27FullScanBtn'); if(s)s.addEventListener('click',()=>v27FullScan().catch(e=>{setStatus('V27 tarama hatası: '+e.message);$('v27Summary').textContent='V27 tarama hatası: '+e.message;})); const x=$('v27ExportBtn'); if(x)x.addEventListener('click',exportV27CSV); const tab=document.querySelector('[data-page="institutionalDashboard"]'); if(tab)tab.addEventListener('click',()=>setTimeout(v27Render,80));},800);
+
+
+/* V28 AI Advisor */
+let advisorRows=[];
+function advGrade(score){score=Number(score)||0; return score>=85?'A+':score>=78?'A':score>=68?'B':score>=55?'C':'D'}
+function advSafeRows(){
+  if(!v27Rows.length) v27Rows=v27BuildRows();
+  const rows=[...v27Rows];
+  if(!rows.length && scanCache.length){
+    return scanCache.map(x=>({symbol:x.symbol,score:Number(x.finalScore||0),day:0,inst:0,rvol:0,money:Number(x.money||0),risk:Number(x.risk||50),action:x.decision||'İZLE',why:'Ana tarama skoru'})).sort((a,b)=>b.score-a.score);
+  }
+  return rows;
+}
+function advPortfolioRows(){
+  if(!smartPortfolioRows.length && portfolio.length){
+    const rows=advSafeRows();
+    const map=new Map(rows.map(x=>[x.symbol,x]));
+    return portfolio.map(p=>{const r=map.get(p.symbol)||{symbol:p.symbol,score:45,risk:55,action:'Veri bekleniyor'}; return {...r,lot:p.lot,cost:p.cost,action:r.action||smartAction(r.score||45)}});
+  }
+  return smartPortfolioRows.map(x=>({symbol:x.symbol,score:x.score,day:x.day,inst:x.inst,rvol:x.rvol||0,money:x.money||0,risk:x.risk,action:x.action,why:x.note,lot:x.lot,cost:x.cost}));
+}
+function buildAdvisorNarrative(rows,pfRows){
+  const top=rows.slice(0,5), rvol=rows.filter(x=>Number(x.rvol||0)>=2).slice(0,8), money=[...rows].sort((a,b)=>(b.money||0)-(a.money||0)).slice(0,5), risky=rows.filter(x=>Number(x.risk||0)>=70).slice(0,5);
+  const avg=rows.length?rows.reduce((s,x)=>s+Number(x.score||0),0)/rows.length:0;
+  const pfWeak=pfRows.filter(x=>Number(x.score||0)<62).map(x=>x.symbol);
+  const opp=rows.filter(x=>!portfolio.some(p=>p.symbol===x.symbol) && Number(x.score||0)>=78).slice(0,5);
+  const kapText=($('v27KapBox')?.textContent||$('kapNewsBox')?.textContent||'KAP verisi henüz rapora bağlanmadı.').slice(0,240);
+  return `<b>V28 Günlük AI Advisor:</b><br>${rows.length} hisse ortak karar motorunda değerlendirildi. Piyasa sağlık skoru <b>${fmt(avg,0)}/100</b>. Bugün öne çıkan adaylar <b>${top.map(x=>x.symbol).join(', ')||'-'}</b>. RVOL 2 üzeri izleme listesinde <b>${rvol.map(x=>x.symbol).join(', ')||'yok'}</b>. Kurumsal para tarafında <b>${money.map(x=>x.symbol).join(', ')||'-'}</b> güçlü görünüyor.<br><br><b>Portföy özeti:</b> ${pfWeak.length?pfWeak.join(', ')+' zayıf/teyit bekleyen tarafta.':'Portföyde belirgin zayıf halka görünmüyor.'} Portföy dışı güçlü fırsatlar: <b>${opp.map(x=>x.symbol).join(', ')||'mevcut taramada yok'}</b>.<br><br><b>KAP/Haber notu:</b> ${kapText}<br><br><b>Uyarı:</b> Bu ekran kesin al/sat tavsiyesi değil; gerçek OHLC, hacim, KAP/önbellek ve mevcut modül skorlarından üretilen karar destek özetidir.`;
+}
+function renderAIAdvisor(){
+  showPage('aiAdvisor',document.querySelector('[data-page="aiAdvisor"]'));
+  if(!v27Rows.length) v27Rows=v27BuildRows();
+  advisorRows=advSafeRows();
+  const pfRows=advPortfolioRows();
+  const avg=advisorRows.length?advisorRows.reduce((s,x)=>s+Number(x.score||0),0)/advisorRows.length:0;
+  const strong=advisorRows.filter(x=>Number(x.score||0)>=78);
+  const rvol=advisorRows.filter(x=>Number(x.rvol||0)>=2);
+  const pfRisk=pfRows.length?pfRows.reduce((s,x)=>s+Number(x.risk||50),0)/pfRows.length:0;
+  const kapText=($('kapSentiment')?.textContent||'-');
+  if($('advMarket'))$('advMarket').textContent=fmt(avg,0);
+  if($('advStrong'))$('advStrong').textContent=String(strong.length);
+  if($('advRvol'))$('advRvol').textContent=String(rvol.length);
+  if($('advPfRisk'))$('advPfRisk').textContent=pfRisk>=65?'Yüksek':pfRisk>=45?'Orta':'Düşük';
+  if($('advKap'))$('advKap').textContent=kapText&&kapText!=='-'?kapText:'Nötr';
+  $('advNarrative').innerHTML=buildAdvisorNarrative(advisorRows,pfRows);
+  const top=advisorRows.slice(0,12);
+  $('advActionTable').innerHTML=top.length?'<tr><th>Öncelik</th><th>Hisse</th><th>AI</th><th>Day</th><th>Institutional</th><th>Aksiyon</th><th>Neden</th></tr>'+top.map((x,i)=>`<tr onclick="openSymbol('${x.symbol}')"><td>#${i+1}</td><td><b>${x.symbol}</b></td><td>${isBadge(x.score)} ${advGrade(x.score)}</td><td>${dtBadge(x.day||0)}</td><td>${isBadge(x.inst||0)}</td><td><b>${x.action||'İZLE'}</b></td><td>${x.why||'Ortak skor güçlü'}</td></tr>`).join(''):'<tr><td>Önce tarama çalıştırın.</td></tr>';
+  const trade=[...advisorRows].filter(x=>Number(x.rvol||0)>0).sort((a,b)=>(b.rvol||0)-(a.rvol||0)).slice(0,12);
+  $('advTradeTable').innerHTML=trade.length?'<tr><th>Hisse</th><th>RVOL</th><th>Day</th><th>Skor</th><th>İzleme Notu</th></tr>'+trade.map(x=>`<tr onclick="openSymbol('${x.symbol}')"><td><b>${x.symbol}</b></td><td>${fmt(x.rvol,2)}x</td><td>${dtBadge(x.day||0)}</td><td>${isBadge(x.score)}</td><td>${Number(x.rvol||0)>=3?'Açılışta hacim teyidi bekle':Number(x.rvol||0)>=2?'Day trade radarında tut':'Normal hacim'}</td></tr>`).join(''):'<tr><td>Day Trading taraması yapılınca RVOL listesi dolar.</td></tr>';
+  const money=[...advisorRows].sort((a,b)=>(b.money||0)-(a.money||0)).slice(0,8);
+  $('advSectorBox').innerHTML=money.length?`<b>Kurumsal para akışı güçlü ilk adaylar:</b> ${money.map(x=>`${x.symbol} (${fmt(x.money,0)})`).join(', ')}.<br><br>Sektör verisi bağlandığında bu alan demir-çelik, teknoloji, banka, holding gibi temalara göre gruplanır. Şu anda sınıflama mevcut hisse skorları üzerinden yapılır.`:'Kurumsal para akışı için tarama verisi bekleniyor.';
+  const riskRows=[...advisorRows].filter(x=>Number(x.risk||0)>=60).sort((a,b)=>(b.risk||0)-(a.risk||0)).slice(0,10);
+  $('advRiskTable').innerHTML=riskRows.length?'<tr><th>Hisse</th><th>Risk</th><th>Skor</th><th>Koruma Planı</th></tr>'+riskRows.map(x=>`<tr onclick="openSymbol('${x.symbol}')"><td><b>${x.symbol}</b></td><td>${fmt(x.risk,0)}</td><td>${isBadge(x.score)}</td><td>Stop/pozisyon büyüklüğü kontrol edilmeli; teyitsiz açılışta acele edilmemeli.</td></tr>`).join(''):'<tr><td>Yüksek riskli aday görünmüyor.</td></tr>';
+  $('advPortfolioTable').innerHTML=pfRows.length?'<tr><th>Hisse</th><th>Skor</th><th>Risk</th><th>Aksiyon</th><th>Not</th></tr>'+pfRows.map(x=>`<tr onclick="openSymbol('${x.symbol}')"><td><b>${x.symbol}</b></td><td>${isBadge(x.score)}</td><td>${fmt(x.risk,0)}</td><td><b>${x.action||smartAction(x.score)}</b></td><td>${x.why||'Portföy ortak skor ile değerlendirildi.'}</td></tr>`).join(''):'<tr><td>Portföy boş.</td></tr>';
+  const explain=top.slice(0,5).map(x=>`<div class="kpi"><b>${x.symbol}</b><span>AI ${fmt(x.score,0)} • RVOL ${fmt(x.rvol||0,2)}x • Money ${fmt(x.money||0,0)} • Risk ${fmt(x.risk||0,0)}</span></div>`).join('');
+  $('advExplainBox').innerHTML=explain||'Açıklanabilir AI için önce V23/V24/V27 taraması çalıştırın.';
+  setStatus('V28 AI Advisor raporu oluşturuldu.');
+}
+async function runAIAdvisorFull(){
+  showPage('aiAdvisor',document.querySelector('[data-page="aiAdvisor"]'));
+  $('advNarrative').innerHTML='V28 raporu için V23 Day Trading AI, V24 Institutional Scanner, V25 Smart Portfolio ve V27 Dashboard ortak verileri hazırlanıyor...';
+  try{await runDayTradingScan(false); await runInstitutionalScanner(false); await runSmartPortfolio(); v27Render();}catch(e){setStatus('V28 tarama uyarısı: '+e.message);}
+  renderAIAdvisor();
+}
+function exportAIAdvisorCSV(){
+  if(!advisorRows.length) advisorRows=advSafeRows();
+  if(!advisorRows.length){alert('Önce AI Advisor raporu oluşturun.');return;}
+  downloadCSV([['Hisse','AI','Grade','Day','Institutional','RVOL','Money','Risk','Aksiyon','Not'],...advisorRows.map(x=>[x.symbol,x.score,advGrade(x.score),x.day,x.inst,x.rvol,x.money,x.risk,x.action,x.why])],'v28_ai_advisor.csv');
+}
+setTimeout(()=>{const r=$('advRunBtn'); if(r)r.addEventListener('click',renderAIAdvisor); const f=$('advFullBtn'); if(f)f.addEventListener('click',()=>runAIAdvisorFull().catch(e=>{setStatus('V28 AI Advisor hatası: '+e.message);$('advNarrative').textContent='V28 AI Advisor hatası: '+e.message;})); const x=$('advExportBtn'); if(x)x.addEventListener('click',exportAIAdvisorCSV); const tab=document.querySelector('[data-page="aiAdvisor"]'); if(tab)tab.addEventListener('click',()=>setTimeout(renderAIAdvisor,80));},900);
 
 
 init();

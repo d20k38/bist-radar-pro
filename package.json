@@ -1,6 +1,6 @@
 {
-  "name": "bist-radar-pro-v26-core-engine",
-  "version": "26.0.0-core-engine",
+  "name": "bist-radar-pro-v28-ai-advisor",
+  "version": "28.0.0-ai-advisor",
   "type": "module",
   "scripts": {
     "dev": "vercel dev",
