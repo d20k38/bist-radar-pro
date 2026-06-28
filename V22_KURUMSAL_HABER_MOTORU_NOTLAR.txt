@@ -1,0 +1,13 @@
+BIST Radar Pro V22 Institutional - Kurumsal Haber Motoru
+
+Eklenenler:
+- KAP canlı bildirim akışı bağlayıcısı: /api/kap aynı endpoint içinde korundu, yeni API sayısı eklenmedi.
+- Demo/random haber verisi kaldırıldı; data/kap-news.json boş gerçek arşiv alanı olarak bırakıldı.
+- Kurumsal Haber Skoru, güvenilirlik, olay türü sınıflandırması ve haber etki süresi eklendi.
+- Yeni iş, yatırım, temettü, bedelsiz, geri alım, finansal tablo, dava/ceza, üretim durdurma, ihale iptali vb. olay kuralları eklendi.
+- Sektör etkisi, en önemli bildirim ve karar etkisi açıklaması eklendi.
+- V20 Portföy Simülasyonu sayfa görünürlüğü showPage listesine eklendi.
+- API sayısı korunmuştur; V22 için yeni endpoint açılmamıştır.
+
+Not:
+KAP canlı bağlantısı Vercel ortamında yanıt vermezse sistem demo veri üretmez. Yalnızca kullanıcı tarafından data/kap-news.json içine eklenen gerçek arşiv kayıtlarını okur.

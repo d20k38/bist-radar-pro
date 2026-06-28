@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro V20 Institutional - %100 Gerçek Veri</title>
+<title>BIST Radar Pro V22 Institutional - Kurumsal Haber Motoru</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro V20 Institutional</div><div class="pill">%100 Gerçek Veri • Monte Carlo • Korelasyon • Optimizasyon</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro V22 Institutional</div><div class="pill">%100 Gerçek Veri • V20 Portföy • V22 Kurumsal Haber Motoru</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -35,6 +35,7 @@
     <button class="tab" data-page="v20Portfolio">🧪 V20 Portföy Simülasyonu</button>
     <button class="tab" data-page="dailyReport">📰 Günlük AI Raporu</button>
     <button class="tab" data-page="kapPage">📢 KAP/Haber AI</button>
+    <button class="tab" data-page="v22News">🏢 V22 Kurumsal Haber Motoru</button>
     <button class="tab" data-page="confidencePage">🧩 Güven Katmanları</button>
     <button class="tab" data-page="committeePage">🏛️ AI Yatırım Komitesi</button>
     <button class="tab" data-page="v19Institutional">🏦 V19 Institutional</button>
@@ -199,6 +200,24 @@
     </div>
   </section>
 
+  <section id="v22News" class="hidden">
+    <div class="grid g4">
+      <div class="card metric"><div class="body"><div class="muted">Kurumsal Haber Skoru</div><div id="v22InstitutionalScore" class="v ok">-</div><div class="muted">0-100 karar desteği</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Güvenilirlik</div><div id="v22Reliability" class="v ok">-</div><div class="muted">haber önem/güven</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Pozitif / Negatif</div><div id="v22Balance" class="v warn">-</div><div class="muted">duyarlılık dengesi</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Canlı Veri</div><div id="v22Live" class="v warn">-</div><div class="muted">KAP bağlantısı</div></div></div>
+    </div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head dark">🏢 V22 Kurumsal Haber Motoru</div><div class="body"><div class="quickFilters"><button class="btn" id="v22SymbolBtn">Seçili hisseyi analiz et</button><button class="btn gray" id="v22AllBtn">Genel KAP akışı</button></div><div id="v22Summary" class="comment">KAP canlı akışı veya gerçek yerel arşiv bekleniyor. Demo/random haber kullanılmaz.</div></div></div>
+      <div class="card"><div class="head green">⭐ En Önemli Bildirim</div><div class="body"><div id="v22Important" class="comment">Henüz analiz yapılmadı.</div></div></div>
+    </div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head yellow">⏱️ Haber Etki Süresi</div><div class="body"><table id="v22DecayTable" class="table"></table></div></div>
+      <div class="card"><div class="head cyan">🏭 Sektör Etkisi</div><div class="body"><table id="v22SectorTable" class="table"></table></div></div>
+    </div><br>
+    <div class="card"><div class="head red">📋 Bildirim Sınıflandırma Tablosu</div><div class="body"><table id="v22NewsTable" class="table"></table></div></div>
+  </section>
+
   <section id="confidencePage" class="hidden">
     <div class="grid g3">
       <div class="card metric"><div class="body"><div class="muted">AI Genel</div><div id="mlGeneral" class="v ok">-</div><div class="muted">çok katmanlı skor</div></div></div>
@@ -297,11 +316,11 @@ const defaultPortfolio=[{symbol:'MRSHL',lot:286,cost:2470},{symbol:'PAPIL',lot:7
 let portfolio=loadPortfolioLocal();
 const $=id=>document.getElementById(id);const fmt=(x,d=2)=>Number.isFinite(Number(x))?Number(x).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';const tl=x=>fmt(x)+' TL';
 function setStatus(t){$('status').textContent=t}
-function showPage(id,btn){['dashboard','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','portfolio','portfolioAdvice','dailyReport','kapPage','confidencePage','committeePage','dipProfessional','v19Institutional'].forEach(x=>$(x).classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active')}
+function showPage(id,btn){['dashboard','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','portfolio','portfolioAdvice','v20Portfolio','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional'].forEach(x=>{const el=$(x); if(el) el.classList.add('hidden')});const page=$(id); if(page) page.classList.remove('hidden');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active')}
 function badgeClass(score,risk=false){score=Number(score)||0;if(risk)return score<35?'bgreen':score<60?'byellow':'bred';return score>=65?'bgreen':score>=50?'byellow':'bred'}
 function decisionClass(d){return d==='GÜÇLÜ AL'||d==='AL'?'bgreen':d==='İZLE'?'byellow':d==='BEKLE'?'bblue':'bred'}
 async function init(){wire();await loadSymbols();renderPortfolio();renderSignalJournal();await loadStock(false);await scanAll(true);renderKapNews()}
-function wire(){document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page,b)));$('analyzeBtn').addEventListener('click',()=>{showPage('analysis',document.querySelector('[data-page="analysis"]'));loadStock(true)});$('backtestBtn').addEventListener('click',()=>{showPage('backtestPage',document.querySelector('[data-page=\"backtestPage\"]'));runBacktest()});$('scanBtn1').addEventListener('click',()=>scanAll(false)); setTimeout(()=>{const b=$('runBtBtn'); if(b)b.addEventListener('click',runBacktest); const p=$('runPortfolioBtBtn'); if(p)p.addEventListener('click',runPortfolioBacktest); const pa=$('pfAddBtn'); if(pa)pa.addEventListener('click',addOrUpdatePortfolio); const ps=$('pfSaveBtn'); if(ps)ps.addEventListener('click',()=>{savePortfolio();setStatus('Portföy kaydedildi.')}); const dr=$('dailyReportBtn'); if(dr)dr.addEventListener('click',renderDailyReport); const kr=$('kapRefreshBtn'); if(kr)kr.addEventListener('click',renderKapNews); const la=$('runLearningBtn'); if(la)la.addEventListener('click',runLearning); const ss=$('saveSignalBtn'); if(ss)ss.addEventListener('click',saveCurrentSignal); const cs=$('clearSignalsBtn'); if(cs)cs.addEventListener('click',clearSignalJournal); const ks=$('kapSymbolBtn'); if(ks)ks.addEventListener('click',()=>renderKapNews(($('search').value||'PAPIL').toUpperCase().trim())); const ka=$('kapAllBtn'); if(ka)ka.addEventListener('click',()=>renderKapNews('')); const rc=$('refreshConfidenceBtn'); if(rc)rc.addEventListener('click',runConfidence); const cb=$('committeeBtn'); if(cb)cb.addEventListener('click',runCommittee); const pav=$('portfolioAdviceBtn'); if(pav)pav.addEventListener('click',renderPortfolioAdvice); const pas=$('portfolioAdviceScanBtn'); if(pas)pas.addEventListener('click',async()=>{await scanAll(false);showPage('portfolioAdvice',document.querySelector('[data-page="portfolioAdvice"]'));renderPortfolioAdvice();}); const v20=$('v20RunBtn'); if(v20)v20.addEventListener('click',runV20Portfolio);},0);$('search').addEventListener('keydown',e=>{if(e.key==='Enter'){$('analyzeBtn').click()}});['showEma20','showEma50','showEma200','showBB','showVWAP'].forEach(id=>{setTimeout(()=>{const el=$(id); if(el) el.addEventListener('change',()=>draw(lastRows));},0)})}
+function wire(){document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page,b)));$('analyzeBtn').addEventListener('click',()=>{showPage('analysis',document.querySelector('[data-page="analysis"]'));loadStock(true)});$('backtestBtn').addEventListener('click',()=>{showPage('backtestPage',document.querySelector('[data-page=\"backtestPage\"]'));runBacktest()});$('scanBtn1').addEventListener('click',()=>scanAll(false)); setTimeout(()=>{const b=$('runBtBtn'); if(b)b.addEventListener('click',runBacktest); const p=$('runPortfolioBtBtn'); if(p)p.addEventListener('click',runPortfolioBacktest); const pa=$('pfAddBtn'); if(pa)pa.addEventListener('click',addOrUpdatePortfolio); const ps=$('pfSaveBtn'); if(ps)ps.addEventListener('click',()=>{savePortfolio();setStatus('Portföy kaydedildi.')}); const dr=$('dailyReportBtn'); if(dr)dr.addEventListener('click',renderDailyReport); const kr=$('kapRefreshBtn'); if(kr)kr.addEventListener('click',renderKapNews); const la=$('runLearningBtn'); if(la)la.addEventListener('click',runLearning); const ss=$('saveSignalBtn'); if(ss)ss.addEventListener('click',saveCurrentSignal); const cs=$('clearSignalsBtn'); if(cs)cs.addEventListener('click',clearSignalJournal); const ks=$('kapSymbolBtn'); if(ks)ks.addEventListener('click',()=>renderKapNews(($('search').value||'PAPIL').toUpperCase().trim())); const ka=$('kapAllBtn'); if(ka)ka.addEventListener('click',()=>renderKapNews('')); const rc=$('refreshConfidenceBtn'); if(rc)rc.addEventListener('click',runConfidence); const cb=$('committeeBtn'); if(cb)cb.addEventListener('click',runCommittee); const pav=$('portfolioAdviceBtn'); if(pav)pav.addEventListener('click',renderPortfolioAdvice); const pas=$('portfolioAdviceScanBtn'); if(pas)pas.addEventListener('click',async()=>{await scanAll(false);showPage('portfolioAdvice',document.querySelector('[data-page="portfolioAdvice"]'));renderPortfolioAdvice();}); const v20=$('v20RunBtn'); if(v20)v20.addEventListener('click',runV20Portfolio); const v22s=$('v22SymbolBtn'); if(v22s)v22s.addEventListener('click',()=>runV22News(($('search').value||'').toUpperCase().trim())); const v22a=$('v22AllBtn'); if(v22a)v22a.addEventListener('click',()=>runV22News(''));},0);$('search').addEventListener('keydown',e=>{if(e.key==='Enter'){$('analyzeBtn').click()}});['showEma20','showEma50','showEma200','showBB','showVWAP'].forEach(id=>{setTimeout(()=>{const el=$(id); if(el) el.addEventListener('change',()=>draw(lastRows));},0)})}
 async function loadSymbols(){try{const j=await (await fetch('/api/symbols')).json();syms=j.symbols||[]}catch(e){syms=[]}if(!syms.length)syms=['PAPIL','MRSHL','TEZOL','USAK','VKING','THYAO','AKBNK','GARAN'];$('symbol').innerHTML=syms.map(s=>`<option>${s}</option>`).join('');$('symbol').onchange=e=>{$('search').value=e.target.value;loadStock(true)}}
 async function loadStock(verbose=true){const s=$('search').value.toUpperCase().trim()||'PAPIL';$('search').value=s;if(verbose)setStatus(s+' verisi alınıyor...');try{const j=await (await fetch('/api/stock?symbol='+encodeURIComponent(s))).json();if(!j.success)throw new Error(j.error||'Veri yok');renderStock(j);if(verbose)setStatus(s+' Yahoo Finance son verisi ile analiz edildi.')}catch(e){setStatus('Veri alınamadı: '+e.message)}}
 function renderStock(j){lastStock=j; const a=j.analysis||{},c=j.comments||{};const cards=[['Karar',a.decision,a.finalScore>=65?'ok':a.finalScore>=50?'warn':'bad'],['Güven','%'+fmt(a.confidence,0),'ok'],['Risk','%'+fmt(a.risk,0),a.risk<50?'ok':'bad'],['Hedef','%'+fmt(((a.target1-a.close)/a.close)*100,1),'ok'],['Son Fiyat',tl(a.close),a.change>=0?'ok':'bad']];$('cards').innerHTML=cards.map(x=>`<div class="card metric"><div class="body"><div class="muted">${x[0]}</div><div class="v ${x[2]}">${x[1]}</div><small>Değişim: ${fmt(a.change)}%</small></div></div>`).join('');$('engine').innerHTML=['trend','money','momentum','pattern','confidence','risk'].map(k=>{const v=a[k]||0;return `<b>${label(k)}: ${fmt(v,0)}/100</b><div class="barw"><div class="bar" style="width:${Math.max(0,Math.min(100,v))}%;background:${k==='risk'?(v<50?'#16a34a':'#dc2626'):(v>65?'#16a34a':v>50?'#f59e0b':'#dc2626')}"></div></div><br>`}).join('')+`<div class="comment"><b>Formasyon:</b> ${a.formation?.name||'-'}<br><b>ADX:</b> ${fmt(a.adx)} | <b>SuperTrend:</b> ${a.superTrendDir===1?'AL':'SAT'}<br><b>Stop:</b> ${tl(a.stop)} | <b>Hedef:</b> ${tl(a.target1)}</div>`;$('expert').textContent=c.expert||aiExpert(a);$('ai').textContent=c.ai||aiComment(a);renderAIEngine(a);renderMultiLayer(a.multiLayer||null,a);draw(a.ohlcv||j.ohlcv||[]);setTimeout(()=>runConfidence(false),80)}
@@ -568,6 +587,34 @@ async function runV20Portfolio(){
     $('v20ActionTable').innerHTML='<tr><th>Hisse</th><th>Mevcut</th><th>Önerilen</th><th>Fark</th><th>Aksiyon</th></tr>'+v.actions.map(x=>`<tr><td><b>${x.symbol}</b></td><td>%${fmt(x.current,1)}</td><td>%${fmt(x.suggested,1)}</td><td>${v20Pct(x.diff)}</td><td><b>${x.action}</b></td></tr>`).join('');
     setStatus('V20 portföy simülasyonu tamamlandı. Random/pseudo veri kullanılmadı.');
   }catch(e){$('v20Summary').textContent='V20 simülasyon hatası: '+e.message;setStatus('V20 simülasyon hatası: '+e.message);}
+}
+
+async function runV22News(symbol=''){
+  const target = symbol || '';
+  const url = '/api/kap?engine=v22&limit=30' + (target ? '&symbol='+encodeURIComponent(target) : '');
+  const loading = `<b>V22 Kurumsal Haber Motoru çalışıyor...</b><br>${target?target:'Genel KAP akışı'} sınıflandırılıyor.`;
+  if($('v22Summary')) $('v22Summary').innerHTML = loading;
+  try{
+    const j = await fetchJsonSafe(url+'&t='+Date.now());
+    const inst = j.institutional || j;
+    const items = Array.isArray(inst.items)?inst.items:[];
+    if($('v22InstitutionalScore')) $('v22InstitutionalScore').textContent = fmt(inst.institutionalScore||50,0);
+    if($('v22Reliability')) $('v22Reliability').textContent = fmt(inst.avgReliability||0,0);
+    if($('v22Balance')) $('v22Balance').textContent = `${inst.positive||0}/${inst.negative||0}`;
+    if($('v22Live')) $('v22Live').textContent = j.live ? 'Var' : 'Yok';
+    const src = `<b>Kaynak:</b> ${j.source||'KAP'}<br><b>Canlı:</b> ${j.live?'Evet':'Hayır'} • <b>Demo veri:</b> ${j.demoData?'Var':'Yok'}<br><b>Özet:</b> ${inst.summary||'-'}<br><span class="mini">${j.note||''}</span>`;
+    if($('v22Summary')) $('v22Summary').innerHTML = src;
+    const im = inst.mostImportant;
+    if($('v22Important')) $('v22Important').innerHTML = im ? `<b>${im.symbol||'-'} • ${im.eventType||'-'}</b><br>${im.title||'-'}<br><br><b>Etki:</b> ${fmt(im.impactScore,0)}/100 • <b>Güven:</b> ${fmt(im.reliabilityScore,0)}/100<br><b>Karar etkisi:</b> ${im.decisionEffect||'-'}<br><b>Neden:</b> ${(im.reasons||[]).join(', ')}` : 'Kayıt yok. Canlı KAP yanıtı veya gerçek yerel arşiv bekleniyor.';
+    if($('v22DecayTable')) $('v22DecayTable').innerHTML = '<tr><th>Hisse</th><th>Olay</th><th>Bugün</th><th>3 Gün</th><th>1 Hafta</th><th>1 Ay</th></tr>' + (items.length?items.slice(0,10).map(x=>`<tr><td><b>${x.symbol||'-'}</b></td><td>${x.eventType||'-'}</td><td>${fmt(x.timeImpact?.today,0)}</td><td>${fmt(x.timeImpact?.threeDays,0)}</td><td>${fmt(x.timeImpact?.oneWeek,0)}</td><td>${fmt(x.timeImpact?.oneMonth,0)}</td></tr>`).join(''):'<tr><td colspan="6">Kayıt yok.</td></tr>');
+    if($('v22SectorTable')) $('v22SectorTable').innerHTML = '<tr><th>Sektör</th><th>Kayıt</th><th>Ortalama Etki</th></tr>' + ((inst.sectors||[]).length?inst.sectors.map(s=>`<tr><td>${s.sector}</td><td>${s.count}</td><td>${fmt(s.avg,0)}</td></tr>`).join(''):'<tr><td colspan="3">Sektör etkisi için kayıt yok.</td></tr>');
+    if($('v22NewsTable')) $('v22NewsTable').innerHTML = '<tr><th>Tarih</th><th>Hisse</th><th>Olay Türü</th><th>Başlık</th><th>Etki</th><th>Güven</th><th>Aksiyon</th></tr>' + (items.length?items.map(x=>`<tr><td>${x.date||'-'}</td><td><b>${x.symbol||'-'}</b></td><td>${x.eventType||'-'}<br><span class="mini">${x.urgency||''}</span></td><td>${x.title||'-'}<br><span class="mini">${x.summary||''}</span></td><td>${fmt(x.impactScore,0)}</td><td>${fmt(x.reliabilityScore,0)}</td><td>${x.decisionEffect||'-'}</td></tr>`).join(''):'<tr><td colspan="7">Kayıt yok.</td></tr>');
+    setStatus('V22 Kurumsal Haber Motoru tamamlandı. Demo/random haber kullanılmadı.');
+  }catch(e){
+    const msg='V22 haber motoru hatası: '+e.message;
+    if($('v22Summary')) $('v22Summary').textContent = msg;
+    setStatus(msg);
+  }
 }
 
 function renderDailyReport(){if(!scanCache.length){$('dailyReportBox').innerHTML='Önce tarama yapın. Ana kontrol panelindeki tarama tamamlanınca rapor otomatik oluşur.';return;}const strong=leaderList().slice(0,10), risk=riskList().slice(0,10), pats=patternList().slice(0,10), money=[...scanCache].sort((a,b)=>(b.money||0)-(a.money||0)).slice(0,10);const mini=rows=>rows.length?rows.map((r,i)=>`<div class="dashItem" onclick="openSymbol('${r.symbol}')"><div class="rank">#${i+1}</div><div><div class="symbol">${r.symbol}</div><div class="mini">${r.decision||'-'} • Skor ${fmt(r.finalScore,0)} • Risk ${fmt(r.risk,0)}</div></div><div class="score">${fmt(r.confidence||r.money||0,0)}</div></div>`).join(''):'<div class="comment">Veri yok.</div>';$('reportStrong').innerHTML=mini(strong);$('reportRisk').innerHTML=mini(risk);$('reportPatterns').innerHTML=mini(pats);$('reportMoney').innerHTML=mini(money);const avg=scanCache.reduce((s,x)=>s+(x.finalScore||0),0)/scanCache.length;$('dailyReportBox').innerHTML=`<b>Bugünün AI Özeti:</b><br>${scanCache.length} hisse tarandı. Ortalama piyasa skoru ${fmt(avg,0)}/100. En güçlü adaylar ${strong.slice(0,3).map(x=>x.symbol).join(', ')||'-'}. Riskli tarafta ${risk.slice(0,3).map(x=>x.symbol).join(', ')||'-'} öne çıkıyor.<br><br><b>Yorum:</b> Güvenli kazanç için risk düşük, trend ve güven skoru yüksek hisseler; fırsat avcısı için para girişi ve formasyon skoru yüksek hisseler izlenmeli.`;renderKapNews();}
