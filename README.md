@@ -1,17 +1,14 @@
-# BIST Radar Pro R12 – Unified Data Provider
+# BIST Radar Pro R12.1 - Vercel Hobby API Consolidation FIX
 
-Bu sürümün amacı yeni ekran eklemek değil, veri katmanını tekleştirmektir.
+Bu sürüm Vercel Hobby planındaki 12 Serverless Function sınırı için hazırlanmıştır.
 
-## Ana düzeltme
-- `api/lib/unified-provider.js` eklendi.
-- `/api/stock`, `/api/scan`, `/api/decision`, `/api/dip`, `/api/symbols` aynı OHLCV kaynağına bağlandı.
-- Günlük OHLCV içinde `volume` dizisi korunur.
-- RVOL, VWAP, CMF, MFI, OBV hacim serisinden hesaplanır.
-- Hacim yoksa `0x` sahte sonuç yerine veri sağlığı düşer ve eksik veri raporlanır.
-- Random/demo fiyat veya hacim üretilmez.
+## Yapılanlar
+- API endpointleri tek ana fonksiyonda birleştirildi: `/api/core`.
+- Eski çağrılar tarayıcı tarafında otomatik olarak `/api/core?action=...` formatına yönlendirilir.
+- Eski desteklenen aksiyonlar: symbols, stock, decision, dip, scan, institutional-scan, portfolio-advice, kap, learning, backtest, committee.
+- `api/` kökünde sadece `core.js` bırakıldı; `api/lib` yardımcı dosyaları fonksiyon değildir.
+- Random/demo veri eklenmedi.
+- OHLCV/hacim verisi `unified-provider` katmanından okunmaya devam eder.
 
-## Veri sağlayıcı
-Sunucu tarafında `yahoo-finance2` kullanılır. Borsa-api-main içindeki yaklaşım temel alındı; TypeScript kütüphanesinin tamamını tarayıcıya gömmek yerine Vercel API endpointleri için sade CommonJS sağlayıcı yazıldı.
-
-## Önemli
-Vercel deploy sırasında `package.json` bağımlılıkları kurmalıdır.
+## Vercel Hobby
+Bu paket Serverless Function sayısını 1 ana endpoint seviyesine indirir.

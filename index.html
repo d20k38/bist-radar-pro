@@ -3,9 +3,34 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro R12 Unified Data Provider</title>
+<title>BIST Radar Pro R12.1 API Consolidation</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/r10-runtime.js"></script>
+<script>
+// R12.1 Vercel Hobby API Consolidation: all legacy /api/* calls are routed to one Serverless Function.
+(function(){
+  const nativeFetch = window.fetch.bind(window);
+  const legacy = new Set(['symbols','stock','decision','dip','scan','institutional-scan','portfolio-advice','kap','learning','backtest','committee']);
+  function rewrite(input){
+    try{
+      const raw = (typeof input === 'string') ? input : (input && input.url);
+      if(!raw) return input;
+      const u = new URL(raw, window.location.origin);
+      if(u.pathname.startsWith('/api/') && u.pathname !== '/api/core'){
+        const action = u.pathname.split('/').filter(Boolean)[1];
+        if(legacy.has(action)){
+          u.pathname = '/api/core';
+          u.searchParams.set('action', action);
+          return u.pathname + u.search;
+        }
+      }
+    }catch(e){}
+    return input;
+  }
+  window.fetch = function(input, init){ return nativeFetch(rewrite(input), init); };
+})();
+</script>
+
 <script>
 // R9.2 compatibility: eski KAP/Haber alanı renderKapNews() çağrısını yeni /api/kap yanıtına bağlar.
 async function renderKapNews(symbol=''){
