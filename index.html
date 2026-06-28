@@ -1540,8 +1540,8 @@ function dtRenderSummary(){
 function dtRenderTable(){
   const el=$('dtTable'); if(!el)return;
   if(!dayTradingCache.length){el.innerHTML='<tr><td>Henüz tarama yapılmadı.</td></tr>';return;}
-  el.innerHTML='<tr><th>#</th><th>Hisse</th><th>Skor</th><th>Aksiyon</th><th>RVOL20</th><th>VWAP</th><th>CMF</th><th>MFI</th><th>ATR%</th><th>RS</th><th>Giriş</th><th>Stop</th><th>Hedef</th></tr>'+
-    dayTradingCache.slice(0,20).map((x,i)=>{const d=x.dayTrading||{},p=d.plan||{},rs=d.scores?.relativeStrength||0;return `<tr onclick="dtExplain('${x.symbol}')" style="cursor:pointer"><td><b>${i+1}</b></td><td><b>${x.symbol}</b></td><td>${dtBadge(d.score)}</td><td><span class="badge ${dtActionClass(d.action)}">${d.action}</span></td><td><b>${rvolText(d.rvol20)}</b></td><td>${tl(d.vwap20)}</td><td>${fmt(d.cmf20,3)}</td><td>${fmt(d.mfi14,1)}</td><td>%${fmt(d.atrPct,2)}</td><td>${dtBadge(rs)}</td><td>${tl(p.entryLow)}-${tl(p.entryHigh)}</td><td>${tl(p.stop)}</td><td>${tl(p.target1)}</td></tr>`}).join('');
+  el.innerHTML='<tr><th>#</th><th>Hisse</th><th>Skor</th><th>Aksiyon</th><th>RVOL20</th><th>VWAP</th><th>CMF</th><th>MFI</th><th>Veri</th><th>ATR%</th><th>RS</th><th>Giriş</th><th>Stop</th><th>Hedef</th></tr>'+
+    dayTradingCache.slice(0,20).map((x,i)=>{const d=x.dayTrading||{},p=d.plan||{},rs=d.scores?.relativeStrength||0;return `<tr onclick="dtExplain('${x.symbol}')" style="cursor:pointer"><td><b>${i+1}</b></td><td><b>${x.symbol}</b></td><td>${dtBadge(d.score)}</td><td><span class="badge ${dtActionClass(d.action)}">${d.action}</span></td><td><b>${rvolText(d.rvol20)}</b></td><td>${tl(d.vwap20)}</td><td>${fmt(d.cmf20,3)}</td><td>${fmt(d.mfi14,1)}</td><td>${d.dataHealth!==null&&d.dataHealth!==undefined?fmt(d.dataHealth,0)+'%':'-'}</td><td>%${fmt(d.atrPct,2)}</td><td>${dtBadge(rs)}</td><td>${tl(p.entryLow)}-${tl(p.entryHigh)}</td><td>${tl(p.stop)}</td><td>${tl(p.target1)}</td></tr>`}).join('');
 }
 function dtExplain(symbol){
   const x=dayTradingCache.find(r=>r.symbol===symbol); if(!x||!x.dayTrading)return; const d=x.dayTrading,p=d.plan||{};
@@ -1559,11 +1559,17 @@ function buildDayTradingCacheFromScan(){
     const atr=Math.max(close*0.02, close*(risk/100)*0.04);
     return {...x, dayTrading:{
       score, action:score>=82?'GÜÇLÜ AL':score>=68?'AL':score>=55?'İZLE':score>=42?'TUT':'UZAK DUR',
-      rvol20:x.rvol||x.relativeVolume||0, rvol5:x.rvol5||0, vwap20:x.vwap||0,
-      cmf20:x.cmf||0, mfi14:x.mfi||0, atrPct:close?atr/close*100:0,
+      rvol20:x.rvol20??x.rvol??x.master?.metrics?.rvol20??null,
+      rvol5:x.rvol5??x.master?.metrics?.rvol5??null,
+      vwap20:x.vwap20??x.vwap??x.master?.metrics?.vwap20??null,
+      cmf20:x.cmf20??x.cmf??x.master?.metrics?.cmf20??null,
+      mfi14:x.mfi14??x.mfi??x.master?.metrics?.mfi14??null,
+      atrPct:x.atrPct??x.master?.metrics?.atrPct??(close?atr/close*100:null),
+      dataHealth:x.dataHealth??x.master?.integrity?.health??null,
+      dataIssues:x.dataIssues??x.master?.integrity?.issues??[],
       scores:{relativeStrength:x.relativeStrength||x.rs||score, rvol:x.rvolScore||score, vwap:x.vwapScore||score, obv:x.obvScore||score, cmf:x.cmfScore||score},
       plan:{entryLow:close?close*0.995:0, entryHigh:close?close*1.005:0, stop:close?close-atr:0, target1:close?close+atr*1.8:0, target2:close?close+atr*3:0},
-      reasons:['R9.4 hızlı mod: genel tarama sonucundan üretildi','Master Stock Object kullanıldı']
+      reasons:[(x.dataHealth!==null&&x.dataHealth!==undefined)?`R11 veri sağlığı: ${x.dataHealth}/100`:'R11 veri sağlığı henüz ölçülmedi','R9.4 hızlı mod: genel tarama sonucundan üretildi','Master Stock Object kullanıldı',...(x.dataIssues||[]).slice(0,2)]
     }};
   }).sort((a,b)=>(b.dayTrading?.score||0)-(a.dayTrading?.score||0)).slice(0,60);
   return dayTradingCache;

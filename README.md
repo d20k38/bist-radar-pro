@@ -1,3 +1,26 @@
+# BIST Radar Pro R11 Data Integrity Engine
+
+Bu sürüm yeni al/sat özelliği eklemez; veri katmanını denetler.
+
+## Eklenenler
+- `lib/data-integrity-engine.js`
+- OHLC gün sayısı kontrolü
+- 250 günlük hafıza kontrolü
+- Pozitif hacim günü kontrolü
+- RVOL / VWAP / CMF / MFI hesaplanabilirlik kontrolü
+- Master Stock Object içine `integrity` alanı
+- `/api/scan`, `/api/decision`, `/api/stock` çıktılarında veri sağlığı bilgisi
+- Day Trading hızlı modunda `master.metrics` değerlerini okuma düzeltmesi
+
+## Amaç
+RVOL = 0x, VWAP = 0, CMF = 0, MFI = 0 gibi durumlarda sistem artık bunu gizlemez; hangi veri katmanının eksik olduğunu raporlar.
+
+Random/demo veri eklenmemiştir.
+
+---
+
+Önceki README aşağıdadır.
+
 # BIST Radar Pro R10.2 RVOL FIX
 
 Bu sürüm R10.1 Scanner Completion FIX üzerine hazırlanmıştır.
