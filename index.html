@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>BIST Radar Pro V32 AI Trade Planner</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js">
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
 // R9.2 compatibility: eski KAP/Haber alanı renderKapNews() çağrısını yeni /api/kap yanıtına bağlar.
 async function renderKapNews(symbol=''){
   const target=(symbol||'').toString().toUpperCase().trim();
@@ -56,7 +56,7 @@ async function renderKapNews(symbol=''){
     return {success:false,error:msg,items:[]};
   }
 }
-
+if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
 </script>
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
