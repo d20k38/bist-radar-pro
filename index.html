@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro V32.1 AI Karar Motoru</title>
+<title>BIST Radar Pro V32.3 Karar Motoru FIX</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro V32.1 Institutional</div><div class="pill">%100 Gerçek Veri • V32.1 AI Karar Motoru • Trade Planner + IQS</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro V32.3 Institutional</div><div class="pill">%100 Gerçek Veri • V32.1 AI Karar Motoru • Trade Planner + IQS</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -1964,5 +1964,109 @@ setTimeout(()=>{
 },900);
 window.dcExplain=dcExplain; window.dcOpenPlan=dcOpenPlan; window.dcRender=dcRender;
 </script>
+
+<script>
+/* V32.3 Karar Motoru Boş Ekran FIX
+   Amaç: Cache'ler boş kaldığında ekranda boş tablo bırakmamak.
+   Demo/random veri üretmez; /api/symbols ve /api/decision gerçek veri akışından beslenir.
+*/
+(function(){
+  const oldDcBuildRows = window.dcBuildRows;
+  const oldDcRender = window.dcRender;
+  const oldDcRunFull = window.dcRunFull;
+  function dcSafeNum(x,d=0){ x=Number(x); return Number.isFinite(x)?x:d; }
+  function dcSafeClamp(x,a=0,b=100){ return Math.max(a,Math.min(b,dcSafeNum(x))); }
+  function dcDecisionToRow(payload){
+    if(!payload || payload.success===false) return null;
+    const sym=String(payload.symbol || payload.decision?.symbol || payload.analysis?.symbol || '').toUpperCase().replace('.IS','');
+    if(!sym) return null;
+    const a=payload.analysis||{};
+    const d=payload.decision||{};
+    const day=payload.dayTrading||{};
+    const inst=payload.institutional||{};
+    const q=payload.quality||{};
+    const ex=payload.explainable||{};
+    const fin=payload.financialAI||{};
+    const close=dcSafeNum(a.close || payload.close || 0);
+    const dayScore=dcSafeClamp(day.score || day.finalScore || day.scores?.total || d.layerInputs?.finalScore || a.finalScore || 0);
+    const iqs=dcSafeClamp(q.score || ex.score || d.confidenceScore || a.finalScore || 0);
+    const swing=dcSafeClamp((a.trend||50)*.55 + (a.momentum||50)*.25 + (d.layerInputs?.backtestScore||50)*.20);
+    const position=dcSafeClamp((iqs*.55) + ((d.layerInputs?.backtestScore||a.confidence||50)*.25) + ((100-(a.risk||d.riskScore||55))*.20));
+    const instScore=dcSafeClamp(inst.score || inst.institutionalScore || d.layerInputs?.money || a.money || q.components?.volume || 0);
+    const kap=dcSafeClamp(d.layerInputs?.kapScore || inst.components?.kap || q.components?.kap || 50);
+    const financial=dcSafeClamp(fin.score || 50);
+    const backtest=dcSafeClamp(d.layerInputs?.backtestScore || q.components?.backtest || a.confidence || 50);
+    const risk=dcSafeClamp(a.risk || d.riskScore || 55);
+    const final=dcSafeClamp(d.confidenceScore || iqs*.30+dayScore*.20+swing*.12+position*.10+instScore*.12+kap*.04+financial*.04+backtest*.08-(Math.max(0,risk-70)*.35));
+    const confidencePct=dcSafeClamp(final*.55+(100-risk)*.25+backtest*.20);
+    let decision='İZLE / TUT';
+    if(typeof window.dcActionFrom==='function') decision=window.dcActionFrom(final,risk,confidencePct);
+    else if(final>=90&&risk<=55) decision='GÜÇLÜ AL'; else if(final>=78) decision='AL'; else if(final<48) decision='SAT / KAÇIN';
+    const conf = typeof window.dcConfidence==='function' ? window.dcConfidence(final,risk,backtest) : (confidencePct>=90?'A+':confidencePct>=82?'A':confidencePct>=74?'B+':confidencePct>=65?'B':confidencePct>=55?'C':'D');
+    return {symbol:sym,close,dayScore,swingScore:swing,positionScore:position,instScore,iqs,kapScore:kap,financialScore:financial,backtestScore:backtest,risk,aiFinal:final,confidencePct,confidence:conf,decision,dipDistance:99,_source:'api/decision'};
+  }
+  async function dcFetchJson(url,timeoutMs=9000){
+    const c=new AbortController(); const t=setTimeout(()=>c.abort(),timeoutMs);
+    try{ const r=await fetch(url,{signal:c.signal,cache:'no-store'}); const text=await r.text(); try{return JSON.parse(text)}catch(e){return {success:false,error:'API JSON döndürmedi: '+text.slice(0,120)}} }
+    catch(e){ return {success:false,error:e.message}; }
+    finally{ clearTimeout(t); }
+  }
+  async function dcLoadDecisionFallback(limit=80){
+    const status=(msg)=>{ try{ if(typeof setStatus==='function') setStatus(msg); }catch(e){} };
+    status('Karar Motoru yedek gerçek veri akışı başlatıldı...');
+    const sres=await dcFetchJson('/api/symbols',8000);
+    const symbols=(sres.symbols||[]).map(x=>String(typeof x==='string'?x:(x.symbol||x.code||'')).toUpperCase().replace('.IS','')).filter(Boolean);
+    if(!symbols.length) throw new Error(sres.error||'Sembol listesi alınamadı.');
+    const picked=[...(window.portfolio||[]).map(x=>x.symbol),...symbols].filter(Boolean);
+    const uniq=[...new Set(picked.map(x=>String(x).toUpperCase().replace('.IS',''))) ].slice(0,limit);
+    const out=[]; const errors=[];
+    for(let i=0;i<uniq.length;i+=4){
+      const chunk=uniq.slice(i,i+4);
+      status(`Karar Motoru gerçek veri okuyor: ${Math.min(i+chunk.length,uniq.length)}/${uniq.length}`);
+      const arr=await Promise.all(chunk.map(sym=>dcFetchJson('/api/decision?symbol='+encodeURIComponent(sym),10000)));
+      arr.forEach((j,idx)=>{ const row=dcDecisionToRow(j); if(row) out.push(row); else if(j?.error) errors.push(chunk[idx]+': '+j.error); });
+      if(out.length>=60) break;
+    }
+    window.dcApiDecisionCache=out;
+    if(!out.length) throw new Error('Karar Motoru gerçek veriden satır üretemedi. İlk hata: '+(errors[0]||'bilinmiyor'));
+    return out;
+  }
+  window.dcBuildRows=function(){
+    let rows=[];
+    try{ rows = oldDcBuildRows ? oldDcBuildRows() : []; }catch(e){ rows=[]; window.__dcLastBuildError=e.message; }
+    if((!rows || !rows.length) && Array.isArray(window.dcApiDecisionCache) && window.dcApiDecisionCache.length){
+      rows=[...window.dcApiDecisionCache].sort((a,b)=>(b.aiFinal||0)-(a.aiFinal||0));
+      window.dcRows=rows;
+    }
+    return rows||[];
+  };
+  window.dcRender=function(){
+    try{ if(oldDcRender) oldDcRender(); }catch(e){ window.__dcLastRenderError=e.message; }
+    const rows=window.dcRows||[];
+    const tbl=document.getElementById('dcTable');
+    if(tbl && (!rows.length || tbl.textContent.includes('Henüz veri yok'))){
+      tbl.innerHTML='<tr><th>Durum</th></tr><tr><td><b>Karar Motoru henüz veri üretmedi.</b><br>“Karar Motorunu Çalıştır” düğmesine basın. Sistem önce mevcut tarama cache’lerini kullanır; boşsa /api/symbols + /api/decision üzerinden gerçek veriyle yedek karar listesi oluşturur.<br><span class="mini">Son hata: '+(window.__dcLastBuildError||window.__dcLastRenderError||'yok')+'</span></td></tr>';
+    }
+  };
+  window.dcRunFull=async function(){
+    try{ if(oldDcRunFull) await oldDcRunFull(); }catch(e){ window.__dcLastRunError=e.message; }
+    let rows=[];
+    try{ rows=window.dcBuildRows(); }catch(e){ rows=[]; window.__dcLastBuildError=e.message; }
+    if(!rows.length){
+      try{ await dcLoadDecisionFallback(80); }catch(e){ window.__dcLastBuildError=e.message; }
+    }
+    try{ if(oldDcRender) oldDcRender(); else window.dcRender(); }catch(e){ window.__dcLastRenderError=e.message; window.dcRender(); }
+    const finalRows=window.dcRows||[];
+    try{ if(typeof setStatus==='function') setStatus(finalRows.length ? `V32.3 Karar Motoru tamamlandı: ${finalRows.length} tekil hisse.` : 'Karar Motoru veri üretemedi: '+(window.__dcLastBuildError||window.__dcLastRunError||'bilinmeyen hata')); }catch(e){}
+  };
+  setTimeout(()=>{
+    const btn=document.getElementById('dcRunBtn');
+    if(btn){ btn.onclick=(ev)=>{ev.preventDefault(); window.dcRunFull();}; }
+    const tab=document.querySelector('[data-page="decisionCenter"]');
+    if(tab){ tab.addEventListener('click',()=>setTimeout(()=>{try{window.dcRender()}catch(e){}},150)); }
+  },300);
+})();
+</script>
+
 </body>
 </html>
