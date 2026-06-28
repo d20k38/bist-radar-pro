@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro V31 Trading Center & IQS</title>
+<title>BIST Radar Pro V32 AI Trade Planner</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro V31 Institutional</div><div class="pill">%100 Gerçek Veri • V31 Trading Center + IQS • V30 Learning Engine</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro V32 Institutional</div><div class="pill">%100 Gerçek Veri • V32 AI Trade Planner • V31 Trading Center + IQS</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -23,6 +23,7 @@
   <div class="tabs">
     <button class="tab active" data-page="dashboard">📊 Ana Kontrol</button>
     <button class="tab" data-page="dayTradingAI">⚡ Day Trading AI</button>
+    <button class="tab" data-page="tradePlanner">🎯 V32 Trade Planner</button>
     <button class="tab" data-page="tradingCenter">🎯 V31 Trading Center</button>
     <button class="tab" data-page="institutionalScanner">🏦 Institutional Scanner</button>
     <button class="tab" data-page="explainableAI">🔎 XAI + KAP + Financial</button>
@@ -393,6 +394,32 @@
     </div>
   </section>
 
+
+  <section id="tradePlanner" class="hidden">
+    <div class="grid g4">
+      <div class="card metric"><div class="body"><div class="muted">AI Kararı</div><div id="tpDecision" class="v warn">-</div><div class="muted">AL / TUT / SAT</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Güven</div><div id="tpConfidence" class="v ok">-</div><div class="muted">0-100</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Risk/Getiri</div><div id="tpRR" class="v ok">-</div><div class="muted">hedef / stop</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Plan Türü</div><div id="tpStyle" class="v warn">-</div><div class="muted">Day / Swing / Pozisyon</div></div></div>
+    </div><br>
+    <div class="card"><div class="head dark">🎯 V32 AI Trade Planner</div><div class="body">
+      <div class="quickFilters">
+        <button class="btn" id="tpRunBtn">Seçili Hisse İçin Trade Planı Oluştur</button>
+        <button class="btn gray" id="tpFromDayBtn">Day Trading Liderinden Plan Yap</button>
+        <button class="btn green" id="tpExportBtn">Plan CSV</button>
+      </div>
+      <div id="tpSummary" class="comment">V32; V23 Day Trading, V29 Explainable AI, V30 Learning ve V31 IQS çıktısını tek plana çevirir: AL/TUT/SAT, giriş aralığı, stop, hedef, risk/getiri ve takip koşulları.</div>
+    </div></div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head green">✅ Uygulanabilir İşlem Planı</div><div class="body"><div id="tpPlanBox" class="comment">Önce hisse seçin ve plan oluşturun.</div><br><table id="tpPlanTable" class="table"></table></div></div>
+      <div class="card"><div class="head cyan">🧠 Neden Bu Karar?</div><div class="body"><div id="tpWhyBox" class="comment">Kararın pozitif nedenleri, karşıt görüşleri ve teyit şartları burada gösterilir.</div><br><table id="tpWhyTable" class="table"></table></div></div>
+    </div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head yellow">⏱️ Yarın İçin Takip Kuralları</div><div class="body"><table id="tpRulesTable" class="table"></table></div></div>
+      <div class="card"><div class="head red">🛡️ Risk Yönetimi</div><div class="body"><div id="tpRiskBox" class="comment"></div><br><table id="tpSizeTable" class="table"></table></div></div>
+    </div>
+  </section>
+
   <section id="institutionalScanner" class="hidden">
     <div class="grid g4">
       <div class="card metric"><div class="body"><div class="muted">En Yüksek Institutional Score</div><div id="isBestScore" class="v ok">-</div><div class="muted">0-100</div></div></div>
@@ -557,7 +584,7 @@ const defaultPortfolio=[{symbol:'MRSHL',lot:286,cost:2470},{symbol:'PAPIL',lot:7
 let portfolio=loadPortfolioLocal();
 const $=id=>document.getElementById(id);const fmt=(x,d=2)=>Number.isFinite(Number(x))?Number(x).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';const tl=x=>fmt(x)+' TL';
 function setStatus(t){$('status').textContent=t}
-const APP_PAGES=['dashboard','institutionalDashboard','aiAdvisor','explainableAI','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','tradingCenter','portfolio','portfolioAdvice','v20Portfolio','smartPortfolio','radarLab','dayTradingAI','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional','institutionalScanner'];
+const APP_PAGES=['dashboard','tradePlanner','institutionalDashboard','aiAdvisor','explainableAI','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','tradingCenter','portfolio','portfolioAdvice','v20Portfolio','smartPortfolio','radarLab','dayTradingAI','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional','institutionalScanner'];
 function showPage(id,btn){
   APP_PAGES.forEach(x=>{const el=$(x); if(el){el.classList.add('hidden'); el.style.display='none';}});
   const page=$(id); if(page){page.classList.remove('hidden'); page.style.display='block'; document.body.setAttribute('data-page',id);}
@@ -1161,8 +1188,108 @@ function exportDayTradingCSV(){
   const csv='\ufeff'+rows.map(r=>r.map(v=>String(v??'').replaceAll(';',',')).join(';')).join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='v23_day_trading_ai.csv';a.click();
 }
-setTimeout(()=>{const b=$('dtScanBtn'); if(b)b.addEventListener('click',()=>runDayTradingScan().catch(e=>{setStatus('Day Trading AI hatası: '+e.message); if($('dtStatus'))$('dtStatus').textContent='Day Trading AI hatası: '+e.message;})); const e=$('dtExportBtn'); if(e)e.addEventListener('click',exportDayTradingCSV);},700);
+
+setTimeout(()=>{
+  const r=$('tpRunBtn'); if(r)r.addEventListener('click',()=>runTradePlanner().catch(e=>{setStatus('Trade Planner hatası: '+e.message); if($('tpSummary'))$('tpSummary').textContent='Trade Planner hatası: '+e.message;}));
+  const d=$('tpFromDayBtn'); if(d)d.addEventListener('click',async()=>{try{if(!dayTradingCache.length) await runDayTradingScan(false); const best=dayTradingCache[0]; if(best){$('search').value=best.symbol; await runTradePlanner(best.symbol,best);}}catch(e){setStatus('Day liderinden plan hatası: '+e.message)}});
+  const x=$('tpExportBtn'); if(x)x.addEventListener('click',exportTradePlanCSV);
+},750);
 window.dtExplain=dtExplain;
+
+/* V32 AI Trade Planner - mevcut API sayısını artırmadan karar planı üretir */
+let lastTradePlan=null;
+function tpDecisionClass(d){d=String(d||'');return d.includes('AL')?'bgreen':d.includes('TUT')||d.includes('İZLE')?'byellow':d.includes('SAT')||d.includes('KAÇIN')?'bred':'bblue'}
+function tpClamp(x,a=0,b=100){x=Number(x);return Math.max(a,Math.min(b,Number.isFinite(x)?x:0))}
+function tpNum(x,d=0){x=Number(x);return Number.isFinite(x)?x:d}
+function tpRound(x,d=2){x=Number(x);return Number.isFinite(x)?Number(x.toFixed(d)):0}
+function buildTradePlan(symbol, stockJson, dayRow=null, decisionJson=null){
+  const a=(stockJson&&stockJson.analysis)||{};
+  const day=dayRow?.dayTrading || stockJson?.dayTrading || {};
+  const exp=decisionJson?.explainable || null;
+  const dec=decisionJson?.decision || null;
+  const close=tpNum(a.close||day.currentPrice);
+  if(!close) throw new Error('Plan için son fiyat alınamadı.');
+  const atr=tpNum(day.atr || a.atr || close*0.03, close*0.03);
+  const finalScore=tpNum(dec?.confidenceScore ?? a.finalScore ?? day.score, 50);
+  const confidence=tpNum(exp?.confidence?.score ?? dec?.probability ?? a.confidence ?? day.openBias, 50);
+  const risk=tpNum(dec?.riskScore ?? a.risk ?? 55, 55);
+  const dayScore=tpNum(day.score, finalScore);
+  const trend=tpNum(a.trend,50), money=tpNum(a.money,50), momentum=tpNum(a.momentum,50);
+  const rvol=tpNum(day.rvol20,0), cmf=tpNum(day.cmf20,0), vwap=tpNum(day.vwap20,close);
+  const iqs=tpClamp((finalScore*.36)+(confidence*.18)+(dayScore*.18)+(trend*.10)+(money*.10)+(momentum*.08)-Math.max(0,risk-55)*.25);
+  let style='Day';
+  if(iqs>=76 && trend>=62 && risk<=60) style='Swing';
+  if(iqs>=82 && trend>=70 && risk<=48 && confidence>=70) style='Pozisyon';
+  if(dayScore>=72 || rvol>=1.8) style='Day';
+  let decision='İZLE / TUT';
+  if(iqs>=82 && confidence>=68 && risk<=58) decision='AL';
+  if(iqs>=90 && confidence>=75 && risk<=50) decision='GÜÇLÜ AL';
+  if(iqs<52 || risk>=78) decision='SAT / KAÇIN';
+  if(iqs>=52 && iqs<68) decision='TUT / TEYİT BEKLE';
+  const baseEntryLow=day.plan?.entryLow || Math.max(close-atr*.28, close*.985);
+  const baseEntryHigh=day.plan?.entryHigh || close+atr*.18;
+  const stop=day.plan?.stop || a.stop || close-atr*.95;
+  const target1=day.plan?.target1 || a.target1 || close+atr*1.35;
+  const target2=day.plan?.target2 || a.target2 || close+atr*2.15;
+  const rr=(target1-close)/Math.max(0.01,close-stop);
+  const expected1w=tpRound(((target1-close)/close)*100 * (style==='Day'?0.55:0.80),2);
+  const positives=[]; const warnings=[];
+  if(rvol>=2) positives.push(`RVOL ${tpRound(rvol,2)}x: hacim belirgin güçlü`); else warnings.push(`RVOL ${tpRound(rvol,2)}x: hacim teyidi sınırlı`);
+  if(close>vwap) positives.push('Fiyat VWAP üzerinde'); else warnings.push('Fiyat VWAP altında; açılışta teyit gerekli');
+  if(cmf>0) positives.push(`CMF pozitif (${tpRound(cmf,3)})`); else warnings.push(`CMF zayıf (${tpRound(cmf,3)})`);
+  if(trend>=65) positives.push(`Trend güçlü (${tpRound(trend,0)}/100)`); else warnings.push(`Trend orta/zayıf (${tpRound(trend,0)}/100)`);
+  if(money>=60) positives.push(`Kurumsal para skoru destekli (${tpRound(money,0)}/100)`); else warnings.push(`Para girişi teyidi sınırlı (${tpRound(money,0)}/100)`);
+  if(risk<=50) positives.push('Risk kontrol edilebilir'); else warnings.push(`Risk yüksek sayılabilir (${tpRound(risk,0)}/100)`);
+  if(exp?.kapAI) positives.push(`KAP AI: ${exp.kapAI.polarity||'Nötr'} / ${tpRound(exp.kapAI.score,0)}/100`);
+  if(exp?.financialAI) positives.push(`Financial AI: ${exp.financialAI.polarity||'Nötr'} / ${tpRound(exp.financialAI.score,0)}/100`);
+  const trigger=tpRound(Math.max(baseEntryHigh, close+atr*.08),2);
+  const invalid=tpRound(Math.min(stop, close-atr*.50),2);
+  const plan={symbol,style,decision,iqs:tpRound(iqs,1),confidence:tpRound(confidence,1),risk:tpRound(risk,1),close:tpRound(close,2),entryLow:tpRound(baseEntryLow,2),entryHigh:tpRound(baseEntryHigh,2),trigger,invalid,stop:tpRound(stop,2),target1:tpRound(target1,2),target2:tpRound(target2,2),rr:tpRound(rr,2),expected1w,expected1m:tpRound(expected1w*2.2,2),rvol:tpRound(rvol,2),vwap:tpRound(vwap,2),cmf:tpRound(cmf,3),positives,warnings,rules:[
+    ['Açılış teyidi', `${trigger} TL üzeri ve hacim güçlü kalırsa plan aktif olur.`],
+    ['Alma koşulu', `${invalid} TL altına sarkarsa yeni işlem açma.`],
+    ['Kâr alma', `İlk hedef ${tpRound(target1,2)} TL; ikinci hedef ${tpRound(target2,2)} TL.`],
+    ['Zarar kes', `${tpRound(stop,2)} TL altında kapanış/sert kırılımda plan iptal.`],
+    ['Gün içi kontrol', 'RVOL düşer, VWAP altı kalıcılık oluşursa pozisyon azaltılır.']
+  ]};
+  plan.summary=`${symbol} için V32 karar motoru <b>${decision}</b> üretti. IQS/Trade Planner skoru <b>${tpRound(iqs,0)}/100</b>, güven <b>%${tpRound(confidence,0)}</b>, risk <b>${tpRound(risk,0)}/100</b>. Plan türü <b>${style}</b>.`;
+  return plan;
+}
+function renderTradePlan(p){
+  lastTradePlan=p;
+  $('tpDecision').innerHTML=`<span class="badge ${tpDecisionClass(p.decision)}">${p.decision}</span>`;
+  $('tpConfidence').textContent='%'+fmt(p.confidence,0);
+  $('tpRR').textContent='1:'+fmt(p.rr,2);
+  $('tpStyle').textContent=p.style;
+  $('tpSummary').innerHTML=p.summary+'<br><span class="mini">Bu ekran yatırım tavsiyesi değildir; gerçek OHLC/hacim verisinden üretilen karar destek planıdır.</span>';
+  $('tpPlanBox').innerHTML=`<b>${p.symbol} uygulanabilir plan:</b><br>Giriş aralığı <b>${tl(p.entryLow)} - ${tl(p.entryHigh)}</b>. Tetik seviyesi <b>${tl(p.trigger)}</b>. Stop <b>${tl(p.stop)}</b>. İlk hedef <b>${tl(p.target1)}</b>, ikinci hedef <b>${tl(p.target2)}</b>.`;
+  $('tpPlanTable').innerHTML='<tr><th>Alan</th><th>Değer</th></tr>'+[
+    ['Son fiyat',tl(p.close)],['Giriş aralığı',`${tl(p.entryLow)} - ${tl(p.entryHigh)}`],['Tetik',tl(p.trigger)],['Geçersiz seviye',tl(p.invalid)],['Stop',tl(p.stop)],['Hedef 1',tl(p.target1)],['Hedef 2',tl(p.target2)],['Risk/Getiri','1:'+fmt(p.rr,2)],['1 hafta beklenti','%'+fmt(p.expected1w,2)],['1 ay senaryo','%'+fmt(p.expected1m,2)]
+  ].map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td></tr>`).join('');
+  $('tpWhyBox').innerHTML='<b>Pozitif gerekçeler</b><br>'+((p.positives||[]).length?p.positives.map(x=>'✅ '+x).join('<br>'):'Belirgin pozitif gerekçe sınırlı.')+'<br><br><b>Karşıt görüş / riskler</b><br>'+((p.warnings||[]).length?p.warnings.map(x=>'⚠️ '+x).join('<br>'):'Kritik karşıt görüş yok.');
+  $('tpWhyTable').innerHTML='<tr><th>Katman</th><th>Değer</th></tr>'+[['IQS',p.iqs],['RVOL',p.rvol+'x'],['VWAP',tl(p.vwap)],['CMF',p.cmf],['Risk',p.risk],['Güven','%'+fmt(p.confidence,0)]].map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td></tr>`).join('');
+  $('tpRulesTable').innerHTML='<tr><th>Kural</th><th>Açıklama</th></tr>'+p.rules.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td></tr>`).join('');
+  const capital=100000, riskTL=capital*.02, perShare=Math.max(.01,p.entryHigh-p.stop), qty=Math.floor(riskTL/perShare), maxCost=qty*p.entryHigh;
+  $('tpRiskBox').innerHTML=`Örnek risk yönetimi: <b>100.000 TL</b> sermayede işlem başı azami risk <b>%2</b> varsayılırsa tahmini lot <b>${qty.toLocaleString('tr-TR')}</b>, yaklaşık maliyet <b>${tl(maxCost)}</b>, stopta risk <b>${tl(qty*perShare)}</b> olur.`;
+  $('tpSizeTable').innerHTML='<tr><th>Sermaye</th><th>Risk %</th><th>Lot</th><th>Yaklaşık Maliyet</th><th>Stop Riski</th></tr>'+[[100000,2,qty,maxCost,qty*perShare],[250000,2,Math.floor(250000*.02/perShare),Math.floor(250000*.02/perShare)*p.entryHigh,Math.floor(250000*.02/perShare)*perShare],[500000,1.5,Math.floor(500000*.015/perShare),Math.floor(500000*.015/perShare)*p.entryHigh,Math.floor(500000*.015/perShare)*perShare]].map(r=>`<tr><td>${tl(r[0])}</td><td>%${r[1]}</td><td>${r[2].toLocaleString('tr-TR')}</td><td>${tl(r[3])}</td><td>${tl(r[4])}</td></tr>`).join('');
+}
+async function runTradePlanner(symbol=null,dayRow=null){
+  const s=(symbol||$('search').value||'PAPIL').toUpperCase().trim();
+  showPage('tradePlanner',document.querySelector('[data-page="tradePlanner"]'));
+  $('tpSummary').textContent=s+' için V32 trade planı oluşturuluyor...';
+  const stock=await fetchJsonSafe('/api/stock?symbol='+encodeURIComponent(s)+'&range=1y&t='+Date.now());
+  if(!stock.success) throw new Error(stock.error||'Hisse verisi alınamadı');
+  let dec=null; try{dec=await fetchJsonSafe('/api/decision?symbol='+encodeURIComponent(s)+'&t='+Date.now());}catch(e){dec=null;}
+  if(!dayRow && dayTradingCache.length) dayRow=dayTradingCache.find(x=>x.symbol===s)||null;
+  const plan=buildTradePlan(s,stock,dayRow,dec);
+  renderTradePlan(plan);
+  setStatus(s+' için V32 AI Trade Planner tamamlandı.');
+}
+function exportTradePlanCSV(){
+  if(!lastTradePlan){alert('Önce trade planı oluşturun.');return;}
+  const p=lastTradePlan;
+  downloadCSV([['Hisse','Karar','Style','IQS','Güven','Risk','Son','GirişAlt','GirişÜst','Tetik','Stop','Hedef1','Hedef2','RR','RVOL','CMF','Pozitif','Riskler'],[p.symbol,p.decision,p.style,p.iqs,p.confidence,p.risk,p.close,p.entryLow,p.entryHigh,p.trigger,p.stop,p.target1,p.target2,p.rr,p.rvol,p.cmf,(p.positives||[]).join(' | '),(p.warnings||[]).join(' | ')]],'v32_ai_trade_planner.csv');
+}
+
 
 
 /* V24 Institutional Scanner Pro - mevcut institutional-scan API'sini kullanır, yeni API eklemez */
