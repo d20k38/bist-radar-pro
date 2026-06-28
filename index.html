@@ -1505,7 +1505,6 @@ function exportXAICSV(){
 setTimeout(()=>{const r=$('xaiRunBtn'); if(r)r.addEventListener('click',runExplainableAI); const o=$('xaiOpenAnalysisBtn'); if(o)o.addEventListener('click',()=>showPage('analysis',document.querySelector('[data-page="analysis"]'))); const x=$('xaiExportBtn'); if(x)x.addEventListener('click',exportXAICSV); const tab=document.querySelector('[data-page="explainableAI"]'); if(tab)tab.addEventListener('click',()=>setTimeout(runExplainableAI,80));},1000);
 
 
-<script>
 /* V31 Trading Center + IQS - front-end orchestration, no new API */
 let tcRows=[];
 function tcNum(v,d=0){v=Number(v);return Number.isFinite(v)?v:d}
@@ -1605,7 +1604,6 @@ function tcExport(){
   downloadCSV([['Hisse','IQS','Grade','BestStyle','Day','Swing','Position','Scalping','AI','Trend','Volume','Momentum','Dip','KAP','Backtest','Risk','Liquidity','RVOL'],...tcRows.map(x=>[x.symbol,x.iqs,tcGrade(x.iqs),x.bestStyle,x.dayScore,x.swingScore,x.positionScore,x.scalpScore,x.aiScore,x.layers.trend,x.layers.volume,x.layers.momentum,x.layers.dip,x.layers.kap,x.layers.backtest,x.layers.risk,x.layers.liquidity,x.rvol])],'v31_trading_center_iqs.csv');
 }
 setTimeout(()=>{const r=$('tcRefreshBtn'); if(r)r.addEventListener('click',tcRender); const f=$('tcFullScanBtn'); if(f)f.addEventListener('click',()=>tcFullScan().catch(e=>setStatus('V31 hatası: '+e.message))); const x=$('tcExportBtn'); if(x)x.addEventListener('click',tcExport); const tab=document.querySelector('[data-page="tradingCenter"]'); if(tab)tab.addEventListener('click',()=>setTimeout(tcRender,120));},1100);
-</script>
 
 
 init();
