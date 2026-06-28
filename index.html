@@ -1063,6 +1063,73 @@ function coachRotationRows(){
 }
 function portfolioRevisionRows(){const rows=portfolio.map(p=>{const live=scanCache.find(x=>x.symbol===p.symbol)||{};const dt=dayTradingCache.find(x=>x.symbol===p.symbol)||{};const ins=institutionalCache.find(x=>x.symbol===p.symbol)||{};const coach=unifiedCandidateScore({...live,...dt,...ins})||Number(live.finalScore||45);const action=coach>=78?'Artır / Güçlü':coach>=62?'Tut':coach>=50?'Azaltmadan izle':'Azalt / çıkış değerlendir';const note=ins.institutionalScanner?`Institutional ${fmt(ins.institutionalScanner.score,0)}, Day ${fmt(dt.dayTrading?.score||0,0)}`:(live.risk||0)>65?'Risk yüksek':'V23/V24 taraması çalıştırılırsa karar güçlenir';return {...p,...live,coach,action,note}});return rows.length?'<tr><th>Hisse</th><th>Koç Skoru</th><th>Mevcut Karar</th><th>V24.1 Öneri</th><th>Not</th></tr>'+rows.map(r=>`<tr><td><b>${r.symbol}</b></td><td>${isBadge(r.coach)}</td><td>${r.decision||'Taranmadı'}</td><td><b>${r.action}</b></td><td>${r.note}</td></tr>`).join(''):'<tr><td>Portföy boş.</td></tr>'}
 function renderAllocation(daily,weekly,monthly){const health=portfolio.length?portfolio.map(p=>scanCache.find(x=>x.symbol===p.symbol)||{}).reduce((s,x)=>s+(x.finalScore||45),0)/portfolio.length:55;const avgRisk=scanCache.length?scanCache.reduce((s,x)=>s+(x.risk||50),0)/scanCache.length:50;const cash=avgRisk>60?30:health<50?25:15;const buckets=[['Günlük Trade',Math.max(10,Math.min(25,100-cash-55))],['Haftalık Portföy',35],['Aylık Portföy',100-cash-35-Math.max(10,Math.min(25,100-cash-55))],['Nakit',cash]];$('allocationBox').innerHTML=`<b>AI Dağılım Yorumu:</b><br>Piyasa ortalama riski ${fmt(avgRisk,0)}/100. Portföy sağlık skoru ${fmt(health,0)}/100. Bu nedenle nakit tamponu yaklaşık <b>%${cash}</b> önerilir. Günlük trade sepeti kısa vadeli fırsat, haftalık sepet ana taşıma, aylık sepet daha sakin denge bölümü olarak düşünülmelidir.`;$('allocationTable').innerHTML='<tr><th>Bölüm</th><th>Önerilen Ağırlık</th><th>Açıklama</th></tr>'+buckets.map(b=>`<tr><td><b>${b[0]}</b></td><td>%${b[1]}</td><td>${b[0]==='Nakit'?'Risk tamponu':b[0]==='Günlük Trade'?'Kısa vadeli fırsat':'Taşıma portföyü'}</td></tr>`).join('')}
+
+
+// R9.1 FIX: Day Trading uyumluluk listeleri
+// R9 Institutional AI Suite, eski Portfolio Coach ekranında dailyTradeList/weeklyPortfolioList/monthlyPortfolioList
+// fonksiyonlarını çağırıyor. Bu uyumluluk katmanı veriyi yeni Master Stock Object öncelikli havuzdan üretir.
+function r91UnifiedRows(){
+  const map=new Map();
+  const put=(x)=>{
+    if(!x||!x.symbol)return;
+    const sym=String(x.symbol).toUpperCase().trim();
+    const old=map.get(sym)||{};
+    const merged={...old,...x};
+    if(x.dayTrading) merged.dayTrading=x.dayTrading;
+    if(x.institutionalScanner) merged.institutionalScanner=x.institutionalScanner;
+    map.set(sym,merged);
+  };
+  (scanCache||[]).forEach(put);
+  (dayTradingCache||[]).forEach(put);
+  (institutionalCache||[]).forEach(put);
+  return [...map.values()].map(x=>{
+    const d=x.dayTrading||{};
+    const ins=x.institutionalScanner||{};
+    const plan=d.plan||{};
+    const dayScore=Number(d.score||x.dayScore||0);
+    const instScore=Number(ins.score||x.institutional||x.finalScore||0);
+    const finalScore=Number(x.finalScore||x.aiScore||Math.max(dayScore,instScore,0)||45);
+    const confidence=Number(x.confidence||d.confidence||Math.min(95,Math.round((finalScore+Number(x.money||0)+Number(x.momentum||0))/3))||50);
+    const risk=Number(x.risk||d.risk||50);
+    const close=Number(x.close||x.price||d.close||0);
+    return {
+      ...x,
+      symbol:String(x.symbol||'').toUpperCase(),
+      close,
+      finalScore,
+      confidence,
+      risk,
+      money:Number(x.money||d.scores?.money||ins.money||0),
+      momentum:Number(x.momentum||d.scores?.momentum||0),
+      trend:Number(x.trend||d.scores?.trend||0),
+      dayScore,
+      instScore,
+      decision:x.decision||d.action||(finalScore>=75?'AL':finalScore>=55?'TUT':'SAT'),
+      target1:Number(x.target1||plan.target1||0),
+      stop:Number(x.stop||plan.stop||0),
+      potential:Number(x.potential||Math.max(0,finalScore-risk)||0)
+    };
+  });
+}
+function dailyTradeList(rows){
+  const src=rows||r91UnifiedRows();
+  return src.filter(x=>(x.dayScore||x.dayTrading?.score||x.finalScore||0)>=60)
+    .sort((a,b)=>((b.dayScore||b.dayTrading?.score||b.finalScore||0)+(b.money||0))-((a.dayScore||a.dayTrading?.score||a.finalScore||0)+(a.money||0)))
+    .slice(0,12);
+}
+function weeklyPortfolioList(rows){
+  const src=rows||r91UnifiedRows();
+  return src.filter(x=>(x.finalScore||0)>=55 && (x.risk||100)<=70)
+    .sort((a,b)=>((b.finalScore||0)+(b.trend||0)+(b.momentum||0))-((a.finalScore||0)+(a.trend||0)+(a.momentum||0)))
+    .slice(0,12);
+}
+function monthlyPortfolioList(rows){
+  const src=rows||r91UnifiedRows();
+  return src.filter(x=>(x.instScore||x.finalScore||0)>=50 && (x.risk||100)<=75)
+    .sort((a,b)=>((b.instScore||b.finalScore||0)+(b.confidence||0)-(b.risk||0))-((a.instScore||a.finalScore||0)+(a.confidence||0)-(a.risk||0)))
+    .slice(0,12);
+}
+
 function renderPortfolioAdvice(){const daily=dailyTradeList(), weekly=weeklyPortfolioList(), monthly=monthlyPortfolioList();if($('paDailyCount')){$('paDailyCount').textContent=Math.max(daily.length,dayTradingCache.filter(x=>(x.dayTrading?.score||0)>=72).length);$('paWeeklyCount').textContent=weekly.length;$('paMonthlyCount').textContent=monthly.length;}const avgRisk=scanCache.length?scanCache.reduce((s,x)=>s+(x.risk||50),0)/scanCache.length:50;const cash=avgRisk>60?30:avgRisk>50?20:15;if($('paCash'))$('paCash').textContent='%'+cash;if($('dailyTradeTable'))$('dailyTradeTable').innerHTML=recTable(daily,'daily');if($('weeklyPortfolioTable'))$('weeklyPortfolioTable').innerHTML=recTable(weekly,'weekly');if($('monthlyPortfolioTable'))$('monthlyPortfolioTable').innerHTML=recTable(monthly,'monthly');if($('portfolioRevisionTable'))$('portfolioRevisionTable').innerHTML=portfolioRevisionRows();if($('coachOpportunityTable'))$('coachOpportunityTable').innerHTML=coachOpportunityRows();if($('coachRotationTable'))$('coachRotationTable').innerHTML=coachRotationRows();renderAllocation(daily,weekly,monthly);const opp=mergedOpportunityRows();const d=(dayTradingCache.length?dayTradingCache.slice(0,3).map(x=>x.symbol):daily.slice(0,3).map(x=>x.symbol)).join(', ')||'-',w=weekly.slice(0,3).map(x=>x.symbol).join(', ')||'-',m=monthly.slice(0,3).map(x=>x.symbol).join(', ')||'-';const o=opp.slice(0,5).map(x=>`${x.symbol} (${fmt(x.coachScore,0)})`).join(', ')||'Henüz yok';if($('portfolioCoach'))$('portfolioCoach').innerHTML=`<b>V24.1 AI Portfolio Coach 2.0:</b><br>Günlük trade için öne çıkanlar: <b>${d}</b>.<br>Haftalık taşıma için öne çıkanlar: <b>${w}</b>.<br>Aylık daha dengeli sepet için öne çıkanlar: <b>${m}</b>.<br><br><b>Portföy dışı yeni fırsatlar:</b> ${o}.<br><br><b>Mantık:</b> Koç artık yalnızca mevcut portföyü değil, V23 Day Trading AI ve V24 Institutional Scanner ilk sıralarını da okur. BALSU gibi portföyde olmayan güçlü adaylar bu nedenle Yeni Fırsatlar bölümünde görünür.<br><br><b>Uyarı:</b> Bu ekran yatırım tavsiyesi değil, gerçek OHLC/hacim verilerine dayalı karar destek/simülasyon ekranıdır. Her hisse için stop ve pozisyon büyüklüğü ayrıca kontrol edilmelidir.`}
 function exportCoachCSV(){
   const rows=[['Bolum','Hisse','AI','Day','Institutional','RVOL','Oneri']];
