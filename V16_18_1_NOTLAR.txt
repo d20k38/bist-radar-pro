@@ -1,0 +1,3 @@
+V16.18.1 Dip Avcısı PRO Tek Sekme
+Eski Dip Avcısı AI kaldırıldı. Sadece Dip Avcısı PRO sekmesi vardır.
+Yeni API eklenmedi. api/*.js sayısı: 10
