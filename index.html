@@ -4,7 +4,60 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>BIST Radar Pro V32 AI Trade Planner</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js">
+
+// R9.2 compatibility: eski KAP/Haber alanı renderKapNews() çağrısını yeni /api/kap yanıtına bağlar.
+async function renderKapNews(symbol=''){
+  const target=(symbol||'').toString().toUpperCase().trim();
+  const box=document.getElementById('kapNewsBox');
+  const summary=document.getElementById('kapSummaryBox');
+  const aiBox=document.getElementById('kapAiBox');
+  const table=document.getElementById('kapTable');
+  const countEl=document.getElementById('kapCount');
+  const impactEl=document.getElementById('kapImpact');
+  const sentEl=document.getElementById('kapSentiment');
+  const loading=`KAP/Haber AI yükleniyor${target?' • '+target:''}...`;
+  if(box) box.textContent=loading;
+  if(summary) summary.textContent=loading;
+  if(aiBox) aiBox.textContent='KAP etkisi ve güven skoru hazırlanıyor...';
+  try{
+    const url='/api/kap?limit=20&ai=1'+(target?'&symbol='+encodeURIComponent(target):'')+'&t='+Date.now();
+    const j=await fetchJsonSafe(url,{timeout:7000,retries:1});
+    const inst=j.institutional||j;
+    const items=Array.isArray(inst.items)?inst.items:(Array.isArray(j.items)?j.items:[]);
+    const kapAI=j.kapAI||j.latestKapAI||inst.mostImportant||items[0]||null;
+    const avgImpact=items.length?items.reduce((a,x)=>a+Number(x.impactScore||x.score||50),0)/items.length:Number(kapAI?.impactScore||50);
+    const pos=items.filter(x=>String(x.polarity||x.sentiment||x.decisionEffect||'').toLowerCase().includes('olum')).length;
+    const neg=items.filter(x=>String(x.polarity||x.sentiment||x.decisionEffect||'').toLowerCase().includes('olumsuz')).length;
+    if(countEl) countEl.textContent=items.length;
+    if(impactEl) impactEl.textContent=fmt(avgImpact,0);
+    if(sentEl) sentEl.textContent=pos>neg?'Olumlu':neg>pos?'Olumsuz':'Nötr';
+    const src=`<b>Kaynak:</b> ${j.source||'KAP/yerel arşiv'} • <b>Canlı:</b> ${j.live?'Evet':'Hayır'} • <b>Demo:</b> ${j.demoData?'Var':'Yok'}<br><b>Özet:</b> ${inst.summary||kapAI?.summary||'KAP kaydı sınıflandırıldı.'}<br><span class="mini">${j.note||'Canlı yanıt alınamazsa yalnızca gerçek yerel arşiv/boş yanıt gösterilir; random/demo haber üretilmez.'}</span>`;
+    if(box) box.innerHTML=src;
+    if(summary) summary.innerHTML=src;
+    if(aiBox){
+      aiBox.innerHTML=kapAI?`<b>${kapAI.symbol||target||'-'} • ${kapAI.eventType||kapAI.title||'Bildirim'}</b><br>${kapAI.summary||kapAI.title||'-'}<br><br><b>AI Etki:</b> ${fmt(kapAI.impactScore||avgImpact,0)}/100 • <b>Güven:</b> ${fmt(kapAI.reliabilityScore||kapAI.confidence||0,0)}/100<br><b>Yorum:</b> ${kapAI.comment||kapAI.decisionEffect||'Haber etkisi nötr/izleme seviyesinde değerlendirildi.'}`:'KAP AI için okunabilir bildirim bulunamadı.';
+    }
+    if(table){
+      table.innerHTML='<tr><th>Tarih</th><th>Hisse</th><th>Olay</th><th>Başlık / Özet</th><th>Etki</th><th>Güven</th></tr>'+(items.length?items.map(x=>`<tr><td>${x.date||x.publishDate||'-'}</td><td><b>${x.symbol||'-'}</b></td><td>${x.eventType||x.category||'-'}</td><td>${x.title||'-'}<br><span class="mini">${x.summary||''}</span></td><td>${fmt(x.impactScore||x.score||50,0)}</td><td>${fmt(x.reliabilityScore||x.confidence||0,0)}</td></tr>`).join(''):'<tr><td colspan="6">KAP kaydı bulunamadı. Canlı bağlantı yoksa random/demo veri gösterilmez.</td></tr>');
+    }
+    if(typeof setStatus==='function') setStatus('KAP/Haber AI alanı güncellendi.');
+    return {success:true,items,kapAI};
+  }catch(e){
+    const msg='KAP/Haber alanı hatası: '+(e.message||e);
+    if(box) box.textContent=msg;
+    if(summary) summary.textContent=msg;
+    if(aiBox) aiBox.textContent='KAP AI nötr bırakıldı. '+msg;
+    if(table) table.innerHTML='<tr><td>'+msg+'</td></tr>';
+    if(countEl) countEl.textContent='0';
+    if(impactEl) impactEl.textContent='50';
+    if(sentEl) sentEl.textContent='Nötr';
+    if(typeof setStatus==='function') setStatus(msg);
+    return {success:false,error:msg,items:[]};
+  }
+}
+
+</script>
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
 :root{--bg:#eef5ff;--card:#fff;--ink:#07162d;--muted:#64748b;--blue:#145bf5;--green:#16a34a;--red:#dc2626;--yellow:#f59e0b;--cyan:#06b6d4;--line:#dbe5f3;--dark:#0b1220}
