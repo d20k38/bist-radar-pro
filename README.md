@@ -1,23 +1,30 @@
-# BIST Radar Pro R8 - Dinamik Portföy Radarım
+# BIST Radar Pro R10 — Codebase Refactor
 
-Taban: R7 Indicator Engine.
+Bu sürüm yeni yatırım/indikatör özelliği eklemez. Amaç, R9 sonrası görülen `runConfidence is not defined` gibi kırık global fonksiyon hatalarının uygulamanın tamamını durdurmasını engellemek ve projeyi modüler yapıya geçişe hazırlamaktır.
 
 ## Yapılanlar
-- Portföy Radarım bölümü dinamik hale getirildi.
-- Portföy değiştiğinde hisse/lot/maliyet otomatik kaydedilir ve anlık portföy analizi yeniden çalıştırılır.
-- Her portföy hissesi için `/api/decision?symbol=` üzerinden gerçek veriyle karar motoru analizi yapılır.
-- Portföy toplam maliyet, güncel değer, kar/zarar, AI sağlık skoru ve aksiyonlar gösterilir.
-- Portföy dışı fırsatlar ve rotasyon adayları eklendi.
-- JSON portföy yükleme/indirme ve CSV dışa aktarım eklendi.
-- Yeni API eklenmedi.
-- Demo/random veri eklenmedi.
 
-## R9 Institutional AI Suite
-Bu sürümde V20 Simülasyon, Smart Portfolio, Fırsat Avcısı ve Formasyonlar aynı karar/veri mimarisi altında birleştirildi. R9 yeni API eklemez; mevcut tarama, day trading, institutional, portföy ve karar motoru sonuçlarını tek suite ekranında özetler.
+- `js/r10-runtime.js` eklendi.
+- Merkezi `BistRadar` çalışma zamanı ve modül kayıt alanı oluşturuldu.
+- Global hata yakalama eklendi: tek JS hatası artık tüm uygulamayı sessizce durdurmaz, ekranda anlaşılır durum mesajı üretir.
+- Eksik `runConfidence()` fonksiyonu güvenli compatibility layer ile geri eklendi.
+- `runConfidence()` gerçek `/api/confidence` endpointini kullanır; random/demo veri üretmez.
+- Mevcut R9.4 performans iyileştirmeleri korundu.
 
+## Modülerleşme yönü
 
-R9.4 PERFORMANCE FIX
-- Açılışta otomatik tam tarama kapatıldı.
-- Universal Scanner parti boyutu artırıldı.
-- Day Trading ve Institutional listeleri, tam tarama sonrası tekrar API çağırmadan Master Stock Object verisinden türetilir.
-- UI render sıklığı düşürüldü, bekleme süreleri azaltıldı.
+Bir sonraki adımda büyük inline JS parçaları şu dosyalara taşınabilir:
+
+```text
+js/core.js
+js/scanner.js
+js/indicator-engine.js
+js/decision-engine.js
+js/dashboard.js
+js/portfolio.js
+js/kap.js
+js/simulation.js
+js/formations.js
+```
+
+R10 bu geçişin ilk güvenli adımıdır: eski ekranları bozmadan merkezi runtime ve uyumluluk katmanı oluşturur.
