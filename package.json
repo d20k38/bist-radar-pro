@@ -1,6 +1,6 @@
 {
-  "name": "bist-radar-pro-v31-trading-center-iqs",
-  "version": "31.0.0-trading-center-iqs",
+  "name": "bist-radar-pro-v31-2-general-check",
+  "version": "31.2.0-general-check-day-trading-polish",
   "type": "module",
   "scripts": {
     "dev": "vercel dev",

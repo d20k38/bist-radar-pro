@@ -22,9 +22,14 @@
   </div>
   <div class="tabs">
     <button class="tab active" data-page="dashboard">📊 Ana Kontrol</button>
-    <button class="tab" data-page="institutionalDashboard">🏛️ V27 Institutional Dashboard</button>
-    <button class="tab" data-page="aiAdvisor">🤖 V28 AI Advisor</button>
-    <button class="tab" data-page="explainableAI">🔎 V29.2 XAI + KAP + Financial</button>
+    <button class="tab" data-page="dayTradingAI">⚡ Day Trading AI</button>
+    <button class="tab" data-page="tradingCenter">🎯 V31 Trading Center</button>
+    <button class="tab" data-page="institutionalScanner">🏦 Institutional Scanner</button>
+    <button class="tab" data-page="explainableAI">🔎 XAI + KAP + Financial</button>
+    <button class="tab" data-page="smartPortfolio">🧠 Smart Portfolio</button>
+    <button class="tab" data-page="radarLab">🧪 Radar Lab</button>
+    <button class="tab" data-page="institutionalDashboard">🏛️ Dashboard</button>
+    <button class="tab" data-page="aiAdvisor">🤖 AI Advisor</button>
     <button class="tab" data-page="analysis">📈 Hisse Analizi</button>
     <button class="tab" data-page="leaders">🔥 En Güçlü 20</button>
     <button class="tab" data-page="safe">💎 Güvenli Kazanç</button>
@@ -32,24 +37,21 @@
     <button class="tab" data-page="risky">⚠️ Riskli Hisseler</button>
     <button class="tab" data-page="patterns">🔎 Formasyonlar</button>
     <button class="tab" data-page="backtestPage">📊 Backtest</button>
-    <button class="tab" data-page="learningPage">🧠 V30 AI Learning Engine</button>
-    <button class="tab" data-page="tradingCenter">🎯 V31 Trading Center</button>
+    <button class="tab" data-page="learningPage">🧠 V30 Learning</button>
     <button class="tab" data-page="portfolio">💼 Portföy</button>
     <button class="tab" data-page="portfolioAdvice">🧺 Portföy Önerisi</button>
-    <button class="tab" data-page="v20Portfolio">🧪 V20 Portföy Simülasyonu</button>
-    <button class="tab" data-page="smartPortfolio">🧠 V25 Smart Portfolio Manager</button>
-    <button class="tab" data-page="radarLab">🧪 Radar Lab</button>
+    <button class="tab" data-page="v20Portfolio">🧪 V20 Simülasyon</button>
     <button class="tab" data-page="dailyReport">📰 Günlük AI Raporu</button>
     <button class="tab" data-page="kapPage">📢 KAP/Haber AI</button>
-    <button class="tab" data-page="v22News">🏢 V22 Kurumsal Haber Motoru</button>
-    <button class="tab" data-page="dayTradingAI">⚡ V23 Day Trading AI</button>
-    <button class="tab" data-page="institutionalScanner">🏦 V24 Institutional Scanner Pro</button>
+    <button class="tab" data-page="v22News">🏢 Haber Motoru</button>
     <button class="tab" data-page="confidencePage">🧩 Güven Katmanları</button>
-    <button class="tab" data-page="committeePage">🏛️ AI Yatırım Komitesi</button>
+    <button class="tab" data-page="committeePage">🏛️ AI Komite</button>
     <button class="tab" data-page="v19Institutional">🏦 V19 Institutional</button>
     <button class="tab" data-page="dipProfessional">🎯 Dip Avcısı PRO</button>
   </div>
   <div id="status" class="status">Hazır.</div>
+  <div class="barw" style="margin:8px 0 14px"><div id="scanProgressBar" class="bar" style="width:0%;background:var(--blue)"></div></div>
+  <div id="scanProgressText" class="muted" style="margin:-8px 0 14px">Tarama bekleniyor.</div>
 
   <section id="dashboard">
     <div class="grid g4">
@@ -383,7 +385,7 @@
     </div><br>
     <div class="card"><div class="head dark">⚡ V23 Day Trading AI</div><div class="body">
       <div class="quickFilters"><button class="btn" id="dtScanBtn">Yarın İçin Day Trading Taraması</button><button class="btn gray" id="dtExportBtn">CSV Dışa Aktar</button></div>
-      <div id="dtStatus" class="comment">Borsa kapanışı sonrası çalıştırın. Sistem RVOL, VWAP, OBV, CMF, MFI, ATR ve göreceli güç bileşenleriyle yarın izlenecek adayları sıralar. Random/pseudo veri kullanılmaz.</div>
+      <div id="dtStatus" class="comment"><b>Öne çıkarılan modül:</b> Borsa kapanışı sonrası çalıştırın. Sistem RVOL20/RVOL5, VWAP, OBV, CMF, MFI, ATR ve göreceli güç bileşenleriyle yarın izlenecek adayları sıralar. Random/pseudo veri kullanılmaz; veri alınamayan hisseler listeye zorla eklenmez.</div>
     </div></div><br>
     <div class="grid g2">
       <div class="card"><div class="head green">🏆 Yarının En Güçlü 20 Day Trading Adayı</div><div class="body"><table id="dtTable" class="table"></table></div></div>
