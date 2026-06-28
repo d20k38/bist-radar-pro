@@ -1,4 +1,4 @@
-const { SYMBOLS, master } = require('../lib/unified-provider');
+const { SYMBOLS, master, diagnose, diagnoseMany } = require('../lib/unified-provider');
 
 function send(res, obj, cache='s-maxage=30, stale-while-revalidate=120'){
   try{ res.setHeader('Cache-Control', cache); }catch(_){ }
@@ -84,6 +84,34 @@ async function handleLearning(req,res){
   const ind=m.indicators||{};
   send(res,{success:true,symbol:s,learningScore:m.score||0,confidence:m.confidence,pattern:{rvol:ind.rvol20,cmf:ind.cmf,vwap:ind.vwap,mfi:ind.mfi},note:'R12.1 core öğrenme özeti gerçek OHLCV göstergelerinden türetildi.'});
 }
+
+async function handleDiagnostic(req,res){
+  const explicit = symbolsFrom(req);
+  const symbol = String(req.query.symbol||'').toUpperCase().trim();
+  const limit = Math.max(1, Math.min(50, Number(req.query.limit || 10)));
+  const offset = Math.max(0, Number(req.query.offset || 0));
+  const period = req.query.range || req.query.period || '1y';
+  try{
+    if(explicit.length>1){
+      const out = await diagnoseMany(explicit, {period, limit});
+      return send(res, out, 'no-store');
+    }
+    if(symbol || explicit.length===1){
+      const out = await diagnose(symbol || explicit[0], {period});
+      return send(res, out, 'no-store');
+    }
+    const list = SYMBOLS.slice(offset, offset+limit);
+    const out = await diagnoseMany(list, {period, limit});
+    out.totalUniverse = SYMBOLS.length;
+    out.offset = offset;
+    out.limit = limit;
+    out.done = offset + limit >= SYMBOLS.length;
+    return send(res, out, 'no-store');
+  }catch(e){
+    return send(res,{success:false,error:e.message||String(e), source:'R14 diagnostic'}, 'no-store');
+  }
+}
+
 async function handleCommittee(req,res){
   const s=String(req.query.symbol||'').toUpperCase().trim();
   if(!s) return bad(res,'symbol gerekli');
@@ -97,7 +125,7 @@ module.exports = async function handler(req,res){
       symbols:handleSymbols, stock:handleStock, quote:handleStock, decision:handleDecision,
       dip:handleDip, scan:handleScan, 'institutional-scan':handleScan, institutional:handleScan,
       'portfolio-advice':handlePortfolio, portfolio:handlePortfolio,
-      kap:handleKap, news:handleKap, learning:handleLearning, backtest:handleBacktest, committee:handleCommittee
+      kap:handleKap, news:handleKap, diagnostic:handleDiagnostic, diagnose:handleDiagnostic, health:handleDiagnostic, learning:handleLearning, backtest:handleBacktest, committee:handleCommittee
     };
     const fn = map[action];
     if(!fn) return bad(res,'Bilinmeyen core action: '+(action||'-'));

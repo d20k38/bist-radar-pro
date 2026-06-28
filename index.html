@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro R12.1 API Consolidation</title>
+<title>BIST Radar Pro R14 Diagnostic Mode</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/r10-runtime.js"></script>
 <script>
@@ -92,7 +92,7 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro R12 Institutional</div><div class="pill">%100 Gerçek OHLCV • R12 Unified Data Provider • Hacim Sağlığı</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro R14 Diagnostic Mode</div><div class="pill">%100 Gerçek OHLCV • R14 Diagnostic Mode • Veri Sağlığı</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -101,6 +101,7 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
   </div>
   <div class="tabs">
     <button class="tab active" data-page="dashboard">🧠 R3 Dashboard + Karar Merkezi</button>
+    <button class="tab" data-page="diagnosticPage">🧪 R14 Diagnostic Mode</button>
     <button class="tab" data-page="r9Suite">🏛️ R9 Institutional AI Suite</button>
     <button class="tab" data-page="snapshotCompare">🧪 R6 Kalite Karşılaştırma</button>
     <button class="tab" data-page="dayTradingAI">⚡ Day Trading AI</button>
@@ -753,6 +754,31 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
   </section>
 
 
+
+  <section id="diagnosticPage" class="hidden">
+    <div class="card"><div class="head dark">🧪 R14 Diagnostic Mode / Veri Sağlığı</div><div class="body">
+      <div class="quickFilters">
+        <button class="btn green" id="diagSelectedBtn">Seçili Hisseyi Test Et</button>
+        <button class="btn" id="diagBatchBtn">İlk 20 Hisseyi Test Et</button>
+        <button class="btn gray" id="diagCsvBtn">Diagnostic CSV</button>
+      </div>
+      <div id="diagSummary" class="comment">R14, sembol → OHLCV → hacim → indicator → karar motoru zincirinde hangi adımın bozulduğunu gösterir.</div>
+    </div></div>
+    <br>
+    <div class="grid g5">
+      <div class="card metric"><div class="body"><div class="muted">Test Edilen</div><div id="diagTotal" class="v">-</div><div class="muted">hisse</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">OHLC Sağlıklı</div><div id="diagOhlc" class="v ok">-</div><div class="muted">50+ gün</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Hacim Sağlıklı</div><div id="diagVolume" class="v ok">-</div><div class="muted">20+ pozitif hacim</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">RVOL/VWAP</div><div id="diagRvolVwap" class="v warn">-</div><div class="muted">hesaplanabilir</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Başarısız</div><div id="diagFailed" class="v bad">-</div><div class="muted">hata/eksik</div></div></div>
+    </div>
+    <br>
+    <div class="grid g2">
+      <div class="card"><div class="head green">✅ Aşama Tablosu</div><div class="body"><table id="diagTable" class="table"></table></div></div>
+      <div class="card"><div class="head red">⚠️ Hata / Eksik Veri Detayı</div><div class="body"><table id="diagErrorTable" class="table"></table></div></div>
+    </div>
+  </section>
+
 </div>
 <script>
 let chart, candleChart, candleSeries, lineSeries=[], lastRows=[], syms=[], scanCache=[], lastStock=null;
@@ -760,7 +786,7 @@ const defaultPortfolio=[{symbol:'MRSHL',lot:286,cost:2470},{symbol:'PAPIL',lot:7
 let portfolio=loadPortfolioLocal();
 const $=id=>document.getElementById(id);const fmt=(x,d=2)=>x!==null&&x!==undefined&&x!==''&&Number.isFinite(Number(x))?Number(x).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';const tl=x=>fmt(x)+' TL';const rvolText=x=>(x!==null&&x!==undefined&&x!==''&&Number.isFinite(Number(x))&&Number(x)>0)?fmt(x,2)+'x':'veri yetersiz';
 function setStatus(t){$('status').textContent=t}
-const APP_PAGES=['dashboard','r9Suite','snapshotCompare','tradePlanner','institutionalDashboard','aiAdvisor','explainableAI','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','tradingCenter','portfolio','portfolioAdvice','v20Portfolio','smartPortfolio','radarLab','dayTradingAI','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional','institutionalScanner'];
+const APP_PAGES=['dashboard','diagnosticPage','r9Suite','snapshotCompare','tradePlanner','institutionalDashboard','aiAdvisor','explainableAI','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','tradingCenter','portfolio','portfolioAdvice','v20Portfolio','smartPortfolio','radarLab','dayTradingAI','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional','institutionalScanner'];
 function showPage(id,btn){
   APP_PAGES.forEach(x=>{const el=$(x); if(el){el.classList.add('hidden'); el.style.display='none';}});
   const page=$(id); if(page){page.classList.remove('hidden'); page.style.display='block'; document.body.setAttribute('data-page',id);}
@@ -2651,6 +2677,80 @@ setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]')
   W.addEventListener('error',function(ev){
     if(typeof W.setStatus==='function') W.setStatus('Uygulama hatası yakalandı: '+(ev.message||'bilinmeyen hata'));
   });
+})();
+</script>
+
+
+<script>
+// R14 Diagnostic Mode UI
+(function(){
+  let diagRows=[];
+  function diagOk(v){return v?'<span class="badge bgreen">✓</span>':'<span class="badge bred">✕</span>'}
+  function stageVal(row, name){return (row.stages||[]).find(s=>s.stage===name)||{};}
+  function diagRender(payload){
+    const rows = Array.isArray(payload?.results) ? payload.results : (payload ? [payload] : []);
+    diagRows = rows;
+    const sum = payload?.summary || {
+      total:rows.length,
+      success:rows.filter(x=>x.success).length,
+      failed:rows.filter(x=>!x.success).length,
+      ohlcOk:rows.filter(x=>stageVal(x,'ohlc_depth').ok).length,
+      volumeOk:rows.filter(x=>stageVal(x,'volume_depth').ok).length,
+      rvolOk:rows.filter(x=>stageVal(x,'rvol').ok).length,
+      vwapOk:rows.filter(x=>stageVal(x,'vwap').ok).length
+    };
+    if($('diagTotal')) $('diagTotal').textContent=sum.total||0;
+    if($('diagOhlc')) $('diagOhlc').textContent=sum.ohlcOk||0;
+    if($('diagVolume')) $('diagVolume').textContent=sum.volumeOk||0;
+    if($('diagRvolVwap')) $('diagRvolVwap').textContent=`${sum.rvolOk||0}/${sum.vwapOk||0}`;
+    if($('diagFailed')) $('diagFailed').textContent=sum.failed||0;
+    if($('diagSummary')) $('diagSummary').innerHTML=`<b>R14 Diagnostic:</b> ${sum.total||rows.length} hisse test edildi. Başarılı: <b>${sum.success||0}</b>, başarısız/eksik: <b>${sum.failed||0}</b>. OHLC sağlıklı: <b>${sum.ohlcOk||0}</b>, hacim sağlıklı: <b>${sum.volumeOk||0}</b>, RVOL hesaplanabilir: <b>${sum.rvolOk||0}</b>, VWAP hesaplanabilir: <b>${sum.vwapOk||0}</b>.`;
+    const table=$('diagTable');
+    if(table){
+      table.innerHTML='<tr><th>Hisse</th><th>Health</th><th>OHLC</th><th>Hacim</th><th>RVOL</th><th>VWAP</th><th>CMF</th><th>MFI</th><th>Karar</th></tr>' + (rows.length? rows.map(r=>{
+        const o=stageVal(r,'ohlc_depth'), v=stageVal(r,'volume_depth'), rv=stageVal(r,'rvol'), vw=stageVal(r,'vwap'), cmf=stageVal(r,'cmf'), mfi=stageVal(r,'mfi'), dec=stageVal(r,'decision_engine');
+        return `<tr><td><b>${r.symbol||'-'}</b></td><td>${fmt(r.healthScore||0,0)}%</td><td>${diagOk(o.ok)} ${o.rows||r.rows||0}</td><td>${diagOk(v.ok)} ${v.positiveVolumes||r.positiveVolumes||0}</td><td>${diagOk(rv.ok)} ${rv.value?fmt(rv.value,2)+'x':'-'}</td><td>${diagOk(vw.ok)} ${vw.value?fmt(vw.value,2):'-'}</td><td>${diagOk(cmf.ok)} ${cmf.value!=null?fmt(cmf.value,3):'-'}</td><td>${diagOk(mfi.ok)} ${mfi.value!=null?fmt(mfi.value,1):'-'}</td><td>${diagOk(dec.ok)} ${dec.decision||'-'} ${dec.score?fmt(dec.score,0):''}</td></tr>`;
+      }).join(''):'<tr><td>Henüz diagnostic çalışmadı.</td></tr>');
+    }
+    const err=$('diagErrorTable');
+    if(err){
+      const errs=[]; rows.forEach(r=>(r.errors||[]).forEach(e=>errs.push({symbol:r.symbol,...e})));
+      err.innerHTML='<tr><th>Hisse</th><th>Aşama</th><th>Durum / Mesaj</th></tr>' + (errs.length? errs.map(e=>`<tr><td><b>${e.symbol||'-'}</b></td><td>${e.stage||'-'}</td><td>${e.message||e.error||JSON.stringify(e)}</td></tr>`).join(''):'<tr><td colspan="3">Kritik hata yok. Eksik veriler aşama tablosunda işaretlenir.</td></tr>');
+    }
+  }
+  window.runR14Diagnostic = async function(mode='symbol'){
+    showPage('diagnosticPage', document.querySelector('[data-page="diagnosticPage"]'));
+    setStatus('R14 Diagnostic çalışıyor...');
+    try{
+      const sym=($('search')?.value||$('symbol')?.value||'PAPIL').toUpperCase().trim();
+      const url = mode==='batch' ? `/api/core?action=diagnostic&limit=20&t=${Date.now()}` : `/api/core?action=diagnostic&symbol=${encodeURIComponent(sym)}&t=${Date.now()}`;
+      const j=await fetchJsonSafe(url,{timeout:20000,retries:1});
+      diagRender(j);
+      setStatus('R14 Diagnostic tamamlandı.');
+      return j;
+    }catch(e){
+      setStatus('R14 Diagnostic hatası: '+e.message);
+      if($('diagSummary')) $('diagSummary').textContent='R14 Diagnostic hatası: '+e.message;
+      throw e;
+    }
+  };
+  window.exportR14DiagnosticCSV=function(){
+    const rows=diagRows||[];
+    if(!rows.length){alert('Önce Diagnostic çalıştırın.'); return;}
+    const header=['symbol','success','healthScore','rows','positiveVolumes','price','failedStages'];
+    const csv=[header.join(';')].concat(rows.map(r=>header.map(k=>{
+      const val=k==='failedStages' ? (r.errors||[]).map(e=>e.stage+':'+(e.message||'')).join('|') : r[k];
+      return '"'+String(val??'').replace(/"/g,'""')+'"';
+    }).join(';'))).join('\n');
+    const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='r14_diagnostic.csv'; a.click(); URL.revokeObjectURL(a.href);
+  };
+  setTimeout(()=>{
+    const a=$('diagSelectedBtn'); if(a)a.addEventListener('click',()=>runR14Diagnostic('symbol'));
+    const b=$('diagBatchBtn'); if(b)b.addEventListener('click',()=>runR14Diagnostic('batch'));
+    const c=$('diagCsvBtn'); if(c)c.addEventListener('click',exportR14DiagnosticCSV);
+    const tab=document.querySelector('[data-page="diagnosticPage"]'); if(tab)tab.addEventListener('click',()=>setTimeout(()=>{ if($('diagTable') && !$('diagTable').innerHTML) runR14Diagnostic('symbol').catch(()=>{}); },80));
+  },900);
 })();
 </script>
 
