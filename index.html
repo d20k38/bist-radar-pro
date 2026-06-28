@@ -21,7 +21,7 @@
     <button class="btn gray" id="backtestBtn">Backtest</button>
   </div>
   <div class="tabs">
-    <button class="tab active" data-page="dashboard">📊 Ana Kontrol</button>
+    <button class="tab active" data-page="dashboard">🧠 R3 Dashboard + Karar Merkezi</button>
     <button class="tab" data-page="dayTradingAI">⚡ Day Trading AI</button>
     <button class="tab" data-page="tradePlanner">🎯 V32 Trade Planner</button>
     <button class="tab" data-page="tradingCenter">🎯 V31 Trading Center</button>
@@ -55,11 +55,32 @@
   <div id="scanProgressText" class="muted" style="margin:-8px 0 14px">Tarama bekleniyor.</div>
 
   <section id="dashboard">
-    <div class="grid g4">
+    <div class="card"><div class="head dark">🧠 R3 Dashboard + AI Decision Center</div><div class="body">
+      <div class="quickFilters">
+        <button class="btn" id="r3RefreshBtn">R3 Karar Merkezini Güncelle</button>
+        <button class="btn green" id="r3FullScanBtn">Küçük Parçalarla Tara</button>
+        <button class="btn gray" id="r3ExportBtn">R3 CSV</button>
+      </div>
+      <div id="r3Narrative" class="comment">R3, R1 Veri Katmanı ve R2 Karar Motoru sonuçlarını tek ekranda gösterir. Yeni veri üretmez; Master Stock Object + AI Final Decision okur.</div>
+    </div></div>
+    <br>
+    <div class="grid g5">
       <div class="card metric"><div class="body"><div class="muted">Taranan</div><div id="mCount" class="v">-</div><div class="muted">BIST sembolü</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Ortalama Skor</div><div id="mAvg" class="v ok">-</div><div class="muted">piyasa gücü</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Güvenli Aday</div><div id="mSafe" class="v ok">-</div><div class="muted">risk kontrollü</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Fırsat Adayı</div><div id="mOpp" class="v warn">-</div><div class="muted">yüksek potansiyel</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Master Object</div><div id="r3MasterCount" class="v ok">-</div><div class="muted">tekil karar kaydı</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">AL / Güçlü AL</div><div id="r3BuyCount" class="v ok">-</div><div class="muted">öncelikli aday</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">İZLE / TUT</div><div id="r3HoldCount" class="v warn">-</div><div class="muted">takip listesi</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">SAT / Kaçın</div><div id="r3SellCount" class="v bad">-</div><div class="muted">riskli kayıt</div></div></div>
+    </div>
+    <br>
+    <div class="grid g3">
+      <div class="card"><div class="head green">🏆 AI En İyi 10</div><div class="body"><table id="r3Top10Table" class="table"></table></div></div>
+      <div class="card"><div class="head cyan">⚡ Day Trading Liderleri</div><div class="body"><table id="r3DayTable" class="table"></table></div></div>
+      <div class="card"><div class="head yellow">⭐ IQS / Kalite Liderleri</div><div class="body"><table id="r3IqsTable" class="table"></table></div></div>
+    </div>
+    <br>
+    <div class="grid g2">
+      <div class="card"><div class="head dark">🎯 AI Decision Center / Karar Listesi</div><div class="body"><table id="r3DecisionTable" class="table"></table></div></div>
+      <div class="card"><div class="head red">⚠️ Risk ve Veri Uyarıları</div><div class="body"><div id="r3RiskBox" class="comment">Tarama sonrası risk ve veri uyarıları burada görünür.</div><br><table id="r3RiskTable" class="table"></table></div></div>
     </div>
     <br>
     <div class="grid g3">
@@ -748,8 +769,94 @@ async function scanAll(silent=false){
     document.body.classList.remove('loading');
   }
 }
-function renderDashboard(){const n=scanCache.length,avg=n?scanCache.reduce((s,x)=>s+(x.finalScore||0),0)/n:0;const safe=safeList(),opp=oppList();$('mCount').textContent=n;$('mAvg').textContent=fmt(avg,0);$('mSafe').textContent=safe.length;$('mOpp').textContent=opp.length;renderMini('dashLeaders',leaderList().slice(0,6));renderMini('dashSafe',safe.slice(0,6));renderMini('dashOpp',opp.slice(0,6));renderMini('dashRisk',riskList().slice(0,6));}
+function renderDashboard(){const n=scanCache.length,avg=n?scanCache.reduce((s,x)=>s+(x.finalScore||0),0)/n:0;const safe=safeList(),opp=oppList();$('mCount').textContent=n;if($('mAvg'))$('mAvg').textContent=fmt(avg,0);if($('mSafe'))$('mSafe').textContent=safe.length;if($('mOpp'))$('mOpp').textContent=opp.length;renderMini('dashLeaders',leaderList().slice(0,6));renderMini('dashSafe',safe.slice(0,6));renderMini('dashOpp',opp.slice(0,6));renderMini('dashRisk',riskList().slice(0,6));if(typeof r3Render==='function')r3Render();}
 function renderMini(id,rows){$(id).innerHTML=rows.length?rows.map((r,i)=>`<div class="dashItem" onclick="openSymbol('${r.symbol}')"><div class="rank">#${i+1}</div><div><div class="symbol">${r.symbol}</div><div class="mini">${r.decision||'-'} • Risk ${fmt(r.risk,0)}</div></div><div class="score">${fmt(r.finalScore,0)}</div></div>`).join(''):'<div class="comment">Veri bekleniyor.</div>'}
+
+/* R3 Dashboard + AI Decision Center
+   R1/R2 sonucunu tek ekranda gösterir. Yeni veri üretmez; scanCache satırlarını normalize eder. */
+let r3Rows=[];
+function r3Num(v,d=0){v=Number(v);return Number.isFinite(v)?v:d}
+function r3DecisionBucket(x){const d=String(x?.decision||x?.action||'').toUpperCase(); if(d.includes('GÜÇLÜ')||d==='AL'||d.includes(' AL'))return 'buy'; if(d.includes('SAT')||d.includes('KAÇIN'))return 'sell'; return 'hold'}
+function r3NormalizeRow(x){
+  const d=x?.r2Decision||x?.decisionEngine||{};
+  const m=x?.master||d?.master||{};
+  const scores=m?.scores||d?.scores||{};
+  const plan=x?.plan||d?.tradePlan||m?.tradePlan||{};
+  const symbol=String(x?.symbol||d?.symbol||m?.symbol||'').toUpperCase().replace(/\.IS$/,'').trim();
+  const score=r3Num(x?.finalScore,d?.score ?? scores.ai);
+  const confidence=r3Num(x?.confidence,d?.confidence ?? scores.confidence);
+  const risk=r3Num(x?.risk,d?.risk ?? scores.risk);
+  return {
+    symbol,
+    close:r3Num(x?.close,m?.price?.close),
+    decision:String(x?.decision||d?.action||m?.decision?.label||'VERİ YOK'),
+    finalScore:score,
+    confidence,
+    risk,
+    iqs:r3Num(x?.quality ?? x?.iqs ?? scores.iqs),
+    day:r3Num(x?.dayScore ?? scores.day),
+    swing:r3Num(x?.swingScore ?? scores.swing),
+    position:r3Num(x?.positionScore ?? scores.position),
+    institutional:r3Num(x?.institutionalScore ?? scores.institutional),
+    kap:r3Num(x?.kapScore ?? scores.kap),
+    financial:r3Num(x?.financialScore ?? scores.financial),
+    backtest:r3Num(x?.backtestScore ?? scores.backtest),
+    dipDistance:Number.isFinite(Number(x?.dipDistance ?? m?.metrics?.dipDistance))?Number(x?.dipDistance ?? m?.metrics?.dipDistance):null,
+    explain:String(x?.explain||d?.summary||m?.decision?.reasons?.join(' • ')||''),
+    plan,
+    error:x?.error||m?.error||'',
+    master:m,
+    raw:x
+  }
+}
+function r3Unique(rows){
+  const map=new Map();
+  (rows||[]).map(r3NormalizeRow).filter(x=>x.symbol).forEach(x=>{
+    const prev=map.get(x.symbol);
+    if(!prev || r3Num(x.finalScore)>r3Num(prev.finalScore)) map.set(x.symbol,x);
+  });
+  return [...map.values()].sort((a,b)=>r3Num(b.finalScore)-r3Num(a.finalScore));
+}
+function r3ActionBadge(d){const b=r3DecisionBucket({decision:d}); return `<span class="badge ${b==='buy'?'bgreen':b==='sell'?'bred':'byellow'}">${d||'-'}</span>`}
+function r3RowsTable(rows,mode='full'){
+  if(!rows?.length) return '<tr><td>Veri bekleniyor. Önce R3 Karar Merkezini Güncelle veya küçük parçalarla tara.</td></tr>';
+  const head=mode==='mini'?'<tr><th>#</th><th>Hisse</th><th>Karar</th><th>AI</th><th>Güven</th></tr>':'<tr><th>#</th><th>Hisse</th><th>Karar</th><th>AI</th><th>Güven</th><th>IQS</th><th>Day</th><th>Swing</th><th>Pozisyon</th><th>Kurumsal</th><th>KAP</th><th>Fin.</th><th>Dip</th><th>Plan</th></tr>';
+  return head+rows.map((r,i)=> mode==='mini' ?
+    `<tr onclick="openSymbol('${r.symbol}')" style="cursor:pointer"><td>${i+1}</td><td><b>${r.symbol}</b></td><td>${r3ActionBadge(r.decision)}</td><td>${fmt(r.finalScore,0)}</td><td>${fmt(r.confidence,0)}</td></tr>` :
+    `<tr><td>${i+1}</td><td><b style="cursor:pointer" onclick="openSymbol('${r.symbol}')">${r.symbol}</b></td><td>${r3ActionBadge(r.decision)}</td><td><b>${fmt(r.finalScore,0)}</b></td><td>${fmt(r.confidence,0)}</td><td>${fmt(r.iqs,0)}</td><td>${fmt(r.day,0)}</td><td>${fmt(r.swing,0)}</td><td>${fmt(r.position,0)}</td><td>${fmt(r.institutional,0)}</td><td>${fmt(r.kap,0)}</td><td>${fmt(r.financial,0)}</td><td>${r.dipDistance===null?'-':'%'+fmt(r.dipDistance,1)}</td><td><button class="btn gray" style="padding:7px 9px" onclick="r3OpenTradePlan('${r.symbol}')">🎯</button></td></tr>`).join('')
+}
+function r3Render(){
+  r3Rows=r3Unique(scanCache);
+  const buy=r3Rows.filter(x=>r3DecisionBucket(x)==='buy');
+  const hold=r3Rows.filter(x=>r3DecisionBucket(x)==='hold');
+  const sell=r3Rows.filter(x=>r3DecisionBucket(x)==='sell');
+  if($('r3MasterCount'))$('r3MasterCount').textContent=r3Rows.length;
+  if($('r3BuyCount'))$('r3BuyCount').textContent=buy.length;
+  if($('r3HoldCount'))$('r3HoldCount').textContent=hold.length;
+  if($('r3SellCount'))$('r3SellCount').textContent=sell.length;
+  if($('r3Top10Table'))$('r3Top10Table').innerHTML=r3RowsTable(r3Rows.slice(0,10),'mini');
+  if($('r3DayTable'))$('r3DayTable').innerHTML=r3RowsTable([...r3Rows].sort((a,b)=>r3Num(b.day)-r3Num(a.day)).slice(0,10),'mini');
+  if($('r3IqsTable'))$('r3IqsTable').innerHTML=r3RowsTable([...r3Rows].sort((a,b)=>r3Num(b.iqs)-r3Num(a.iqs)).slice(0,10),'mini');
+  if($('r3DecisionTable'))$('r3DecisionTable').innerHTML=r3RowsTable(r3Rows.slice(0,30));
+  const risky=[...r3Rows].filter(x=>x.risk>=70 || r3DecisionBucket(x)==='sell' || x.error).sort((a,b)=>r3Num(b.risk)-r3Num(a.risk)).slice(0,20);
+  if($('r3RiskTable'))$('r3RiskTable').innerHTML=r3RowsTable(risky,'mini');
+  if($('r3RiskBox'))$('r3RiskBox').innerHTML=r3Rows.length?`<b>${r3Rows.length}</b> tekil Master Stock Object üretildi. <b>${buy.length}</b> AL/Güçlü AL, <b>${hold.length}</b> izleme/tut, <b>${sell.length}</b> sat/kaçın sınıfında. Verisi hatalı kayıt: ${r3Rows.filter(x=>x.error).length}.`:'Henüz karar üretilemedi. Küçük parçalarla tarama başlatın.';
+  if($('r3Narrative'))$('r3Narrative').innerHTML=r3Rows.length?`R3 Karar Merkezi hazır: En güçlü aday <b>${r3Rows[0]?.symbol||'-'}</b>, AI ${fmt(r3Rows[0]?.finalScore,0)}/100, karar ${r3Rows[0]?.decision||'-'}.`: 'R3, R1/R2 veri modelini bekliyor. Tarama başlatıldığında karar merkezi dolacak.';
+}
+async function r3FullScan(){await scanAll(false); r3Render();}
+function r3OpenTradePlan(symbol){$('search').value=symbol; showPage('tradePlanner',document.querySelector('[data-page="tradePlanner"]')); if(typeof runTradePlanner==='function')setTimeout(()=>runTradePlanner(symbol).catch(e=>setStatus('Trade plan hatası: '+e.message)),80);}
+function r3Export(){
+  if(!r3Rows.length)r3Rows=r3Unique(scanCache);
+  if(!r3Rows.length){alert('Önce R3 Karar Merkezi için tarama yapın.');return;}
+  downloadCSV([['Hisse','Karar','AI','Güven','Risk','IQS','Day','Swing','Pozisyon','Kurumsal','KAP','Financial','Backtest','DipMesafesi','Gerekçe'],...r3Rows.map(x=>[x.symbol,x.decision,x.finalScore,x.confidence,x.risk,x.iqs,x.day,x.swing,x.position,x.institutional,x.kap,x.financial,x.backtest,x.dipDistance,x.explain])],'r3_dashboard_ai_decision_center.csv');
+}
+setTimeout(()=>{
+  const r=$('r3RefreshBtn'); if(r)r.addEventListener('click',r3Render);
+  const f=$('r3FullScanBtn'); if(f)f.addEventListener('click',()=>r3FullScan().catch(e=>{setStatus('R3 tarama hatası: '+e.message); if($('r3Narrative'))$('r3Narrative').textContent='R3 tarama hatası: '+e.message;}));
+  const x=$('r3ExportBtn'); if(x)x.addEventListener('click',r3Export);
+  const tab=document.querySelector('[data-page="dashboard"]'); if(tab)tab.addEventListener('click',()=>setTimeout(r3Render,100));
+},350);
+
 function tableRows(rows){return '<tr><th>#</th><th>Hisse</th><th>Karar</th><th>Skor</th><th>Güven</th><th>Risk</th><th>Trend</th><th>Para</th><th>Momentum</th></tr>'+rows.map((r,i)=>`<tr onclick="openSymbol('${r.symbol}')" style="cursor:pointer"><td>${i+1}</td><td><b>${r.symbol}</b></td><td><span class="badge ${decisionClass(r.decision)}">${r.decision||'-'}</span></td><td>${fmt(r.finalScore,0)}</td><td>${fmt(r.confidence,0)}</td><td><span class="badge ${badgeClass(r.risk,true)}">${fmt(r.risk,0)}</span></td><td>${fmt(r.trend,0)}</td><td>${fmt(r.money,0)}</td><td>${fmt(r.momentum,0)}</td></tr>`).join('')}
 function renderTables(){$('leaderTable').innerHTML=tableRows(leaderList());$('safeTable').innerHTML=tableRows(safeList());$('oppTable').innerHTML=tableRows(oppList());$('riskTable').innerHTML=tableRows(riskList());$('patternTable').innerHTML=tableRows(patternList());renderPortfolio();renderPortfolioAdvice();renderDailyReport()}
 function leaderList(){return [...scanCache].sort((a,b)=>(b.finalScore||0)-(a.finalScore||0)).slice(0,20)}
