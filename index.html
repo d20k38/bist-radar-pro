@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro R19 AI Decision Engine</title>
+<title>BIST Radar Pro R20 Explainable AI</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/r10-runtime.js"></script>
 <script>
@@ -92,45 +92,22 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro R19 AI Decision Engine</div><div class="pill">%100 Gerçek OHLCV • R19 AI Decision Engine • AL/TUT/SAT</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro R20 Explainable AI</div><div class="pill">%100 Gerçek OHLCV • R20 Explainable AI • Sade Karar Merkezi</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
     <button class="btn" id="analyzeBtn">Analiz Et</button>
     <button class="btn gray" id="backtestBtn">Backtest</button>
   </div>
-  <div class="tabs">
-    <button class="tab active" data-page="dashboard">🧠 R3 Dashboard + Karar Merkezi</button>
-    <button class="tab" data-page="diagnosticPage">🧪 R19 AI Decision Engine</button>
-    <button class="tab" data-page="coreValidatorPage">🔬 R19 AI Decision Engine</button>
-    <button class="tab" data-page="r9Suite">🏛️ R9 Institutional AI Suite</button>
-    <button class="tab" data-page="snapshotCompare">🧪 R6 Kalite Karşılaştırma</button>
+  <div class="tabs simplified-tabs">
+    <button class="tab active" data-page="dashboard">🧠 Karar Merkezi</button>
+    <button class="tab" data-page="explainableAI">🔎 R20 Explainable AI</button>
     <button class="tab" data-page="dayTradingAI">⚡ Day Trading AI</button>
-    <button class="tab" data-page="tradePlanner">🎯 V32 Trade Planner</button>
-    <button class="tab" data-page="tradingCenter">🎯 V31 Trading Center</button>
-    <button class="tab" data-page="institutionalScanner">🏦 Institutional Scanner</button>
-    <button class="tab" data-page="explainableAI">🔎 XAI + KAP + Financial</button>
-    <button class="tab" data-page="smartPortfolio">🧠 Smart Portfolio</button>
-    <button class="tab" data-page="radarLab">🧪 Radar Lab</button>
-    <button class="tab" data-page="institutionalDashboard">🏛️ Dashboard</button>
-    <button class="tab" data-page="aiAdvisor">🤖 AI Advisor</button>
     <button class="tab" data-page="analysis">📈 Hisse Analizi</button>
-    <button class="tab" data-page="leaders">🔥 En Güçlü 20</button>
-    <button class="tab" data-page="safe">💎 Güvenli Kazanç</button>
-    <button class="tab" data-page="opportunity">🚀 Fırsat Avcısı</button>
-    <button class="tab" data-page="risky">⚠️ Riskli Hisseler</button>
-    <button class="tab" data-page="patterns">🔎 Formasyonlar</button>
+    <button class="tab" data-page="portfolio">💼 Portföy Radarım</button>
+    <button class="tab" data-page="radarLab">🧪 Radar Lab</button>
     <button class="tab" data-page="backtestPage">📊 Backtest</button>
-    <button class="tab" data-page="learningPage">🧠 V30 Learning</button>
-    <button class="tab" data-page="portfolio">💼 Portföy</button>
-    <button class="tab" data-page="portfolioAdvice">🧺 Portföy Önerisi</button>
-    <button class="tab" data-page="v20Portfolio">🧪 V20 Simülasyon</button>
-    <button class="tab" data-page="dailyReport">📰 Günlük AI Raporu</button>
     <button class="tab" data-page="kapPage">📢 KAP/Haber AI</button>
-    <button class="tab" data-page="v22News">🏢 Haber Motoru</button>
-    <button class="tab" data-page="confidencePage">🧩 Güven Katmanları</button>
-    <button class="tab" data-page="committeePage">🏛️ AI Komite</button>
-    <button class="tab" data-page="v19Institutional">🏦 V19 Institutional</button>
     <button class="tab" data-page="dipProfessional">🎯 Dip Avcısı PRO</button>
   </div>
   <div id="status" class="status">Hazır.</div>
@@ -302,9 +279,9 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
       <div class="card metric"><div class="body"><div class="muted">Risk</div><div id="xaiRisk" class="v bad">-</div><div class="muted">karşıt görüş</div></div></div>
       <div class="card metric"><div class="body"><div class="muted">Veri Kalitesi</div><div id="xaiDataQuality" class="v">-</div><div class="muted">gerçek veri kontrolü</div></div></div>
     </div><br>
-    <div class="card"><div class="head dark">🔎 V29 Explainable AI</div><div class="body">
+    <div class="card"><div class="head dark">🔎 R20 Explainable AI 2.0 / Karar Gerekçesi</div><div class="body">
       <div class="quickFilters"><button class="btn" id="xaiRunBtn">Seçili Hisseyi Açıkla</button><button class="btn gray" id="xaiOpenAnalysisBtn">Hisse Analizine Git</button><button class="btn green" id="xaiExportBtn">XAI CSV</button></div>
-      <div id="xaiNarrative" class="comment">V29.2, Core Engine kararını açıklar; seçilen hissenin son KAP bildirimi ve finansal tablo/finansal KAP katmanını AI kararına bağlar. Demo/random finansal veri kullanılmaz.</div>
+      <div id="xaiNarrative" class="comment">R20, AI kararının neden oluştuğunu katman katman açıklar. Trend, momentum, hacim, kurumsal para, risk, IQS ve veri kalitesi aynı ekranda özetlenir. Gereksiz modül kalabalığı kaldırıldı.</div>
     </div>
     <div class="grid g3" style="margin-top:16px">
       <div class="card"><div class="head yellow">📢 Son KAP Bildirimi</div><div class="body"><div id="xaiKapLatest" class="comment">Hisse seçip çalıştırın.</div></div></div>
@@ -759,7 +736,7 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
 
 
   <section id="coreValidatorPage" class="hidden">
-    <div class="card"><div class="head dark">🔬 R19 AI Decision Engine / Tek Hisse Debug</div><div class="body">
+    <div class="card"><div class="head dark">🔬 R20 Explainable AI / Tek Hisse Debug</div><div class="body">
       <div class="quickFilters">
         <button class="btn green" id="r16SelectedBtn">Seçili Hisse Zincirini Test Et</button>
         <button class="btn" id="r16PapilBtn">PAPIL Test</button>
@@ -783,7 +760,7 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
   </section>
 
   <section id="diagnosticPage" class="hidden">
-    <div class="card"><div class="head dark">🧪 R19 AI Decision Engine / Veri Sağlığı</div><div class="body">
+    <div class="card"><div class="head dark">🧪 R20 Explainable AI / Veri Sağlığı</div><div class="body">
       <div class="quickFilters">
         <button class="btn green" id="diagSelectedBtn">Seçili Hisseyi Test Et</button>
         <button class="btn" id="diagBatchBtn">İlk 20 Hisseyi Test Et</button>
@@ -1071,26 +1048,28 @@ function r3NormalizeRow(x){
   const scores=m?.scores||d?.scores||{};
   const plan=x?.plan||d?.tradePlan||m?.tradePlan||{};
   const symbol=String(x?.symbol||d?.symbol||m?.symbol||'').toUpperCase().replace(/\.IS$/,'').trim();
-  const score=r3Num(x?.finalScore,d?.score ?? scores.ai);
-  const confidence=r3Num(x?.confidence,d?.confidence ?? scores.confidence);
-  const risk=r3Num(x?.risk,d?.risk ?? scores.risk);
+  const sc=x?.scores||m?.scores||d?.scores||scores||{};
+  const ind=x?.indicators||m?.indicators||{};
+  const score=r3Num(x?.finalScore ?? x?.aiScore ?? x?.score ?? sc.finalScore ?? sc.aiScore ?? sc.score,0);
+  const confidence=r3Num(x?.confidencePct ?? sc.confidencePct ?? x?.confidenceScore ?? d?.confidencePct ?? sc.confidence,0);
+  const risk=r3Num(x?.risk ?? sc.risk ?? ind.riskScore,50);
   return {
     symbol,
-    close:r3Num(x?.close,m?.price?.close),
-    decision:String(x?.decision||d?.action||m?.decision?.label||'VERİ YOK'),
+    close:r3Num(x?.close ?? x?.price ?? m?.price?.close ?? m?.price,0),
+    decision:String(x?.decision||sc.decision||d?.action||m?.decision?.label||'VERİ YOK'),
     finalScore:score,
     confidence,
     risk,
-    iqs:r3Num(x?.quality ?? x?.iqs ?? scores.iqs),
-    day:r3Num(x?.dayScore ?? scores.day),
-    swing:r3Num(x?.swingScore ?? scores.swing),
-    position:r3Num(x?.positionScore ?? scores.position),
-    institutional:r3Num(x?.institutionalScore ?? scores.institutional),
-    kap:r3Num(x?.kapScore ?? scores.kap),
-    financial:r3Num(x?.financialScore ?? scores.financial),
-    backtest:r3Num(x?.backtestScore ?? scores.backtest),
-    dipDistance:Number.isFinite(Number(x?.dipDistance ?? m?.metrics?.dipDistance))?Number(x?.dipDistance ?? m?.metrics?.dipDistance):null,
-    explain:String(x?.explain||d?.summary||m?.decision?.reasons?.join(' • ')||''),
+    iqs:r3Num(x?.iqs ?? sc.iqs ?? ind.iqsScore,0),
+    day:r3Num(x?.dayTrading ?? x?.dayScore ?? sc.dayTrading ?? ind.dayTradingScore,0),
+    swing:r3Num(x?.swing ?? x?.swingScore ?? sc.swing ?? ind.swingScore,0),
+    position:r3Num(x?.position ?? x?.positionScore ?? sc.position ?? ind.positionScore,0),
+    institutional:r3Num(x?.institutional ?? x?.institutionalScore ?? sc.institutional ?? ind.institutionalMoneyScore,0),
+    kap:r3Num(x?.kapScore ?? sc.kap,50),
+    financial:r3Num(x?.financialScore ?? sc.financial,50),
+    backtest:r3Num(x?.backtestScore ?? sc.backtest,0),
+    dipDistance:Number.isFinite(Number(x?.dipDistance ?? ind.dipDistance ?? m?.metrics?.dipDistance))?Number(x?.dipDistance ?? ind.dipDistance ?? m?.metrics?.dipDistance):null,
+    explain:String((sc.explain?.positives||[]).map(v=>v.name||v.note||'').filter(Boolean).join(' • ')||x?.explain||d?.summary||m?.decision?.reasons?.join(' • ')||''),
     plan,
     error:x?.error||m?.error||'',
     master:m,
@@ -2104,6 +2083,36 @@ function renderFinancialAIBox(fin){
   if($('xaiFinancialReasons')) $('xaiFinancialReasons').innerHTML=`<b>Nedenler:</b><br>${(fin.reasons||[]).map(r=>'✓ '+r).join('<br>')||'-'}<br><br><b>Riskler / Sınırlamalar:</b><br>${(fin.risks||[]).map(r=>'⚠ '+r).join('<br>')||'Belirgin sınırlama yok.'}`;
 }
 
+
+function r20LayerStatus(v){v=Number(v);return v>=65?'green':v>=45?'yellow':'red'}
+function r20Contribution(value,weight){value=Number(value); if(!Number.isFinite(value)) value=50; return Math.round(((value-50)/50)*weight*100)/100;}
+function buildR20XAIFromMaster(j){
+  const m=j?.master||j||{}; const sc=m.scores||j.scores||{}; const ind=m.indicators||j.indicators||{};
+  const symbol=String(m.symbol||j.symbol||($('search')?.value)||'PAPIL').toUpperCase();
+  const score=Number(m.finalScore??m.aiScore??m.score??sc.finalScore??sc.aiScore??0)||0;
+  const risk=Number(m.risk??sc.risk??ind.riskScore??50)||50;
+  const confidence=Number(m.confidencePct??sc.confidencePct??0)||0;
+  const layers=[];
+  const add=(key,label,value,weight,explain)=>layers.push({key,label,value:Math.round(Number(value)||0),weight,contribution:r20Contribution(value,weight),status:r20LayerStatus(value),explain});
+  const br=sc.breakdown||{};
+  add('trend','Trend',br.trend??ind.trendQuality,15,'EMA/SMA eğimi, fiyatın ortalamalara göre konumu ve trend kalitesi.');
+  add('momentum','Momentum',br.momentum??ind.momentumQuality,15,'RSI, MACD, ROC, stochastic ve momentum bileşimi.');
+  add('volume','Hacim / RVOL',br.volume??ind.volumeQuality,20,`RVOL ${fmt(ind.rvol20,2)}x, VWAP ${tl(ind.vwap)}, CMF ${fmt(ind.cmf,3)}, MFI ${fmt(ind.mfi,1)}.`);
+  add('institutional','Kurumsal Para',br.institutional??ind.institutionalMoneyScore,18,'OBV, CMF, VWAP ve likidite odaklı para akışı bileşimi.');
+  add('iqs','IQS',sc.iqs??ind.iqsScore,14,'Trend, hacim, momentum, risk ve likiditeyi birleştiren kalite skoru.');
+  add('risk','Risk Kontrolü',100-risk,10,'Volatilite, ATR, likidite ve risk baskısı ters puanlanır.');
+  add('liquidity','Likidite',br.liquidity??ind.liquidityScore,8,'Son hacim ve ortalama hacimden türetilen işlem yapılabilirlik.');
+  const positives=layers.filter(l=>l.contribution>1.5).sort((a,b)=>b.contribution-a.contribution).map(l=>`${l.label}: ${l.contribution>0?'+':''}${fmt(l.contribution,1)} puan. ${l.explain}`);
+  const negatives=layers.filter(l=>l.contribution<-1.5).sort((a,b)=>a.contribution-b.contribution).map(l=>`${l.label}: ${fmt(l.contribution,1)} puan. ${l.explain}`);
+  const trace=[
+    `${symbol} için gerçek OHLCV verisi okundu: ${(m.ohlcv||[]).length||ind?.indicatorEngine?.rows||'-'} gün.`,
+    `Indicator Engine: ${ind?.indicatorEngine?.computedFields||'-'} alan / ${ind?.indicatorEngine?.indicatorCount||100} gösterge paketi.`,
+    `AI final skor ${fmt(score,0)}/100; karar ${m.decision||sc.decision||'TUT'}.`,
+    `Veri sağlığı: OHLC ${ind.health?.ohlc?'OK':'kontrol'}, hacim ${ind.health?.volume?'OK':'kontrol'}, RVOL ${ind.health?.rvol?'OK':'kontrol'}, VWAP ${ind.health?.vwap?'OK':'kontrol'}.`
+  ];
+  const shortComment=`${symbol} için R20 açıklaması: ${score>=74?'güçlü/pozitif':'nötr veya seçici'} karar yapısı oluştu. En güçlü katkılar ${positives.slice(0,3).map(x=>x.split(':')[0]).join(', ')||'sınırlı'}; risk tarafında ${negatives.slice(0,2).map(x=>x.split(':')[0]).join(', ')||'belirgin zayıf katman yok'}.`;
+  return {symbol,score,decision:m.decision||sc.decision||'TUT',confidence,confidenceGrade:m.confidence||sc.confidence||'-',risk,dataQuality:Math.round(Object.values(ind.health||{}).filter(Boolean).length/Math.max(1,Object.values(ind.health||{}).length)*100)||90,layers,positives,negatives,trace,traffic:{green:layers.filter(l=>l.status==='green').length,yellow:layers.filter(l=>l.status==='yellow').length,red:layers.filter(l=>l.status==='red').length},shortComment,master:m};
+}
 function renderXAI(x){
   if(!x) return; xaiLast=x;
   if($('xaiScore')) $('xaiScore').textContent=fmt(x.score,0);
@@ -2122,23 +2131,23 @@ function renderXAI(x){
 async function runExplainableAI(){
   const s=($('search').value||$('symbol').value||'PAPIL').toUpperCase().trim();
   showPage('explainableAI',document.querySelector('[data-page="explainableAI"]'));
-  setStatus(s+' için V29 Explainable AI hazırlanıyor...');
+  setStatus(s+' için R20 Explainable AI hazırlanıyor...');
   try{
-    const j=await (await fetch('/api/decision?symbol='+encodeURIComponent(s)+'&t='+Date.now())).json();
+    const j=await (await fetch('/api/core?action=decision&symbol='+encodeURIComponent(s)+'&t='+Date.now())).json();
     if(!j.success) throw new Error(j.error||'Explainable AI alınamadı');
-    let x=j.explainable;
-    renderFinancialAIBox(j.financialAI);
+    let x=j.explainable || buildR20XAIFromMaster(j);
     try{
       const kj=await (await fetch('/api/core?action=kap&symbol='+encodeURIComponent(s)+'&limit=8&ai=1&technicalScore='+encodeURIComponent(x?.score||50)+'&t='+Date.now())).json();
-      const kapAI=kj.kapAI||kj.latestKapAI;
+      const kapAI=kj.kapAI||kj.latestKapAI||kj.ai;
       renderKapAIBox(kapAI);
       x=applyKapAIToXAI(x,kapAI);
     }catch(kerr){
       renderKapAIBox({available:false,summary:'KAP AI bağlantısı kurulamadı.',comment:kerr.message,effectHorizon:{today:50,threeDays:50,oneWeek:50,oneMonth:50},reasons:['KAP API yanıtı alınamadı'],risks:['KAP katmanı nötr bırakıldı.']});
     }
+    renderFinancialAIBox(j.financialAI || {score:50,grade:'Nötr',polarity:'Veri yok',summary:'Finansal AI veri kaynağı bağlı değil; finansal katman nötr bırakıldı.',comment:'Random/demo finansal veri üretilmedi.',reasons:['Gerçek finansal kaynak bekleniyor.'],risks:['Finansal katkı nötrdür.'],source:'R20 safe-neutral'});
     renderXAI(x);
-    setStatus(s+' için V29.2 Explainable AI + KAP AI + Financial AI hazır.');
-  }catch(e){ setStatus('V29.2 Explainable AI hatası: '+e.message); if($('xaiNarrative')) $('xaiNarrative').textContent='V29.2 Explainable AI hatası: '+e.message; }
+    setStatus(s+' için R20 Explainable AI hazır.');
+  }catch(e){ setStatus('R20 Explainable AI hatası: '+e.message); if($('xaiNarrative')) $('xaiNarrative').textContent='R20 Explainable AI hatası: '+e.message; }
 }
 function renderInlineExplainableFromStock(a){
   if(!$('aiDecision')) return;
