@@ -28,3 +28,7 @@ Yeni API eklenmedi; Vercel Hobby 12 API sınırı korunur. Demo/random veri kull
 - Her hisse tek satırda AL/TUT/SAT kararına bağlandı.
 - Her satırdan Explain ve Trade Planner açılır.
 - Yeni API eklenmedi; Vercel Hobby sınırı için 12 endpoint korundu.
+
+
+## V32.4 Failed to Fetch FIX
+Karar Motoru artık önce büyük tarama yapmaz; /api/symbols sağlık kontrolü sonrası küçük /api/decision partileriyle gerçek veri üretir. API yoksa ekranda net uyarı verir.

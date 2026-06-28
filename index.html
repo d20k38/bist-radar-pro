@@ -2005,6 +2005,7 @@ window.dcExplain=dcExplain; window.dcOpenPlan=dcOpenPlan; window.dcRender=dcRend
     const conf = typeof window.dcConfidence==='function' ? window.dcConfidence(final,risk,backtest) : (confidencePct>=90?'A+':confidencePct>=82?'A':confidencePct>=74?'B+':confidencePct>=65?'B':confidencePct>=55?'C':'D');
     return {symbol:sym,close,dayScore,swingScore:swing,positionScore:position,instScore,iqs,kapScore:kap,financialScore:financial,backtestScore:backtest,risk,aiFinal:final,confidencePct,confidence:conf,decision,dipDistance:99,_source:'api/decision'};
   }
+  window.dcDecisionToRow=dcDecisionToRow;
   async function dcFetchJson(url,timeoutMs=9000){
     const c=new AbortController(); const t=setTimeout(()=>c.abort(),timeoutMs);
     try{ const r=await fetch(url,{signal:c.signal,cache:'no-store'}); const text=await r.text(); try{return JSON.parse(text)}catch(e){return {success:false,error:'API JSON döndürmedi: '+text.slice(0,120)}} }
@@ -2065,6 +2066,85 @@ window.dcExplain=dcExplain; window.dcOpenPlan=dcOpenPlan; window.dcRender=dcRend
     const tab=document.querySelector('[data-page="decisionCenter"]');
     if(tab){ tab.addEventListener('click',()=>setTimeout(()=>{try{window.dcRender()}catch(e){}},150)); }
   },300);
+})();
+</script>
+
+
+<script>
+/* V32.4 Failed to Fetch FIX
+   Karar Motoru artık önce büyük taramaları çalıştırmaz.
+   Önce API erişimini /api/symbols ile test eder, sonra küçük karar partileriyle /api/decision çalıştırır.
+   Böylece Vercel/bağlantı hatasında ekran boş kalmaz ve gerçek hata gösterilir.
+*/
+(function(){
+  function q(id){return document.getElementById(id)}
+  function msg(t){try{ if(typeof setStatus==='function') setStatus(t); }catch(e){} const el=q('dcSelectedBox'); if(el) el.innerHTML='<b>V32.4 Karar Motoru</b><br>'+String(t).replace(/</g,'&lt;');}
+  function cleanSym(x){return String(typeof x==='string'?x:(x?.symbol||x?.code||'')).toUpperCase().replace('.IS','').trim()}
+  async function safeJson(url,timeoutMs=12000,retry=1){
+    let last='';
+    for(let k=0;k<=retry;k++){
+      const c=new AbortController(); const t=setTimeout(()=>c.abort(),timeoutMs);
+      try{
+        const r=await fetch(url,{signal:c.signal,cache:'no-store',headers:{'accept':'application/json'}});
+        const text=await r.text();
+        let j=null;
+        try{j=JSON.parse(text)}catch(e){throw new Error('API JSON döndürmedi: '+(text||r.statusText||'boş yanıt').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').slice(0,180));}
+        if(!r.ok && j?.success!==false) throw new Error('HTTP '+r.status);
+        return j;
+      }catch(e){
+        last = e.name==='AbortError' ? 'API zaman aşımı' : (e.message||'Failed to fetch');
+        await new Promise(r=>setTimeout(r,350));
+      }finally{clearTimeout(t);}
+    }
+    return {success:false,error:last};
+  }
+  async function buildRowsFromDecision(){
+    msg('API bağlantısı kontrol ediliyor: /api/symbols');
+    const sj=await safeJson('/api/symbols?t='+Date.now(),9000,1);
+    if(!sj.success || !Array.isArray(sj.symbols)) throw new Error(sj.error || 'API sembol listesi alınamadı. Vercel deploy root klasörünü ve /api endpointlerini kontrol edin.');
+    const portfolioSyms=(window.portfolio||[]).map(x=>cleanSym(x)).filter(Boolean);
+    const syms=[...new Set([...portfolioSyms,...sj.symbols.map(cleanSym).filter(Boolean)])].slice(0,36);
+    if(!syms.length) throw new Error('Sembol listesi boş döndü.');
+    const rows=[]; const errs=[];
+    for(let i=0;i<syms.length;i+=3){
+      const chunk=syms.slice(i,i+3);
+      msg(`Karar Motoru gerçek veri okuyor: ${Math.min(i+chunk.length,syms.length)}/${syms.length}`);
+      const arr=await Promise.all(chunk.map(s=>safeJson('/api/decision?symbol='+encodeURIComponent(s)+'&t='+Date.now(),12000,1)));
+      arr.forEach((j,idx)=>{
+        let row=null;
+        try{ row = (typeof dcDecisionToRow==='function') ? dcDecisionToRow(j) : null; }catch(e){}
+        if(!row && j?.success!==false){
+          const a=j.analysis||{}, d=j.decision||{}, day=j.dayTrading||{}, inst=j.institutional||{}, q=j.quality||{};
+          const final=Number(d.confidenceScore||q.score||a.finalScore||day.score||50);
+          row={symbol:j.symbol||chunk[idx],close:Number(a.close||0),dayScore:Number(day.score||0),swingScore:Number(a.trend||50),positionScore:Number(q.score||50),instScore:Number(inst.score||inst.institutionalScore||0),iqs:Number(q.score||50),kapScore:Number(inst.components?.kap||50),financialScore:Number(j.financialAI?.score||50),backtestScore:Number(q.components?.backtest||a.confidence||50),risk:Number(a.risk||55),aiFinal:final,confidencePct:final,confidence:final>=90?'A+':final>=80?'A':final>=70?'B+':final>=60?'B':'C',decision:final>=88?'GÜÇLÜ AL':final>=74?'AL':final>=55?'TUT / İZLE':'SAT / KAÇIN',dipDistance:99};
+        }
+        if(row) rows.push(row); else errs.push(chunk[idx]+': '+(j?.error||'veri üretilemedi'));
+      });
+      if(rows.length>=30) break;
+    }
+    if(!rows.length) throw new Error('API çalıştı ancak karar satırı üretilemedi. İlk hata: '+(errs[0]||'bilinmiyor'));
+    const map=new Map(); rows.forEach(r=>{const old=map.get(r.symbol); if(!old || Number(r.aiFinal)>Number(old.aiFinal)) map.set(r.symbol,r)});
+    window.dcApiDecisionCache=[...map.values()].sort((a,b)=>(b.aiFinal||0)-(a.aiFinal||0));
+    window.dcRows=window.dcApiDecisionCache;
+    return window.dcRows;
+  }
+  window.dcRunFull=async function(){
+    try{
+      if(typeof showPage==='function') showPage('decisionCenter',document.querySelector('[data-page="decisionCenter"]'));
+      const rows=await buildRowsFromDecision();
+      if(typeof window.dcRender==='function') window.dcRender();
+      msg(`V32.4 Karar Motoru tamamlandı: ${rows.length} tekil hisse. Büyük tarama yerine güvenli küçük API partileri kullanıldı.`);
+    }catch(e){
+      const text=(e.message||'Failed to fetch');
+      const box=q('dcSelectedBox');
+      if(box) box.innerHTML='<b>Karar Motoru API bağlantı hatası</b><br>'+text+'<br><br><span class="mini">Bu hata genelde uygulama Vercel dışında açıldığında, /api klasörü deploy edilmediğinde veya Vercel fonksiyonları dış veri kaynağına ulaşamadığında oluşur. ZIP içindeki klasörü Vercel proje kökü olarak yükleyin; sadece index.html dosyasını açarsanız /api çalışmaz.</span>';
+      const tbl=q('dcTable'); if(tbl) tbl.innerHTML='<tr><th>Durum</th></tr><tr><td>'+box.innerHTML+'</td></tr>';
+      msg('Karar Motoru çalışmadı: '+text);
+    }
+  };
+  setTimeout(()=>{
+    const b=q('dcRunBtn'); if(b){ b.onclick=(ev)=>{ev.preventDefault(); window.dcRunFull();}; }
+  },500);
 })();
 </script>
 
