@@ -160,7 +160,7 @@
       <div class="card metric"><div class="body"><div class="muted">Portföy Risk Skoru</div><div id="v20Risk" class="v bad">-</div><div class="muted">0 düşük / 100 yüksek</div></div></div>
     </div><br>
     <div class="card"><div class="head dark">🧪 V20 Institutional Portföy Motoru</div><div class="body">
-      <div class="quickFilters"><button class="btn" id="v20RunBtn">Mevcut Portföyü Simüle Et</button><button class="btn gray" onclick="showPage('portfolio',document.querySelector('[data-page=portfolio]'))">Portföyü Düzenle</button></div>
+      <div class="quickFilters"><button class="btn" id="v20RunBtn">Mevcut Portföyü Simüle Et</button><button class="btn gray" onclick="showPage('portfolio',document.querySelector('[data-page=\"portfolio\"]'))">Portföyü Düzenle</button></div>
       <div id="v20Summary" class="comment">Monte Carlo senaryosu, korelasyon analizi ve ağırlık optimizasyonu için portföyü simüle edin. Hesaplamalar gerçek OHLC günlük getirilerinden yapılır; random/pseudo veri kullanılmaz.</div>
     </div></div><br>
     <div class="grid g3">
@@ -261,7 +261,7 @@
         <button class="btn green" id="v18ScanDipBtn">Dip Adaylarını Tara</button>
         <button class="btn gray" id="v18ExportCsvBtn">CSV Dışa Aktar</button>
         <div id="v18ScanStatus" class="status">Henüz tarama yapılmadı.</div>
-        <table class="table"><thead><tr><th>Hisse</th><th>Son Fiyat</th><th>Dip Skoru</th><th>Dip Bölgesi</th><th>En Güçlü Dip</th><th>Başarı</th><th>Karar</th></tr></thead><tbody id="v18ScanRows"></tbody></table>
+        <table class="table"><thead><tr><th>Hisse</th><th>Son Fiyat</th><th>Dip Skoru</th><th>Dip Bölgesi</th><th>Güçlü Seviye</th><th>Başarı</th><th>Karar</th></tr></thead><tbody id="v18ScanRows"></tbody></table>
       </div>
     </div>
   </section>
@@ -292,7 +292,7 @@
       <button class="btn green" id="v19ScanBtn">Tümünü Tara</button> <button class="btn gray" id="v19ExportBtn">CSV Dışa Aktar</button>
         <button class="btn" onclick="optimizeV19Portfolio(50000)">50.000 TL Portföy Optimize</button>
       <div id="v19ScanStatus" class="status">Henüz tarama yapılmadı.</div>
-      <table class="table"><thead><tr><th>Hisse</th><th>Son Fiyat</th><th>Dip Skoru</th><th>AI Güven</th><th>Dip Bölgesi</th><th>En Güçlü Dip</th><th>Karar</th></tr></thead><tbody id="v19Rows"></tbody></table>
+      <table class="table"><thead><tr><th>Hisse</th><th>Son Fiyat</th><th>Dip Skoru</th><th>AI Güven</th><th>Dip Bölgesi</th><th>Güçlü Seviye</th><th>Karar</th></tr></thead><tbody id="v19Rows"></tbody></table>
     </div></div>
   </section>
 
@@ -316,7 +316,13 @@ const defaultPortfolio=[{symbol:'MRSHL',lot:286,cost:2470},{symbol:'PAPIL',lot:7
 let portfolio=loadPortfolioLocal();
 const $=id=>document.getElementById(id);const fmt=(x,d=2)=>Number.isFinite(Number(x))?Number(x).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';const tl=x=>fmt(x)+' TL';
 function setStatus(t){$('status').textContent=t}
-function showPage(id,btn){['dashboard','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','portfolio','portfolioAdvice','v20Portfolio','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional'].forEach(x=>{const el=$(x); if(el) el.classList.add('hidden')});const page=$(id); if(page) page.classList.remove('hidden');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active')}
+const APP_PAGES=['dashboard','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','portfolio','portfolioAdvice','v20Portfolio','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional'];
+function showPage(id,btn){
+  APP_PAGES.forEach(x=>{const el=$(x); if(el){el.classList.add('hidden'); el.style.display='none';}});
+  const page=$(id); if(page){page.classList.remove('hidden'); page.style.display='block'; document.body.setAttribute('data-page',id);}
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  const activeBtn=btn||document.querySelector(`[data-page="${id}"]`); if(activeBtn)activeBtn.classList.add('active');
+}
 function badgeClass(score,risk=false){score=Number(score)||0;if(risk)return score<35?'bgreen':score<60?'byellow':'bred';return score>=65?'bgreen':score>=50?'byellow':'bred'}
 function decisionClass(d){return d==='GÜÇLÜ AL'||d==='AL'?'bgreen':d==='İZLE'?'byellow':d==='BEKLE'?'bblue':'bred'}
 async function init(){wire();await loadSymbols();renderPortfolio();renderSignalJournal();await loadStock(false);await scanAll(true);renderKapNews()}
@@ -743,6 +749,9 @@ let v18DipScanCache=[];
 function v18Badge(v){v=Number(v)||0;return `<span class="badge ${v>=70?'bgreen':v>=50?'byellow':'bred'}">${Math.round(v)}</span>`}
 function v18Bar(v){v=Math.max(0,Math.min(100,Number(v)||0));return `<div class="barw"><div class="bar" style="width:${v}%;background:${v>=70?'var(--green)':v>=50?'var(--yellow)':'var(--red)'}"></div></div>`}
 function v18TL(x){return `${fmt(x,2)} TL`}
+function v18DipLevelText(current,strongest){const c=Number(current||0),s=Number(strongest||0); if(!s)return '-'; return v18TL(s)+(s>c?' <span class="badge byellow">Kırılan destek / direnç</span>':' <span class="badge bgreen">Aktif destek</span>');}
+function v18DipLevelPlain(current,strongest){const c=Number(current||0),s=Number(strongest||0); if(!s)return '-'; return v18TL(s)+(s>c?' (Kırılan destek/direnç)':' (Aktif destek)');}
+
 function v18Chart(d){
   const low=Math.min(d.levels.stop,d.dipRegion.low), high=Math.max(d.levels.mainTarget,d.currentPrice);
   const top=v=> 270 - ((v-low)/Math.max(0.01,high-low))*220 + 25;
@@ -764,7 +773,7 @@ async function loadV18Dip(symbol=null){
   $('v18Success').textContent='%'+Math.round(d.successProbability);
   $('v18RR').textContent=fmt(d.levels.riskReward,2);
   $('v18Decision').textContent=d.decision;
-  $('v18Region').innerHTML=`<div class="kpi"><b>Son Fiyat</b><span>${v18TL(d.currentPrice)}</span></div><div class="kpi"><b>Dip Bölgesi</b><span>${v18TL(d.dipRegion.low)} - ${v18TL(d.dipRegion.high)}</span></div><div class="kpi"><b>En Güçlü Dip</b><span>${v18TL(d.dipRegion.strongest)}</span></div><div class="kpi"><b>Falling Knife</b><span>${Math.round(d.fallingKnife)}/100</span></div>`;
+  $('v18Region').innerHTML=`<div class="kpi"><b>Son Fiyat</b><span>${v18TL(d.currentPrice)}</span></div><div class="kpi"><b>Dip Bölgesi</b><span>${v18TL(d.dipRegion.low)} - ${v18TL(d.dipRegion.high)}</span></div><div class="kpi"><b>250 Günlük Güçlü Seviye</b><span>${v18DipLevelText(d.currentPrice,d.dipRegion.strongest)}</span></div><div class="kpi"><b>Falling Knife</b><span>${Math.round(d.fallingKnife)}/100</span></div>`;
   $('v18Time').innerHTML=`<div class="kpi"><b>Dip Olgunluğu</b><span>%${Math.round(d.maturity)}</span></div><div class="kpi"><b>Tahmini Süre</b><span>${d.duration}</span></div><div class="kpi"><b>En Dipte Yakalama</b><span>${Math.round(d.catchBottom)}/100</span></div>`;
   $('v18Levels').innerHTML=`<div class="kpi"><b>İlk Alım</b><span>${v18TL(d.levels.firstBuy)}</span></div><div class="kpi"><b>Güçlü Alım</b><span>${v18TL(d.levels.strongBuy)}</span></div><div class="kpi"><b>Son Savunma</b><span>${v18TL(d.levels.lastDefense)}</span></div><div class="kpi"><b>Stop</b><span>${v18TL(d.levels.stop)}</span></div><div class="kpi"><b>İlk Hedef</b><span>${v18TL(d.levels.firstTarget)}</span></div><div class="kpi"><b>Ana Hedef</b><span>${v18TL(d.levels.mainTarget)}</span></div>`;
   $('v18DipChart').innerHTML=v18Chart(d);
@@ -786,13 +795,13 @@ async function scanV18Dip(){
       if(j.success) v18DipScanCache.push({symbol:s,...j.dip});
     }catch(e){}
     v18DipScanCache.sort((a,b)=>(b.dipScore||0)-(a.dipScore||0));
-    $('v18ScanRows').innerHTML=v18DipScanCache.slice(0,30).map(x=>`<tr><td><b>${x.symbol}</b></td><td>${v18TL(x.currentPrice)}</td><td>${v18Badge(x.dipScore)}</td><td>${v18TL(x.dipRegion.low)} - ${v18TL(x.dipRegion.high)}</td><td>${v18TL(x.dipRegion.strongest)}</td><td>%${Math.round(x.successProbability)}</td><td>${x.decision}</td></tr>`).join('');
+    $('v18ScanRows').innerHTML=v18DipScanCache.slice(0,30).map(x=>`<tr><td><b>${x.symbol}</b></td><td>${v18TL(x.currentPrice)}</td><td>${v18Badge(x.dipScore)}</td><td>${v18TL(x.dipRegion.low)} - ${v18TL(x.dipRegion.high)}</td><td>${v18DipLevelPlain(x.currentPrice,x.dipRegion.strongest)}</td><td>%${Math.round(x.successProbability)}</td><td>${x.decision}</td></tr>`).join('');
     $('v18ScanStatus').textContent=`${i+1} / ${list.length} hisse tarandı.`;
     await new Promise(r=>setTimeout(r,80));
   }
 }
 function exportV18DipCSV(){
-  const rows=[['Hisse','Son Fiyat','Dip Skoru','Dip Alt','Dip Üst','En Güçlü Dip','Başarı','Karar']];
+  const rows=[['Hisse','Son Fiyat','Dip Skoru','Dip Alt','Dip Üst','Güçlü Seviye','Başarı','Karar']];
   v18DipScanCache.forEach(x=>rows.push([x.symbol,x.currentPrice,x.dipScore,x.dipRegion.low,x.dipRegion.high,x.dipRegion.strongest,x.successProbability,x.decision]));
   const csv='\ufeff'+rows.map(r=>r.join(';')).join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='v18_gercek_veri_dip_avcisi.csv';a.click();
@@ -804,10 +813,22 @@ let v19Cache=[];
 function v19Badge(v){v=Number(v)||0;return `<span class="badge ${v>=70?'bgreen':v>=50?'byellow':'bred'}">${Math.round(v)}</span>`}
 function v19Bar(v){v=Math.max(0,Math.min(100,Number(v)||0));return `<div class="barw"><div class="bar" style="width:${v}%;background:${v>=70?'var(--green)':v>=50?'var(--yellow)':'var(--red)'}"></div></div>`}
 function v19TL(x){return `${fmt(x,2)} TL`}
+function dipLevelText(current,strongest){
+  const c=Number(current||0), val=Number(strongest||0);
+  if(!val) return '-';
+  if(val>c) return `${v19TL(val)} <span class="badge byellow">Kırılan destek / direnç</span>`;
+  return `${v19TL(val)} <span class="badge bgreen">Aktif destek</span>`;
+}
+function dipLevelPlain(current,strongest){
+  const c=Number(current||0), val=Number(strongest||0);
+  if(!val) return '-';
+  return v19TL(val)+(val>c?' (Kırılan destek/direnç)':' (Aktif destek)');
+}
+
 function v19Chart(a){const low=Math.min(a.levels.stop,a.dipRegion.low), high=Math.max(a.levels.mainTarget,a.currentPrice); const top=v=>270-((v-low)/Math.max(.01,high-low))*220+25; return `<div style="position:absolute;left:8%;right:8%;top:${Math.min(top(a.dipRegion.high),top(a.dipRegion.low))}px;height:${Math.max(34,Math.abs(top(a.dipRegion.low)-top(a.dipRegion.high)))}px;background:rgba(22,163,74,.16);border:1px dashed var(--green);border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900;color:#166534">250 Günlük Dip Kümesi ${v19TL(a.dipRegion.low)} - ${v19TL(a.dipRegion.high)}</div><div style="position:absolute;left:8%;right:8%;top:${top(a.currentPrice)}px;border-top:2px solid var(--blue)"></div><span style="position:absolute;right:10px;top:${top(a.currentPrice)}px;transform:translateY(-50%);background:#fff;border:1px solid var(--line);border-radius:99px;padding:5px 9px;font-weight:900">Son ${v19TL(a.currentPrice)}</span><div style="position:absolute;left:8%;right:8%;top:${top(a.levels.stop)}px;border-top:2px solid var(--red)"></div><span style="position:absolute;right:10px;top:${top(a.levels.stop)}px;transform:translateY(-50%);background:#fff;border:1px solid var(--line);border-radius:99px;padding:5px 9px;font-weight:900">Stop ${v19TL(a.levels.stop)}</span><div style="position:absolute;left:8%;right:8%;top:${top(a.levels.firstTarget)}px;border-top:2px solid var(--yellow)"></div><span style="position:absolute;right:10px;top:${top(a.levels.firstTarget)}px;transform:translateY(-50%);background:#fff;border:1px solid var(--line);border-radius:99px;padding:5px 9px;font-weight:900">İlk Hedef ${v19TL(a.levels.firstTarget)}</span>`}
-async function loadV19(symbol=null){const s=(symbol||$('search').value||$('symbol').value||'PAPIL').toUpperCase();setStatus(`V19 gerçek veri analizi alınıyor: ${s}`);const j=await (await fetch(`/api/dip?symbol=${encodeURIComponent(s)}`)).json();if(!j.success)throw new Error(j.error||'V19 analizi alınamadı');const a=j.analysis;$('v19DipScore').textContent=Math.round(a.ai.dipScore);$('v19Trust').textContent=Math.round(a.ai.aiTrust);$('v19Inst').textContent=Math.round(a.ai.institutional);$('v19Decision').textContent=a.ai.decision;const cl=(a.supportClusters||[])[0]||{};$('v19Region').innerHTML=`<div class="kpi"><b>Son Fiyat</b><span>${v19TL(a.currentPrice)}</span></div><div class="kpi"><b>Dip Kümesi</b><span>${v19TL(a.dipRegion.low)} - ${v19TL(a.dipRegion.high)}</span></div><div class="kpi"><b>En Güçlü Dip</b><span>${v19TL(a.dipRegion.strongest)}</span></div><div class="kpi"><b>Test Sayısı</b><span>${cl.touches||0}</span></div><div class="kpi"><b>Ortalama Tepki</b><span>%${fmt(cl.avgReaction||0,2)}</span></div>`;$('v19Time').innerHTML=`<div class="kpi"><b>Dip Olgunluğu</b><span>%${Math.round(a.ai.maturity)}</span></div><div class="kpi"><b>Tahmini Süre</b><span>${a.ai.duration}</span></div><div class="kpi"><b>Falling Knife</b><span>${Math.round(a.ai.fallingKnife)}/100</span></div><div class="kpi"><b>Backtest Başarı</b><span>%${fmt(a.backtest.successRate,1)}</span></div>`;$('v19Levels').innerHTML=`<div class="kpi"><b>İlk Alım</b><span>${v19TL(a.levels.firstBuy)}</span></div><div class="kpi"><b>Güçlü Alım</b><span>${v19TL(a.levels.strongBuy)}</span></div><div class="kpi"><b>Stop</b><span>${v19TL(a.levels.stop)}</span></div><div class="kpi"><b>İlk Hedef</b><span>${v19TL(a.levels.firstTarget)}</span></div><div class="kpi"><b>Ana Hedef</b><span>${v19TL(a.levels.mainTarget)}</span></div><div class="kpi"><b>Risk/Getiri</b><span>${fmt(a.levels.riskReward,2)}</span></div>`;$('v19Chart').innerHTML=v19Chart(a);$('v19AI').textContent=a.aiText;$('v19Layers').innerHTML=Object.entries(a.scores).map(([k,v])=>`<tr><td>${({'support':'Destek','rsi':'RSI','macd':'MACD','ema':'EMA','bollinger':'Bollinger','volume':'Hacim','money':'Para Girişi','adx':'ADX','atr':'ATR','cluster':'Dip Kümesi','backtest':'Backtest'}[k]||k)}</td><td>${v19Badge(v)}</td><td>${v19Bar(v)}</td></tr>`).join('');$('v19Indicators').innerHTML=Object.entries(a.indicators).map(([k,v])=>`<tr><td>${k.toUpperCase()}</td><td><b>${fmt(v,2)}</b></td></tr>`).join('');setStatus(`${s} için V19 Institutional analiz hazır. Random veri yok.`)}
-async function scanV19(){v19Cache=[];const sj=await (await fetch('/api/symbols')).json();const list=sj.symbols||[];$('v19ScanStatus').textContent=`0 / ${list.length} hisse tarandı...`;for(let i=0;i<list.length;i++){const s=list[i];try{const j=await (await fetch(`/api/dip?symbol=${encodeURIComponent(s)}`)).json();if(j.success)v19Cache.push({symbol:s,...j.analysis})}catch(e){}v19Cache.sort((a,b)=>(b.ai?.dipScore||0)-(a.ai?.dipScore||0));$('v19Rows').innerHTML=v19Cache.slice(0,30).map(x=>`<tr><td><b>${x.symbol}</b></td><td>${v19TL(x.currentPrice)}</td><td>${v19Badge(x.ai.dipScore)}</td><td>${v19Badge(x.ai.aiTrust)}</td><td>${v19TL(x.dipRegion.low)} - ${v19TL(x.dipRegion.high)}</td><td>${v19TL(x.dipRegion.strongest)}</td><td>${x.ai.decision}</td></tr>`).join('');$('v19ScanStatus').textContent=`${i+1} / ${list.length} hisse tarandı.`;await new Promise(r=>setTimeout(r,60));}}
-function exportV19(){const rows=[['Hisse','Son Fiyat','Dip Skoru','AI Güven','Dip Alt','Dip Üst','En Güçlü Dip','Karar']];v19Cache.forEach(x=>rows.push([x.symbol,x.currentPrice,x.ai.dipScore,x.ai.aiTrust,x.dipRegion.low,x.dipRegion.high,x.dipRegion.strongest,x.ai.decision]));const csv='\ufeff'+rows.map(r=>r.join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='v19_institutional_dip_tarama.csv';a.click();}
+async function loadV19(symbol=null){const s=(symbol||$('search').value||$('symbol').value||'PAPIL').toUpperCase();setStatus(`V19 gerçek veri analizi alınıyor: ${s}`);const j=await (await fetch(`/api/dip?symbol=${encodeURIComponent(s)}`)).json();if(!j.success)throw new Error(j.error||'V19 analizi alınamadı');const a=j.analysis;$('v19DipScore').textContent=Math.round(a.ai.dipScore);$('v19Trust').textContent=Math.round(a.ai.aiTrust);$('v19Inst').textContent=Math.round(a.ai.institutional);$('v19Decision').textContent=a.ai.decision;const cl=(a.supportClusters||[])[0]||{};$('v19Region').innerHTML=`<div class="kpi"><b>Son Fiyat</b><span>${v19TL(a.currentPrice)}</span></div><div class="kpi"><b>Dip Kümesi</b><span>${v19TL(a.dipRegion.low)} - ${v19TL(a.dipRegion.high)}</span></div><div class="kpi"><b>250 Günlük Güçlü Seviye</b><span>${dipLevelText(a.currentPrice,a.dipRegion.strongest)}</span></div><div class="kpi"><b>Test Sayısı</b><span>${cl.touches||0}</span></div><div class="kpi"><b>Ortalama Tepki</b><span>%${fmt(cl.avgReaction||0,2)}</span></div>`;$('v19Time').innerHTML=`<div class="kpi"><b>Dip Olgunluğu</b><span>%${Math.round(a.ai.maturity)}</span></div><div class="kpi"><b>Tahmini Süre</b><span>${a.ai.duration}</span></div><div class="kpi"><b>Falling Knife</b><span>${Math.round(a.ai.fallingKnife)}/100</span></div><div class="kpi"><b>Backtest Başarı</b><span>%${fmt(a.backtest.successRate,1)}</span></div>`;$('v19Levels').innerHTML=`<div class="kpi"><b>İlk Alım</b><span>${v19TL(a.levels.firstBuy)}</span></div><div class="kpi"><b>Güçlü Alım</b><span>${v19TL(a.levels.strongBuy)}</span></div><div class="kpi"><b>Stop</b><span>${v19TL(a.levels.stop)}</span></div><div class="kpi"><b>İlk Hedef</b><span>${v19TL(a.levels.firstTarget)}</span></div><div class="kpi"><b>Ana Hedef</b><span>${v19TL(a.levels.mainTarget)}</span></div><div class="kpi"><b>Risk/Getiri</b><span>${fmt(a.levels.riskReward,2)}</span></div>`;$('v19Chart').innerHTML=v19Chart(a);$('v19AI').textContent=a.aiText;$('v19Layers').innerHTML=Object.entries(a.scores).map(([k,v])=>`<tr><td>${({'support':'Destek','rsi':'RSI','macd':'MACD','ema':'EMA','bollinger':'Bollinger','volume':'Hacim','money':'Para Girişi','adx':'ADX','atr':'ATR','cluster':'Dip Kümesi','backtest':'Backtest'}[k]||k)}</td><td>${v19Badge(v)}</td><td>${v19Bar(v)}</td></tr>`).join('');$('v19Indicators').innerHTML=Object.entries(a.indicators).map(([k,v])=>`<tr><td>${k.toUpperCase()}</td><td><b>${fmt(v,2)}</b></td></tr>`).join('');setStatus(`${s} için V19 Institutional analiz hazır. Random veri yok.`)}
+async function scanV19(){v19Cache=[];const sj=await (await fetch('/api/symbols')).json();const list=sj.symbols||[];$('v19ScanStatus').textContent=`0 / ${list.length} hisse tarandı...`;for(let i=0;i<list.length;i++){const s=list[i];try{const j=await (await fetch(`/api/dip?symbol=${encodeURIComponent(s)}`)).json();if(j.success)v19Cache.push({symbol:s,...j.analysis})}catch(e){}v19Cache.sort((a,b)=>(b.ai?.dipScore||0)-(a.ai?.dipScore||0));$('v19Rows').innerHTML=v19Cache.slice(0,30).map(x=>`<tr><td><b>${x.symbol}</b></td><td>${v19TL(x.currentPrice)}</td><td>${v19Badge(x.ai.dipScore)}</td><td>${v19Badge(x.ai.aiTrust)}</td><td>${v19TL(x.dipRegion.low)} - ${v19TL(x.dipRegion.high)}</td><td>${dipLevelPlain(x.currentPrice,x.dipRegion.strongest)}</td><td>${x.ai.decision}</td></tr>`).join('');$('v19ScanStatus').textContent=`${i+1} / ${list.length} hisse tarandı.`;await new Promise(r=>setTimeout(r,60));}}
+function exportV19(){const rows=[['Hisse','Son Fiyat','Dip Skoru','AI Güven','Dip Alt','Dip Üst','Güçlü Seviye','Karar']];v19Cache.forEach(x=>rows.push([x.symbol,x.currentPrice,x.ai.dipScore,x.ai.aiTrust,x.dipRegion.low,x.dipRegion.high,x.dipRegion.strongest,x.ai.decision]));const csv='\ufeff'+rows.map(r=>r.join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='v19_institutional_dip_tarama.csv';a.click();}
 
 init();
 setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]'); if(b)b.addEventListener('click',()=>loadV19().catch(e=>setStatus(e.message))); if($('v19ScanBtn'))$('v19ScanBtn').addEventListener('click',scanV19); if($('v19ExportBtn'))$('v19ExportBtn').addEventListener('click',exportV19);},700);
@@ -852,7 +873,7 @@ async function loadV19(symbol=null){
   $('v19Inst').textContent=Math.round(a.ai.institutional);
   $('v19Decision').textContent=a.ai.decision;
   const cluster=(a.supportClusters||[])[0]||{};
-  $('v19Region').innerHTML=`<div class="kpi"><b>Son Fiyat</b><span>${v19TL(a.currentPrice)}</span></div><div class="kpi"><b>250 Günlük Dip Kümesi</b><span>${v19TL(a.dipRegion.low)} - ${v19TL(a.dipRegion.high)}</span></div><div class="kpi"><b>En Güçlü Dip</b><span>${v19TL(a.dipRegion.strongest)}</span></div><div class="kpi"><b>Test Sayısı</b><span>${cluster.touches||0}</span></div><div class="kpi"><b>Başarılı Tepki</b><span>${cluster.success||0}</span></div><div class="kpi"><b>Ortalama Tepki</b><span>%${fmt(cluster.avgReaction||0,2)}</span></div>`;
+  $('v19Region').innerHTML=`<div class="kpi"><b>Son Fiyat</b><span>${v19TL(a.currentPrice)}</span></div><div class="kpi"><b>250 Günlük Dip Kümesi</b><span>${v19TL(a.dipRegion.low)} - ${v19TL(a.dipRegion.high)}</span></div><div class="kpi"><b>250 Günlük Güçlü Seviye</b><span>${dipLevelText(a.currentPrice,a.dipRegion.strongest)}</span></div><div class="kpi"><b>Test Sayısı</b><span>${cluster.touches||0}</span></div><div class="kpi"><b>Başarılı Tepki</b><span>${cluster.success||0}</span></div><div class="kpi"><b>Ortalama Tepki</b><span>%${fmt(cluster.avgReaction||0,2)}</span></div>`;
   $('v19Time').innerHTML=`<div class="kpi"><b>Dip Olgunluğu</b><span>%${Math.round(a.ai.maturity)}</span></div><div class="kpi"><b>Tahmini Süre</b><span>${a.ai.duration}</span></div><div class="kpi"><b>Falling Knife</b><span>${Math.round(a.ai.fallingKnife)}/100</span></div><div class="kpi"><b>Backtest</b><span>${a.backtest.signalCount} sinyal / ${a.backtest.success} başarılı / %${fmt(a.backtest.successRate,1)}</span></div>`;
   $('v19Levels').innerHTML=`<div class="kpi"><b>İlk Alım</b><span>${v19TL(a.levels.firstBuy)}</span></div><div class="kpi"><b>Güçlü Alım</b><span>${v19TL(a.levels.strongBuy)}</span></div><div class="kpi"><b>Stop</b><span>${v19TL(a.levels.stop)}</span></div><div class="kpi"><b>İlk Hedef</b><span>${v19TL(a.levels.firstTarget)}</span></div><div class="kpi"><b>Ana Hedef</b><span>${v19TL(a.levels.mainTarget)}</span></div><div class="kpi"><b>Risk/Getiri</b><span>${fmt(a.levels.riskReward,2)}</span></div>`;
   $('v19Chart').innerHTML=v19Chart(a);
@@ -875,7 +896,7 @@ async function scanV19(){
     offset=j.nextOffset||offset+chunk;
     done=!!j.done;
     const pctDone=total?Math.min(100,Math.round(offset/total*100)):0;
-    $('v19Rows').innerHTML=v19Cache.slice(0,30).map(x=>`<tr><td><b>${x.symbol}</b></td><td>${v19TL(x.currentPrice)}</td><td>${v19Badge(x.ai.dipScore)}</td><td>${v19Badge(x.ai.aiTrust)} ${v19Stars(x.ai.aiTrust)}</td><td>${v19TL(x.dipRegion.low)} - ${v19TL(x.dipRegion.high)}</td><td>${v19TL(x.dipRegion.strongest)}</td><td>${x.ai.decision}</td></tr>`).join('');
+    $('v19Rows').innerHTML=v19Cache.slice(0,30).map(x=>`<tr><td><b>${x.symbol}</b></td><td>${v19TL(x.currentPrice)}</td><td>${v19Badge(x.ai.dipScore)}</td><td>${v19Badge(x.ai.aiTrust)} ${v19Stars(x.ai.aiTrust)}</td><td>${v19TL(x.dipRegion.low)} - ${v19TL(x.dipRegion.high)}</td><td>${dipLevelPlain(x.currentPrice,x.dipRegion.strongest)}</td><td>${x.ai.decision}</td></tr>`).join('');
     $('v19ScanStatus').innerHTML=`<b>${Math.min(offset,total)} / ${total}</b> hisse tarandı — %${pctDone}<div class="barw" style="margin-top:8px"><div id="v19Progress" class="bar" style="width:${pctDone}%;background:var(--green)"></div></div>`;
     await new Promise(r=>setTimeout(r,90));
   }

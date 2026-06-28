@@ -11,3 +11,10 @@ Eklenenler:
 
 Not:
 KAP canlı bağlantısı Vercel ortamında yanıt vermezse sistem demo veri üretmez. Yalnızca kullanıcı tarafından data/kap-news.json içine eklenen gerçek arşiv kayıtlarını okur.
+
+V22.1 UI FIX
+- V20 Institutional Portföy Motoru sekmesi açıldıktan sonra diğer sekmelerde görünmeye devam etme ihtimaline karşı showPage() fonksiyonu güçlendirildi.
+- Tüm sayfalar önce class + inline display:none ile kapatılıyor, yalnızca aktif sayfa display:block yapılıyor.
+- Dip ekranında "En Güçlü Dip" başlığı "Güçlü Seviye" olarak düzeltildi.
+- Son fiyatın üstünde kalan tarihsel destekler artık "Kırılan destek / direnç" etiketiyle gösteriliyor.
+- Son fiyatın altında kalan seviyeler "Aktif destek" etiketiyle gösteriliyor.
