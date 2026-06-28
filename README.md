@@ -1,25 +1,13 @@
-# BIST Radar Pro R2 – Karar Motoru
+# BIST Radar Pro R8 - Dinamik Portföy Radarım
 
-Taban: R1 Veri Katmanı.
-
-## Amaç
-Yeni ekran/özellik eklemeden, R1'de kurulan Master Stock Object verisini tek bir AI Final Decision motoruna bağlamak.
+Taban: R7 Indicator Engine.
 
 ## Yapılanlar
-- `lib/decision-layer.js` eklendi.
-- `/api/decision` artık `R2_DECISION_SINGLE` ve `R2_DECISION_BATCH` şemasıyla karar üretir.
-- `/api/scan` artık `R2_DECISION_SCAN` şemasıyla Master Object + karar satırını birlikte döndürür.
-- AL / TUT / SAT mantığı tek yerden üretildi.
-- Güven, risk, IQS, Day, Swing, Pozisyon, Kurumsal, KAP, Financial, Learning ve Backtest katmanları tek puanda birleşti.
-- Duplicate/0 sonuç sorununa yol açan eski cache formatlarına bağımlılık azaltıldı.
-- Random/pseudo veri eklenmedi.
-
-## Not
-Bu sürüm yatırım tavsiyesi üretmez; gerçek OHLC/hacim ve mevcut veri katmanlarına dayalı karar destek skoru üretir.
-
-
-## R7 Indicator Engine
-- `lib/indicator-engine.js` eklendi.
-- OHLC/hacim verilerinden geniş gösterge paketi tek merkezde hesaplanır.
-- Master Stock Object içine `layers.indicators` ve `metrics.indicatorCount` bağlandı.
-- Yeni API eklenmedi, random/demo veri eklenmedi.
+- Portföy Radarım bölümü dinamik hale getirildi.
+- Portföy değiştiğinde hisse/lot/maliyet otomatik kaydedilir ve anlık portföy analizi yeniden çalıştırılır.
+- Her portföy hissesi için `/api/decision?symbol=` üzerinden gerçek veriyle karar motoru analizi yapılır.
+- Portföy toplam maliyet, güncel değer, kar/zarar, AI sağlık skoru ve aksiyonlar gösterilir.
+- Portföy dışı fırsatlar ve rotasyon adayları eklendi.
+- JSON portföy yükleme/indirme ve CSV dışa aktarım eklendi.
+- Yeni API eklenmedi.
+- Demo/random veri eklenmedi.

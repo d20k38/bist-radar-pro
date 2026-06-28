@@ -315,18 +315,30 @@
 
   <section id="portfolio" class="hidden">
     <div class="grid g2">
-      <div class="card"><div class="head">💼 Portföy Radarım</div><div class="body">
+      <div class="card"><div class="head">💼 R8 Dinamik Portföy Radarım</div><div class="body">
         <div id="portfolioBox" class="comment"></div><br>
         <div class="quickFilters">
-          <input id="pfSymbol" placeholder="Hisse" style="padding:12px;border:1px solid var(--line);border-radius:12px;max-width:120px">
-          <input id="pfLot" type="number" placeholder="Lot" style="padding:12px;border:1px solid var(--line);border-radius:12px;max-width:120px">
-          <input id="pfCost" type="number" step="0.01" placeholder="Maliyet" style="padding:12px;border:1px solid var(--line);border-radius:12px;max-width:140px">
+          <input id="pfSymbol" placeholder="Hisse" style="padding:12px;border:1px solid var(--line);border-radius:12px;max-width:110px">
+          <input id="pfLot" type="number" placeholder="Lot" style="padding:12px;border:1px solid var(--line);border-radius:12px;max-width:110px">
+          <input id="pfCost" type="number" step="0.01" placeholder="Maliyet" style="padding:12px;border:1px solid var(--line);border-radius:12px;max-width:130px">
           <button class="btn green" id="pfAddBtn">Ekle / Güncelle</button>
+          <button class="btn" id="pfAnalyzeBtn">Anlık Analiz</button>
           <button class="btn gray" id="pfSaveBtn">Kaydet</button>
+          <button class="btn red" id="pfClearBtn">Temizle</button>
         </div>
+        <div class="quickFilters" style="margin-top:8px">
+          <button class="btn green" id="pfExportJsonBtn">JSON İndir</button>
+          <button class="btn gray" id="pfExportCsvBtn">CSV İndir</button>
+          <label class="btn gray" style="cursor:pointer">JSON Yükle<input id="pfImportJson" type="file" accept="application/json,.json" style="display:none"></label>
+        </div>
+        <div id="portfolioChangeBox" class="comment" style="margin-top:10px">Portföyünüz değiştiğinde Ekle/Güncelle sonrası sistem otomatik kaydeder ve portföy radarını yeniden hesaplar.</div><br>
         <table id="portfolioTable" class="table"></table>
       </div></div>
       <div class="card"><div class="head green">🤖 Portföy AI Yorumu</div><div class="body"><div id="portfolioAi" class="comment">Portföy taraması sonrası güçlü/zayıf hisseler ve öneriler burada görünecek.</div></div></div>
+    </div><br>
+    <div class="grid g2">
+      <div class="card"><div class="head cyan">🌟 Portföy Dışı Fırsatlar</div><div class="body"><table id="portfolioOppTable" class="table"></table></div></div>
+      <div class="card"><div class="head yellow">🔁 Portföy Rotasyonu</div><div class="body"><table id="portfolioRotationTable" class="table"></table></div></div>
     </div>
   </section>
 
@@ -645,7 +657,7 @@ function showPage(id,btn){
 function badgeClass(score,risk=false){score=Number(score)||0;if(risk)return score<35?'bgreen':score<60?'byellow':'bred';return score>=65?'bgreen':score>=50?'byellow':'bred'}
 function decisionClass(d){return d==='GÜÇLÜ AL'||d==='AL'?'bgreen':d==='İZLE'?'byellow':d==='BEKLE'?'bblue':'bred'}
 async function init(){wire();await loadSymbols();renderPortfolio();renderSignalJournal();await loadStock(false);await scanAll(true);renderKapNews()}
-function wire(){document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page,b)));$('analyzeBtn').addEventListener('click',()=>{showPage('analysis',document.querySelector('[data-page="analysis"]'));loadStock(true)});$('backtestBtn').addEventListener('click',()=>{showPage('backtestPage',document.querySelector('[data-page=\"backtestPage\"]'));runBacktest()});$('scanBtn1').addEventListener('click',()=>scanAll(false)); setTimeout(()=>{const b=$('runBtBtn'); if(b)b.addEventListener('click',runBacktest); const p=$('runPortfolioBtBtn'); if(p)p.addEventListener('click',runPortfolioBacktest); const pa=$('pfAddBtn'); if(pa)pa.addEventListener('click',addOrUpdatePortfolio); const ps=$('pfSaveBtn'); if(ps)ps.addEventListener('click',()=>{savePortfolio();setStatus('Portföy kaydedildi.')}); const dr=$('dailyReportBtn'); if(dr)dr.addEventListener('click',renderDailyReport); const kr=$('kapRefreshBtn'); if(kr)kr.addEventListener('click',renderKapNews); const la=$('runLearningBtn'); if(la)la.addEventListener('click',runLearning); const ss=$('saveSignalBtn'); if(ss)ss.addEventListener('click',saveCurrentSignal); const cs=$('clearSignalsBtn'); if(cs)cs.addEventListener('click',clearSignalJournal); const ks=$('kapSymbolBtn'); if(ks)ks.addEventListener('click',()=>renderKapNews(($('search').value||'PAPIL').toUpperCase().trim())); const ka=$('kapAllBtn'); if(ka)ka.addEventListener('click',()=>renderKapNews('')); const rc=$('refreshConfidenceBtn'); if(rc)rc.addEventListener('click',runConfidence); const cb=$('committeeBtn'); if(cb)cb.addEventListener('click',runCommittee); const pav=$('portfolioAdviceBtn'); if(pav)pav.addEventListener('click',renderPortfolioAdvice); const pas=$('portfolioAdviceScanBtn'); if(pas)pas.addEventListener('click',async()=>{showPage('portfolioAdvice',document.querySelector('[data-page="portfolioAdvice"]')); if($('portfolioCoach'))$('portfolioCoach').innerHTML='V24.1 taraması başlıyor: Day Trading AI + Institutional Scanner gerçek OHLC/hacim verileri ile bağlanacak...'; try{await runDayTradingScan(false); await runInstitutionalScanner(false);}catch(e){setStatus('V24.1 koç taraması uyarısı: '+e.message);} showPage('portfolioAdvice',document.querySelector('[data-page="portfolioAdvice"]')); renderPortfolioAdvice();}); const cx=$('coachExportBtn'); if(cx)cx.addEventListener('click',exportCoachCSV); const spm=$('spmRunBtn'); if(spm)spm.addEventListener('click',runSmartPortfolio); const spms=$('spmScanBtn'); if(spms)spms.addEventListener('click',async()=>{showPage('smartPortfolio',document.querySelector('[data-page="smartPortfolio"]')); await runDayTradingScan(false); await runInstitutionalScanner(false); await runSmartPortfolio();}); const spmx=$('spmExportBtn'); if(spmx)spmx.addEventListener('click',exportSmartPortfolioCSV); const rl=$('rlRunBtn'); if(rl)rl.addEventListener('click',runRadarLab); const rlp=$('rlPresetBtn'); if(rlp)rlp.addEventListener('click',radarLabPreset); const rlx=$('rlExportBtn'); if(rlx)rlx.addEventListener('click',exportRadarLabCSV); const v20=$('v20RunBtn'); if(v20)v20.addEventListener('click',runV20Portfolio); const v22s=$('v22SymbolBtn'); if(v22s)v22s.addEventListener('click',()=>runV22News(($('search').value||'').toUpperCase().trim())); const v22a=$('v22AllBtn'); if(v22a)v22a.addEventListener('click',()=>runV22News(''));},0);$('search').addEventListener('keydown',e=>{if(e.key==='Enter'){$('analyzeBtn').click()}});['showEma20','showEma50','showEma200','showBB','showVWAP'].forEach(id=>{setTimeout(()=>{const el=$(id); if(el) el.addEventListener('change',()=>draw(lastRows));},0)})}
+function wire(){document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page,b)));$('analyzeBtn').addEventListener('click',()=>{showPage('analysis',document.querySelector('[data-page="analysis"]'));loadStock(true)});$('backtestBtn').addEventListener('click',()=>{showPage('backtestPage',document.querySelector('[data-page=\"backtestPage\"]'));runBacktest()});$('scanBtn1').addEventListener('click',()=>scanAll(false)); setTimeout(()=>{const b=$('runBtBtn'); if(b)b.addEventListener('click',runBacktest); const p=$('runPortfolioBtBtn'); if(p)p.addEventListener('click',runPortfolioBacktest); const pa=$('pfAddBtn'); if(pa)pa.addEventListener('click',addOrUpdatePortfolio); const ps=$('pfSaveBtn'); if(ps)ps.addEventListener('click',()=>{savePortfolio();setStatus('Portföy kaydedildi.')}); const pfa=$('pfAnalyzeBtn'); if(pfa)pfa.addEventListener('click',()=>analyzePortfolioNow(false)); const pfc=$('pfClearBtn'); if(pfc)pfc.addEventListener('click',clearPortfolio); const pfj=$('pfExportJsonBtn'); if(pfj)pfj.addEventListener('click',exportPortfolioJson); const pfcsv=$('pfExportCsvBtn'); if(pfcsv)pfcsv.addEventListener('click',exportPortfolioCsv); const pfi=$('pfImportJson'); if(pfi)pfi.addEventListener('change',e=>{const f=e.target.files&&e.target.files[0]; if(f)importPortfolioJson(f); e.target.value='';}); const dr=$('dailyReportBtn'); if(dr)dr.addEventListener('click',renderDailyReport); const kr=$('kapRefreshBtn'); if(kr)kr.addEventListener('click',renderKapNews); const la=$('runLearningBtn'); if(la)la.addEventListener('click',runLearning); const ss=$('saveSignalBtn'); if(ss)ss.addEventListener('click',saveCurrentSignal); const cs=$('clearSignalsBtn'); if(cs)cs.addEventListener('click',clearSignalJournal); const ks=$('kapSymbolBtn'); if(ks)ks.addEventListener('click',()=>renderKapNews(($('search').value||'PAPIL').toUpperCase().trim())); const ka=$('kapAllBtn'); if(ka)ka.addEventListener('click',()=>renderKapNews('')); const rc=$('refreshConfidenceBtn'); if(rc)rc.addEventListener('click',runConfidence); const cb=$('committeeBtn'); if(cb)cb.addEventListener('click',runCommittee); const pav=$('portfolioAdviceBtn'); if(pav)pav.addEventListener('click',renderPortfolioAdvice); const pas=$('portfolioAdviceScanBtn'); if(pas)pas.addEventListener('click',async()=>{showPage('portfolioAdvice',document.querySelector('[data-page="portfolioAdvice"]')); if($('portfolioCoach'))$('portfolioCoach').innerHTML='V24.1 taraması başlıyor: Day Trading AI + Institutional Scanner gerçek OHLC/hacim verileri ile bağlanacak...'; try{await runDayTradingScan(false); await runInstitutionalScanner(false);}catch(e){setStatus('V24.1 koç taraması uyarısı: '+e.message);} showPage('portfolioAdvice',document.querySelector('[data-page="portfolioAdvice"]')); renderPortfolioAdvice();}); const cx=$('coachExportBtn'); if(cx)cx.addEventListener('click',exportCoachCSV); const spm=$('spmRunBtn'); if(spm)spm.addEventListener('click',runSmartPortfolio); const spms=$('spmScanBtn'); if(spms)spms.addEventListener('click',async()=>{showPage('smartPortfolio',document.querySelector('[data-page="smartPortfolio"]')); await runDayTradingScan(false); await runInstitutionalScanner(false); await runSmartPortfolio();}); const spmx=$('spmExportBtn'); if(spmx)spmx.addEventListener('click',exportSmartPortfolioCSV); const rl=$('rlRunBtn'); if(rl)rl.addEventListener('click',runRadarLab); const rlp=$('rlPresetBtn'); if(rlp)rlp.addEventListener('click',radarLabPreset); const rlx=$('rlExportBtn'); if(rlx)rlx.addEventListener('click',exportRadarLabCSV); const v20=$('v20RunBtn'); if(v20)v20.addEventListener('click',runV20Portfolio); const v22s=$('v22SymbolBtn'); if(v22s)v22s.addEventListener('click',()=>runV22News(($('search').value||'').toUpperCase().trim())); const v22a=$('v22AllBtn'); if(v22a)v22a.addEventListener('click',()=>runV22News(''));},0);$('search').addEventListener('keydown',e=>{if(e.key==='Enter'){$('analyzeBtn').click()}});['showEma20','showEma50','showEma200','showBB','showVWAP'].forEach(id=>{setTimeout(()=>{const el=$(id); if(el) el.addEventListener('change',()=>draw(lastRows));},0)})}
 async function loadSymbols(){try{const j=await (await fetch('/api/symbols')).json();syms=j.symbols||[]}catch(e){syms=[]}if(!syms.length)syms=['PAPIL','MRSHL','TEZOL','USAK','VKING','THYAO','AKBNK','GARAN'];$('symbol').innerHTML=syms.map(s=>`<option>${s}</option>`).join('');$('symbol').onchange=e=>{$('search').value=e.target.value;loadStock(true)}}
 async function loadStock(verbose=true){const s=$('search').value.toUpperCase().trim()||'PAPIL';$('search').value=s;if(verbose)setStatus(s+' verisi alınıyor...');try{const j=await (await fetch('/api/stock?symbol='+encodeURIComponent(s))).json();if(!j.success)throw new Error(j.error||'Veri yok');renderStock(j);if(verbose)setStatus(s+' Yahoo Finance son verisi ile analiz edildi.')}catch(e){setStatus('Veri alınamadı: '+e.message)}}
 function renderStock(j){lastStock=j; const a=j.analysis||{},c=j.comments||{};const cards=[['Karar',a.decision,a.finalScore>=65?'ok':a.finalScore>=50?'warn':'bad'],['Güven','%'+fmt(a.confidence,0),'ok'],['Risk','%'+fmt(a.risk,0),a.risk<50?'ok':'bad'],['Hedef','%'+fmt(((a.target1-a.close)/a.close)*100,1),'ok'],['Son Fiyat',tl(a.close),a.change>=0?'ok':'bad']];$('cards').innerHTML=cards.map(x=>`<div class="card metric"><div class="body"><div class="muted">${x[0]}</div><div class="v ${x[2]}">${x[1]}</div><small>Değişim: ${fmt(a.change)}%</small></div></div>`).join('');$('engine').innerHTML=['trend','money','momentum','pattern','confidence','risk'].map(k=>{const v=a[k]||0;return `<b>${label(k)}: ${fmt(v,0)}/100</b><div class="barw"><div class="bar" style="width:${Math.max(0,Math.min(100,v))}%;background:${k==='risk'?(v<50?'#16a34a':'#dc2626'):(v>65?'#16a34a':v>50?'#f59e0b':'#dc2626')}"></div></div><br>`}).join('')+`<div class="comment"><b>Formasyon:</b> ${a.formation?.name||'-'}<br><b>ADX:</b> ${fmt(a.adx)} | <b>SuperTrend:</b> ${a.superTrendDir===1?'AL':'SAT'}<br><b>Stop:</b> ${tl(a.stop)} | <b>Hedef:</b> ${tl(a.target1)}</div>`;$('expert').textContent=c.expert||aiExpert(a);$('ai').textContent=c.ai||aiComment(a);renderAIEngine(a);renderInlineExplainableFromStock(a);renderMultiLayer(a.multiLayer||null,a);draw(a.ohlcv||j.ohlcv||[]);setTimeout(()=>runConfidence(false),80)}
@@ -931,82 +943,59 @@ function oppList(){return [...scanCache].filter(x=>(x.finalScore||0)>=45&&((x.mo
 function riskList(){return [...scanCache].filter(x=>(x.risk||0)>=55||(x.finalScore||0)<35).sort((a,b)=>(b.risk||0)-(a.risk||0)).slice(0,20)}
 function openSymbol(s){$('search').value=s;showPage('analysis',document.querySelector('[data-page="analysis"]'));loadStock(true)}
 
-function loadPortfolioLocal(){try{const raw=localStorage.getItem('bistRadarPortfolio');const arr=raw?JSON.parse(raw):null;return Array.isArray(arr)&&arr.length?arr:defaultPortfolio}catch(e){return defaultPortfolio}}
-function savePortfolio(){localStorage.setItem('bistRadarPortfolio',JSON.stringify(portfolio))}
-function addOrUpdatePortfolio(){const sym=($('pfSymbol').value||'').toUpperCase().trim();if(!sym){setStatus('Hisse kodu girin.');return;}const lot=Number($('pfLot').value||0), cost=Number($('pfCost').value||0);const i=portfolio.findIndex(p=>p.symbol===sym);const item={symbol:sym,lot:lot||0,cost:cost||0};if(i>=0)portfolio[i]=item;else portfolio.push(item);savePortfolio();renderPortfolio();setStatus(sym+' portföye eklendi/güncellendi.')}
-function removePortfolio(sym){portfolio=portfolio.filter(p=>p.symbol!==sym);savePortfolio();renderPortfolio();setStatus(sym+' portföyden çıkarıldı.')}
-function renderPortfolio(){const rows=portfolio.map(p=>{const live=scanCache.find(x=>x.symbol===p.symbol)||{};return {...p,...live}});const health=rows.length?rows.reduce((s,x)=>s+(x.finalScore||45),0)/rows.length:0;const best=[...rows].sort((a,b)=>(b.finalScore||0)-(a.finalScore||0))[0]||{};const weakest=[...rows].sort((a,b)=>(a.finalScore||0)-(b.finalScore||0))[0]||{};$('portfolioBox').innerHTML=`<b>Portföy Sağlık Skoru:</b> ${fmt(health,0)}/100<br><b>En güçlü:</b> ${best.symbol||'-'} (${fmt(best.finalScore,0)})<br><b>En zayıf halka:</b> ${weakest.symbol||'-'} (${fmt(weakest.finalScore,0)})<br><span class="mini">Veriler tarama yapıldıkça güncellenir. Portföy tarayıcı hafızasına kaydedilir.</span>`;$('portfolioTable').innerHTML='<tr><th>Hisse</th><th>Lot</th><th>Maliyet</th><th>Karar</th><th>Skor</th><th>Risk</th><th>İşlem</th></tr>'+rows.map(r=>`<tr><td onclick="openSymbol('${r.symbol}')" style="cursor:pointer"><b>${r.symbol}</b></td><td>${fmt(r.lot,0)}</td><td>${tl(r.cost)}</td><td>${r.decision||'Taranmadı'}</td><td>${fmt(r.finalScore,0)}</td><td>${fmt(r.risk,0)}</td><td><button class="btn red" onclick="removePortfolio('${r.symbol}')">Sil</button></td></tr>`).join('');$('portfolioAi').innerHTML=`${health>=70?'Portföy genel görünümü güçlü.':'Portföy için seçici davranmak gerekir.'} ${weakest.symbol?`Zayıf halka ${weakest.symbol}; risk/karar teyidi izlenmeli.`:''} ${best.symbol?`En güçlü aday ${best.symbol}.`:''}`;}
-async function renderKapNews(symbol=''){
-  const target = symbol || (($('search')?.value||'').toUpperCase().trim());
-  const url = '/api/kap?limit=10' + (symbol ? '&symbol='+encodeURIComponent(symbol) : '');
-  const loading = `<b>KAP/Haber verisi alınıyor...</b><br>${target?target:'Genel piyasa'} için haber etki analizi hazırlanıyor.`;
-  if($('kapNewsBox')) $('kapNewsBox').innerHTML = loading;
-  if($('dashKapBox')) $('dashKapBox').innerHTML = loading;
-  try{
-    const j = await fetchJsonSafe(url+'&t='+Date.now());
-    const items = Array.isArray(j.items)?j.items:[];
-    const sentimentText = `${j.positive||0} olumlu / ${j.negative||0} olumsuz / ${j.neutral||0} nötr`;
-    const htmlRows = items.length ? items.map(x=>`<tr><td><b>${x.date||'-'}</b></td><td>${x.symbol||'-'}</td><td>${x.title||'-'}<br><span class="mini">${x.summary||''}</span></td><td><span class="badge ${x.sentiment==='Pozitif'?'bgreen':x.sentiment==='Negatif'?'bred':'byellow'}">${x.sentiment||'Nötr'}</span></td><td>${fmt(x.impactScore||50,0)}</td></tr>`).join('') : '<tr><td colspan="5">Kayıt yok.</td></tr>';
-    const summary = `<b>Kaynak:</b> ${j.source||'KAP/Haber'}<br><b>AI Etki Skoru:</b> ${fmt(j.avgImpact||50,0)}/100<br><b>Duyarlılık:</b> ${sentimentText}<br><b>AI Yorumu:</b> ${j.summary||'-'}<br><span class="mini">${j.note||''}</span>`;
-    if($('kapCount')) $('kapCount').textContent = fmt(j.count||0,0);
-    if($('kapImpact')) $('kapImpact').textContent = fmt(j.avgImpact||50,0);
-    if($('kapSentiment')) $('kapSentiment').textContent = (j.avgImpact||50)>=62?'Olumlu':(j.avgImpact||50)<=42?'Olumsuz':'Nötr';
-    if($('kapSummaryBox')) $('kapSummaryBox').innerHTML = summary;
-    if($('kapAiBox')) $('kapAiBox').innerHTML = `<b>Haber/KAP etkisi:</b><br>${j.summary||'-'}<br><br><b>Karar desteği:</b> Pozitif haberler teknik skoru destekler; negatif haberler stop ve pozisyon büyüklüğü konusunda uyarı üretir.`;
-    if($('kapTable')) $('kapTable').innerHTML = '<tr><th>Tarih</th><th>Hisse</th><th>Bildirim / Haber</th><th>Duyarlılık</th><th>Etki</th></tr>'+htmlRows;
-    if($('kapNewsBox')) $('kapNewsBox').innerHTML = summary;
-    if($('dashKapBox')) $('dashKapBox').innerHTML = summary;
-  }catch(e){
-    const msg='KAP/Haber hatası: '+e.message;
-    if($('kapNewsBox')) $('kapNewsBox').textContent = msg;
-    if($('dashKapBox')) $('dashKapBox').textContent = msg;
-    if($('kapSummaryBox')) $('kapSummaryBox').textContent = msg;
+function loadPortfolioLocal(){try{const raw=localStorage.getItem('bistRadarPortfolio');const arr=raw?JSON.parse(raw):null;return Array.isArray(arr)&&arr.length?arr.map(p=>({symbol:String(p.symbol||'').toUpperCase().trim(),lot:Number(p.lot||0),cost:Number(p.cost||0)})).filter(p=>p.symbol):defaultPortfolio}catch(e){return defaultPortfolio}}
+function savePortfolio(){localStorage.setItem('bistRadarPortfolio',JSON.stringify(portfolio));localStorage.setItem('bistRadarPortfolioSavedAt',new Date().toISOString())}
+function portfolioCost(p){return Number(p.lot||0)*Number(p.cost||0)}
+function portfolioAction(score,decision,pnlPct,risk){score=Number(score||0);risk=Number(risk||50);if(score>=82&&risk<58)return 'ARTIR';if(score>=68)return 'TUT / Kademeli';if(score>=52)return pnlPct>8?'Kârı Koru':'İZLE';if(score>=38)return 'AZALT';return 'ÇIKIŞ DÜŞÜN'}
+function portfolioHealthGrade(v){v=Number(v||0);return v>=82?'A+':v>=74?'A':v>=64?'B':v>=52?'C':'D'}
+async function analyzePortfolioNow(auto=false){
+  if(!portfolio.length){renderPortfolio();return;}
+  const box=$('portfolioChangeBox'); if(box)box.innerHTML='Portföy canlı karar motoru ile analiz ediliyor...';
+  const rows=[]; let ok=0, fail=0;
+  for(const p of portfolio){
+    try{
+      const j=await fetchJsonSafe('/api/decision?symbol='+encodeURIComponent(p.symbol)+'&t='+Date.now(),{timeout:12000,retries:1});
+      if(!j.success) throw new Error(j.error||'Karar verisi yok');
+      const row=j.row||j.r2Decision||{}; const a=j.analysis||{};
+      const close=Number(a.close||row.close||row.price||0);
+      const costValue=portfolioCost(p); const value=close?close*Number(p.lot||0):0;
+      const pnl=value&&costValue?value-costValue:0; const pnlPct=costValue?((value-costValue)/costValue*100):0;
+      const finalScore=Number(row.finalScore||row.score||a.finalScore||0);
+      const risk=Number(row.risk||a.risk||50);
+      const decision=row.decision||row.action||a.decision||'İZLE';
+      rows.push({...p,close,value,costValue,pnl,pnlPct,finalScore,risk,decision,confidence:Number(row.confidence||a.confidence||0),action:portfolioAction(finalScore,decision,pnlPct,risk),why:(row.why||row.note||'R8 Karar Motoru + gerçek OHLC/hacim verisi ile değerlendirildi.'),day:Number(j.dayTrading?.score||j.core?.dayTrading?.score||0),iqs:Number(j.quality?.iqs||j.core?.quality?.iqs||row.quality||0)});
+      ok++;
+    }catch(e){
+      rows.push({...p,close:0,value:0,costValue:portfolioCost(p),pnl:0,pnlPct:0,finalScore:0,risk:100,decision:'VERİ YOK',confidence:0,action:'BEKLE',why:e.message});
+      fail++;
+    }
+    renderPortfolio(rows,{partial:true,ok,fail});
+    await new Promise(r=>setTimeout(r,60));
   }
+  window.portfolioAnalysisRows=rows;
+  renderPortfolio(rows,{partial:false,ok,fail});
+  if(box)box.innerHTML=`Analiz tamamlandı. Başarılı: <b>${ok}</b>, veri alınamayan: <b>${fail}</b>. Portföy değiştiğinde tekrar Ekle/Güncelle veya Anlık Analiz kullanın.`;
 }
-
-function layerClass(v){v=nval(v,0);return v>=70?'ok':v>=50?'warn':'bad'}
-function renderMultiLayer(ml,a={}){
-  if(!ml){
-    const fallback={layers:[
-      {name:'Trend',score:nval(a.trend),comment:'Teknik trend puanı'},
-      {name:'Momentum',score:nval(a.momentum),comment:'RSI/MACD/ROC bileşimi'},
-      {name:'Para Girişi',score:nval(a.money),comment:'Hacim ve OBV bileşimi'},
-      {name:'Formasyon',score:nval(a.pattern),comment:a.formation?.name||'Formasyon puanı'},
-      {name:'Haber/KAP',score:50,comment:'Güncelleme bekleniyor'},
-      {name:'Backtest',score:50,comment:'Güncelleme bekleniyor'},
-      {name:'AI Genel',score:nval(a.finalScore),comment:'Teknik motor skoru'}
-    ], aiGeneral:nval(a.finalScore), decision:a.decision||'-', risk:nval(a.risk,0), summary:'Çok katmanlı güven puanı güncelleniyor.'};
-    ml=fallback;
-  }
-  const rows=(ml.layers||[]).map(x=>`<div class="layerRow"><b>${x.name}</b><div><div class="barw"><div class="bar" style="width:${Math.max(0,Math.min(100,nval(x.score)))}%;background:${nval(x.score)>=70?'#16a34a':nval(x.score)>=50?'#f59e0b':'#dc2626'}"></div></div><div class="layerSmall">${x.comment||''}${x.weight?` • Ağırlık: %${x.weight}`:''}</div></div><div class="layerScore ${layerClass(x.score)}">${fmt(x.score,0)}</div></div>`).join('');
-  const html=`<div class="comment"><b>${ml.summary||''}</b></div><br>${rows}<br><div class="grid g2"><div class="comment"><b>Güçlü katmanlar</b><br>${(ml.positives||[]).length?(ml.positives||[]).map(x=>'✅ '+x).join('<br>'):'Belirgin güçlü katman yok.'}</div><div class="comment"><b>Zayıf / dikkat katmanları</b><br>${(ml.warnings||[]).length?(ml.warnings||[]).map(x=>'⚠️ '+x).join('<br>'):'Kritik zayıflık yok.'}</div></div>`;
-  if($('multiLayerBox'))$('multiLayerBox').innerHTML=html;
-  if($('mlTableBox'))$('mlTableBox').innerHTML=html;
-  if($('mlGeneral'))$('mlGeneral').textContent=fmt(ml.aiGeneral,0);
-  if($('mlDecision'))$('mlDecision').textContent=ml.decision||'-';
-  if($('mlRisk'))$('mlRisk').textContent=fmt(ml.risk,0);
-  if($('mlComment'))$('mlComment').innerHTML=`<b>Karar Şeffaflığı:</b><br>${ml.summary||'-'}<br><br><b>Yorum:</b> Tek başına AL/SAT yerine, hangi katmanın kararı güçlendirdiği ve hangi katmanın zayıflattığı açıkça gösterilir. Haber/KAP ve Backtest puanı güncellendikçe AI Genel skoru da değişir.`;
+function addOrUpdatePortfolio(){const sym=($('pfSymbol').value||'').toUpperCase().trim();if(!sym){setStatus('Hisse kodu girin.');return;}const lot=Number($('pfLot').value||0), cost=Number($('pfCost').value||0);const i=portfolio.findIndex(p=>p.symbol===sym);const item={symbol:sym,lot:lot||0,cost:cost||0};if(i>=0)portfolio[i]=item;else portfolio.push(item);portfolio=portfolio.filter(p=>p.symbol).sort((a,b)=>a.symbol.localeCompare(b.symbol));savePortfolio();renderPortfolio();setStatus(sym+' portföye eklendi/güncellendi. Portföy radarı yenileniyor...');analyzePortfolioNow(true)}
+function removePortfolio(sym){portfolio=portfolio.filter(p=>p.symbol!==sym);savePortfolio();renderPortfolio();setStatus(sym+' portföyden çıkarıldı.');analyzePortfolioNow(true)}
+function clearPortfolio(){if(!confirm('Portföy tamamen temizlensin mi?'))return;portfolio=[];savePortfolio();window.portfolioAnalysisRows=[];renderPortfolio();setStatus('Portföy temizlendi.')}
+function renderPortfolio(customRows=null,meta={}){const baseRows=customRows||(window.portfolioAnalysisRows&&window.portfolioAnalysisRows.length?window.portfolioAnalysisRows:portfolio.map(p=>{const live=scanCache.find(x=>x.symbol===p.symbol)||{};const close=Number(live.close||live.price||0);const costValue=portfolioCost(p);const value=close?close*Number(p.lot||0):0;const pnl=value&&costValue?value-costValue:0;const pnlPct=costValue?((value-costValue)/costValue*100):0;return {...p,...live,close,value,costValue,pnl,pnlPct,action:portfolioAction(live.finalScore||0,live.decision,pnlPct,live.risk)}}));
+  const rows=[...baseRows];
+  const totalCost=rows.reduce((s,x)=>s+Number(x.costValue||portfolioCost(x)),0), totalValue=rows.reduce((s,x)=>s+Number(x.value||0),0), totalPnl=totalValue&&totalCost?totalValue-totalCost:0, pnlPct=totalCost?totalPnl/totalCost*100:0;
+  const health=rows.length?rows.reduce((s,x)=>s+Number(x.finalScore||0),0)/rows.length:0;const best=[...rows].sort((a,b)=>(b.finalScore||0)-(a.finalScore||0))[0]||{};const weakest=[...rows].sort((a,b)=>(a.finalScore||999)-(b.finalScore||999))[0]||{};
+  const grade=portfolioHealthGrade(health); const saved=localStorage.getItem('bistRadarPortfolioSavedAt')||'-';
+  $('portfolioBox').innerHTML=`<b>R8 Dinamik Portföy Sağlığı:</b> ${fmt(health,0)}/100 <b>(${grade})</b><br><b>Maliyet:</b> ${tl(totalCost)} | <b>Güncel Değer:</b> ${totalValue?tl(totalValue):'Anlık analiz bekleniyor'} | <b>K/Z:</b> <span style="color:${totalPnl>=0?'#16a34a':'#dc2626'}">${totalValue?tl(totalPnl)+' (%'+fmt(pnlPct,2)+')':'-'}</span><br><b>En güçlü:</b> ${best.symbol||'-'} (${fmt(best.finalScore,0)}) | <b>En zayıf halka:</b> ${weakest.symbol||'-'} (${fmt(weakest.finalScore,0)})<br><span class="mini">Son kayıt: ${saved}${meta.partial?' • analiz sürüyor...':''}</span>`;
+  $('portfolioTable').innerHTML=rows.length?'<tr><th>Hisse</th><th>Lot</th><th>Maliyet</th><th>Son</th><th>Değer</th><th>K/Z</th><th>AI</th><th>Risk</th><th>Aksiyon</th><th>İşlem</th></tr>'+rows.map(r=>`<tr><td onclick="openSymbol('${r.symbol}')" style="cursor:pointer"><b>${r.symbol}</b></td><td>${fmt(r.lot,0)}</td><td>${tl(r.cost)}</td><td>${r.close?tl(r.close):'-'}</td><td>${r.value?tl(r.value):'-'}</td><td style="color:${Number(r.pnl||0)>=0?'#16a34a':'#dc2626'}">${r.value?tl(r.pnl)+'<br><small>%'+fmt(r.pnlPct,2)+'</small>':'-'}</td><td>${isBadge?isBadge(r.finalScore||0):fmt(r.finalScore,0)}<br><small>${r.decision||'-'}</small></td><td>${fmt(r.risk,0)}</td><td><b>${r.action||'İZLE'}</b></td><td><button class="btn gray" onclick="fillPortfolioForm('${r.symbol}',${Number(r.lot||0)},${Number(r.cost||0)})">Düzenle</button> <button class="btn red" onclick="removePortfolio('${r.symbol}')">Sil</button></td></tr>`).join(''):'<tr><td>Portföy boş. Hisse, lot ve maliyet girip Ekle/Güncelle düğmesine basın.</td></tr>';
+  const weak=rows.filter(x=>Number(x.finalScore||0)<52).map(x=>x.symbol); const strong=rows.filter(x=>Number(x.finalScore||0)>=70).map(x=>x.symbol);
+  $('portfolioAi').innerHTML=`<b>AI Portföy Yorumu:</b><br>${health>=72?'Portföy genel görünümü güçlü.':health>=55?'Portföy orta güçte; seçici takip gerekir.':'Portföy zayıf sinyal üretiyor; risk azaltma planı gerekir.'}<br>${strong.length?'<b>Güçlü/tutulabilir:</b> '+strong.join(', ')+'<br>':''}${weak.length?'<b>Zayıf/azalt izleme:</b> '+weak.join(', ')+'<br>':''}<br><b>Portföy değiştiğinde:</b> yeni hisse/lot/maliyet kaydedilir, R8 radar aynı karar motoruyla yeniden hesaplar. Bu ekran yatırım tavsiyesi değil, karar destek ve risk izleme aracıdır.`;
+  renderPortfolioOpportunities(rows); renderPortfolioRotations(rows);
 }
-async function runConfidence(show=true){
-  const s=($('search')?.value||'PAPIL').toUpperCase().trim();
-  if(show)showPage('confidencePage',document.querySelector('[data-page="confidencePage"]'));
-  try{
-    if(show)setStatus(s+' için çok katmanlı güven puanı hesaplanıyor...');
-    const j=await fetchJsonSafe('/api/confidence?symbol='+encodeURIComponent(s)+'&t='+Date.now());
-    if(!j.success)throw new Error(j.error||'Güven puanı alınamadı');
-    renderMultiLayer(j.multiLayer||null,{});
-    if(show)setStatus(s+' çok katmanlı güven puanı güncellendi.');
-  }catch(e){
-    if($('mlComment'))$('mlComment').textContent='Çok katmanlı güven hatası: '+e.message;
-    if(show)setStatus('Çok katmanlı güven hatası: '+e.message);
-  }
-}
-
-
-function rrScore(x){x=x||{};const target=Number(x.target1&&x.close?((x.target1-x.close)/x.close)*100:0);const stop=Number(x.stop&&x.close?((x.close-x.stop)/x.close)*100:5);return Math.max(0,Math.min(100,(target*12)/(Math.max(stop,1))))}
-function dailyTradeList(){return [...scanCache].filter(x=>(x.money||0)>=45&&(x.momentum||0)>=45&&(x.risk||100)<=60&&(x.finalScore||0)>=45).sort((a,b)=>((b.money||0)+(b.momentum||0)+rrScore(b))-((a.money||0)+(a.momentum||0)+rrScore(a))).slice(0,8)}
-function weeklyPortfolioList(){return [...scanCache].filter(x=>(x.finalScore||0)>=55&&(x.confidence||0)>=55&&(x.risk||100)<=55).sort((a,b)=>((b.finalScore||0)+(b.trend||0)+(b.confidence||0)-(b.risk||0))-((a.finalScore||0)+(a.trend||0)+(a.confidence||0)-(a.risk||0))).slice(0,7)}
-function monthlyPortfolioList(){return [...scanCache].filter(x=>(x.trend||0)>=55&&(x.confidence||0)>=55&&(x.risk||100)<=50).sort((a,b)=>((b.trend||0)*1.2+(b.confidence||0)+(b.finalScore||0)-(b.risk||0)*1.1)-((a.trend||0)*1.2+(a.confidence||0)+(a.finalScore||0)-(a.risk||0)*1.1)).slice(0,8)}
+function fillPortfolioForm(sym,lot,cost){$('pfSymbol').value=sym;$('pfLot').value=lot||'';$('pfCost').value=cost||'';setStatus(sym+' düzenleme alanına alındı.')}
+function renderPortfolioOpportunities(rows){const table=$('portfolioOppTable'); if(!table)return; const pset=new Set(portfolio.map(p=>p.symbol)); const src=(scanCache||[]).filter(x=>x&&x.symbol&&!pset.has(x.symbol)).sort((a,b)=>(b.finalScore||0)-(a.finalScore||0)).slice(0,10); table.innerHTML=src.length?'<tr><th>Hisse</th><th>AI</th><th>Karar</th><th>Risk</th><th>Neden</th></tr>'+src.map(x=>`<tr onclick="openSymbol('${x.symbol}')"><td><b>${x.symbol}</b></td><td>${isBadge?isBadge(x.finalScore||0):fmt(x.finalScore,0)}</td><td>${x.decision||'-'}</td><td>${fmt(x.risk,0)}</td><td>Portföy dışında güçlü aday</td></tr>`).join(''):'<tr><td>Fırsatlar için önce genel tarama çalıştırın.</td></tr>'}
+function renderPortfolioRotations(rows){const table=$('portfolioRotationTable'); if(!table)return; const weak=[...rows].filter(x=>Number(x.finalScore||0)<55).sort((a,b)=>(a.finalScore||0)-(b.finalScore||0)); const pset=new Set(portfolio.map(p=>p.symbol)); const opp=(scanCache||[]).filter(x=>x&&x.symbol&&!pset.has(x.symbol)&&Number(x.finalScore||0)>=70).sort((a,b)=>(b.finalScore||0)-(a.finalScore||0)); const pairs=weak.slice(0,5).map((w,i)=>({from:w,to:opp[i]})).filter(x=>x.to); table.innerHTML=pairs.length?'<tr><th>Azaltılacak</th><th>Alternatif</th><th>Skor Farkı</th><th>Not</th></tr>'+pairs.map(x=>`<tr><td><b>${x.from.symbol}</b> (${fmt(x.from.finalScore,0)})</td><td><b>${x.to.symbol}</b> (${fmt(x.to.finalScore,0)})</td><td>${fmt((x.to.finalScore||0)-(x.from.finalScore||0),0)}</td><td>Rotasyon adayı; stop ve likidite kontrolü gerekir.</td></tr>`).join(''):'<tr><td>Rotasyon için zayıf portföy hissesi veya güçlü portföy dışı aday bulunamadı.</td></tr>'}
+function exportPortfolioJson(){const payload={createdAt:new Date().toISOString(),source:'BIST Radar Pro R8 Dinamik Portföy',portfolio};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'}));a.download='bist_portfoy_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)}
+function exportPortfolioCsv(){const rows=(window.portfolioAnalysisRows&&window.portfolioAnalysisRows.length?window.portfolioAnalysisRows:portfolio).map(r=>[r.symbol,r.lot,r.cost,r.close||'',r.value||'',r.pnl||'',r.pnlPct||'',r.finalScore||'',r.decision||'',r.risk||'',r.action||'']);downloadCSV([['Hisse','Lot','Maliyet','Son','Deger','KarZarar','KarZarar%','AI','Karar','Risk','Aksiyon'],...rows],'r8_dinamik_portfoy.csv')}
+async function importPortfolioJson(file){try{const txt=await file.text();const j=JSON.parse(txt);const arr=Array.isArray(j)?j:j.portfolio||j.data||[];if(!Array.isArray(arr)||!arr.length)throw new Error('JSON içinde portföy listesi bulunamadı.');portfolio=arr.map(x=>({symbol:String(x.symbol||x.hisse||x.kod||'').toUpperCase().trim(),lot:Number(x.lot||x.quantity||x.adet||0),cost:Number(x.cost||x.maliyet||x.avgCost||0)})).filter(x=>x.symbol);savePortfolio();renderPortfolio();setStatus('JSON portföy yüklendi. Analiz başlıyor...');await analyzePortfolioNow(true);}catch(e){alert('JSON yükleme hatası: '+e.message)}}
 function recTable(rows,mode){if(!rows.length)return '<tr><td>Öneri üretmek için önce tüm hisse taraması yapın.</td></tr>';return '<tr><th>#</th><th>Hisse</th><th>Karar</th><th>Güven</th><th>Risk</th><th>Bek. Getiri</th><th>Stop</th><th>Ağırlık</th></tr>'+rows.map((r,i)=>{const exp=r.close&&r.target1?((r.target1-r.close)/r.close)*100:(r.potential||0)/4;const stop=r.close&&r.stop?((r.close-r.stop)/r.close)*100:Math.max(2,(r.risk||40)/12);const w=mode==='daily'?Math.max(5,Math.round(100/Math.max(rows.length,1))):Math.max(6,Math.round((r.confidence||50)/(rows.reduce((s,x)=>s+(x.confidence||50),0)||1)*90));return `<tr onclick="openSymbol('${r.symbol}')" style="cursor:pointer"><td>${i+1}</td><td><b>${r.symbol}</b></td><td><span class="badge ${decisionClass(r.decision)}">${r.decision||'-'}</span></td><td>${fmt(r.confidence,0)}</td><td>${fmt(r.risk,0)}</td><td>%${fmt(exp,1)}</td><td>-%${fmt(stop,1)}</td><td>%${w}</td></tr>`}).join('')}
 
 function portfolioSymbolsSet(){return new Set(portfolio.map(p=>String(p.symbol||'').toUpperCase().trim()).filter(Boolean))}
