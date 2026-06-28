@@ -1,5 +1,0 @@
-V27 Institutional Dashboard
-- V26 Core Engine tabanı korundu.
-- Yeni API eklenmedi; mevcut V23/V24/V25 sonuçları tek ekranda birleştirildi.
-- Day Trading, Institutional Scanner, Smart Portfolio, KAP/Haber, RVOL, kurumsal para ve risk özetleri dashboarda bağlandı.
-- Random/pseudo veri eklenmedi.
