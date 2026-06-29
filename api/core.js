@@ -34,7 +34,7 @@ async function handleStock(req,res){
   send(res,{ ...m, rows:m.ohlcv });
 }
 async function handleDecision(req,res){
-  const symbols = symbolsFrom(req);
+  const symbols = symbolsFrom(req.query);
   if(!symbols.length) return bad(res,'symbol veya symbols gerekli');
   const limit = Math.max(1, Math.min(30, Number(req.query.limit||20)));
   const list = symbols.slice(0, limit);
@@ -43,7 +43,7 @@ async function handleDecision(req,res){
   send(res,{success:true,count:results.filter(x=>x.success).length,total:list.length,results,data:results});
 }
 async function handleDip(req,res){
-  const symbols = symbolsFrom(req).slice(0, Math.max(1, Math.min(30, Number(req.query.limit||20))));
+  const symbols = symbolsFrom(req.query).slice(0, Math.max(1, Math.min(30, Number(req.query.limit||20))));
   if(!symbols.length) return bad(res,'symbol gerekli');
   const rows = await Promise.all(symbols.map(async s=>{
     const m = await one(s, req.query.range || '1y');
@@ -167,7 +167,7 @@ async function handleLearning(req,res){
 }
 
 async function handleDiagnostic(req,res){
-  const explicit = symbolsFrom(req);
+  const explicit = symbolsFrom(req.query);
   const symbol = String(req.query.symbol||'').toUpperCase().trim();
   const limit = Math.max(1, Math.min(50, Number(req.query.limit || 10)));
   const offset = Math.max(0, Number(req.query.offset || 0));
@@ -318,7 +318,7 @@ function buildExplainable(master){
   return {symbol:m.symbol, score, decision, confidence:confidenceNum, confidenceGrade:gradeFromConfidence(m.confidence ?? confidenceNum), risk, dataQuality, layers, positives, negatives, trace, traffic:{green:layers.filter(l=>l.status==='green').length,yellow:layers.filter(l=>l.status==='yellow').length,red:layers.filter(l=>l.status==='red').length}, shortComment, master:m};
 }
 async function handleExplain(req,res){
-  let symbols = symbolsFrom(req);
+  let symbols = symbolsFrom(req.query);
   if(!symbols.length){
     const fallback = String(req.query.s || req.query.code || req.query.ticker || '').toUpperCase().trim();
     if(fallback) symbols=[fallback];
