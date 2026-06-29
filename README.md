@@ -1,17 +1,8 @@
-# BIST Radar Pro v1.0 Production+
+# BIST Radar Pro v1.1 Snapshot Intelligence
 
-R29 tabanı üzerine Production+ kalite/öğrenme katmanı eklendi.
-
-## Eklenenler
-- v1.0 Production+ sekmesi
-- JSON snapshot ile mevcut gerçek OHLCV karşılaştırması
-- AL/TUT/SAT yön başarısı
-- Ortalama getiri ve AI skor değişimi
-- İndikatör/faktör başarı haritası
-- Mevcut veriden snapshot JSON indirme
-- CSV dışa aktarım
-
-## Korunanlar
-- Tek API: api/core.js
-- Gerçek OHLCV veri zinciri
-- Random/demo veri yok
+- Eski JSON formatlarını otomatik tanır.
+- symbol/code/ticker/hisse/kod/meta/master alanlarıyla akıllı eşleştirme yapar.
+- Güncel Master Object havuzunu bellekten, gerekirse taramadan ve API’den toplar.
+- Eşleşmeyen kayıtların sebebini gösterir.
+- İndikatör/faktör başarı haritasını üretir.
+- Demo/random veri üretmez.

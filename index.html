@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro v1.0 Production+</title>
+<title>BIST Radar Pro v1.1 Snapshot Intelligence</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/r10-runtime.js"></script>
 <script>
@@ -109,7 +109,7 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro v1.0 Production+</div><div class="pill">%100 Gerçek OHLCV • v1.0 Production+ • Explainable AI + Öğrenen Karşılaştırma</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro v1.1 Snapshot Intelligence</div><div class="pill">%100 Gerçek OHLCV • v1.1 Snapshot Intelligence • Akıllı JSON Eşleştirme</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -914,7 +914,7 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
   </section>
 
   <section id="prodPlusPage" class="hidden">
-    <div class="card"><div class="head dark">🏁 BIST Radar Pro v1.0 Production+ / Öğrenen Kalite Merkezi</div><div class="body">
+    <div class="card"><div class="head dark">🏁 BIST Radar Pro v1.1 Snapshot Intelligence / Öğrenen Kalite Merkezi</div><div class="body">
       <div class="comment"><b>Production+</b>, eski JSON snapshot kararlarını mevcut gerçek OHLCV verileriyle karşılaştırır; AL/TUT/SAT kararlarının yön başarısını, skor bozulmasını, fiyat değişimini ve hangi indikatörlerin daha iyi çalıştığını ölçer. Demo/random veri üretmez.</div><br>
       <div class="quickFilters">
         <input type="file" id="prodPlusSnapshotFile" accept=".json,application/json" style="padding:12px;border:1px solid var(--line);border-radius:14px;background:#fff">
@@ -3455,10 +3455,183 @@ setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]')
     const old=unique(extract(JSON.parse(await file.text()))); rows=build(old,current()); render(); if(typeof window.setStatus==='function') window.setStatus('v1.0 Production+ kalite karşılaştırması tamamlandı.');
   }
   function downloadSnapshot(){
-    const cur=current(); if(!cur.length){alert('Önce tarama yapın.');return;} const payload={createdAt:new Date().toISOString(),version:'BIST Radar Pro v1.0 Production+',data:cur}; const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='bist_radar_v1_production_plus_snapshot_'+new Date().toISOString().slice(0,10)+'.json'; a.click(); URL.revokeObjectURL(a.href);
+    const cur=current(); if(!cur.length){alert('Önce tarama yapın.');return;} const payload={createdAt:new Date().toISOString(),version:'BIST Radar Pro v1.1 Snapshot Intelligence',data:cur}; const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='bist_radar_v1_production_plus_snapshot_'+new Date().toISOString().slice(0,10)+'.json'; a.click(); URL.revokeObjectURL(a.href);
   }
   function exportCsv(){ if(!rows.length){alert('Önce karşılaştırma yapın.');return;} const arr=[['Hisse','EskiKarar','YeniKarar','EskiAI','YeniAI','EskiFiyat','YeniFiyat','Getiri%','Basari','Faktorler']].concat(rows.map(r=>[r.symbol,r.oldDecision,r.newDecision,r.oldScore,r.newScore,r.oldPrice,r.newPrice,Number.isFinite(r.ret)?r.ret:'',r.success===true?'Doğru':r.success===false?'Yanlış':'-',r.factors.join('|')])); if(typeof window.downloadCSV==='function') window.downloadCSV(arr,'v1_production_plus_quality.csv'); }
   setTimeout(()=>{ const a=$p('prodPlusCompareBtn'); if(a)a.addEventListener('click',()=>compare().catch(e=>{if($p('prodPlusStatus'))$p('prodPlusStatus').textContent='Production+ hata: '+e.message;})); const b=$p('prodPlusSnapshotBtn'); if(b)b.addEventListener('click',downloadSnapshot); const c=$p('prodPlusCsvBtn'); if(c)c.addEventListener('click',exportCsv); },800);
+})();
+</script>
+
+
+<script>
+/* v1.1 Snapshot Intelligence - robust schema converter + smart symbol matching */
+(function(){
+  'use strict';
+  const $p=(id)=>document.getElementById(id);
+  const up=(v)=>String(v??'').toUpperCase().replace(/\.IS$/,'').replace(/[^A-Z0-9]/g,'').trim();
+  const num=(v,d=NaN)=>{
+    if(v && typeof v==='object') v=v.close ?? v.last ?? v.value ?? v.price;
+    if(typeof v==='string') v=v.replace(/TL|₺|%|\s/g,'').replace(/\./g,'').replace(',','.');
+    const n=Number(v); return Number.isFinite(n)?n:d;
+  };
+  const fmt=(v,d=1)=>Number.isFinite(Number(v))?Number(v).toLocaleString('tr-TR',{minimumFractionDigits:d,maximumFractionDigits:d}):'-';
+  const esc=(x)=>String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  let v11Rows=[];
+  function first(...vals){ for(const v of vals){ if(v!==undefined && v!==null && v!=='') return v; } return undefined; }
+  function getPath(o,path){ try{return path.split('.').reduce((a,k)=>a==null?undefined:a[k],o)}catch(e){return undefined} }
+  function extractArray(json){
+    if(Array.isArray(json)) return json;
+    const keys=['data','results','rows','stocks','symbols','snapshot','items','decisions','master','masters','records','list'];
+    for(const k of keys){ const v=json?.[k]; if(Array.isArray(v)) return v; }
+    for(const k of keys){ const v=json?.result?.[k] ?? json?.payload?.[k]; if(Array.isArray(v)) return v; }
+    if(json && typeof json==='object'){
+      const vals=Object.values(json).filter(v=>v&&typeof v==='object');
+      if(vals.length && vals.every(v=>!Array.isArray(v))) return vals;
+    }
+    return [];
+  }
+  function symbolOf(x){
+    return up(first(x?.symbol,x?.hisse,x?.kod,x?.code,x?.ticker,x?.stockCode,x?.name,
+      x?.meta?.symbol,x?.stock?.symbol,x?.master?.symbol,x?.masterObject?.symbol,x?.standard?.symbol,
+      x?.raw?.symbol,x?.ai?.symbol,x?.decision?.symbol,x?.r2Decision?.symbol));
+  }
+  function decisionOf(x){
+    const m=x?.master||x?.masterObject||x?.standard||{}; const ai=x?.ai||m?.ai||{}; const d=x?.decision||m?.decision||{};
+    const val=first(x?.decision,x?.karar,x?.action,x?.finalDecision,x?.label,ai?.decision,ai?.label,d?.label,d?.action,d?.decision,m?.action);
+    return String((typeof val==='object'?val.label||val.action||val.decision:val)||'TUT').toUpperCase();
+  }
+  function group(dec){ dec=String(dec||'').toUpperCase(); if(dec.includes('AL')) return 'AL'; if(dec.includes('SAT')||dec.includes('KAÇ')||dec.includes('UZAK')||dec.includes('RİSK')) return 'SAT'; return 'TUT'; }
+  function priceOf(x){
+    const m=x?.master||x?.masterObject||x?.standard||{}; const p=m?.price;
+    return num(first(x?.close,x?.lastClose,x?.price,x?.sonFiyat,x?.son_fiyat,x?.last,x?.lastPrice,x?.currentPrice,x?.fiyat,x?.raw?.price,
+      p?.close,p?.last,p?.value,p,m?.lastPrice,m?.close,m?.ohlcv?.at?.(-1)?.close,x?.ohlcv?.at?.(-1)?.close,x?.rows?.at?.(-1)?.close),NaN);
+  }
+  function scoreOf(x){
+    const m=x?.master||x?.masterObject||x?.standard||{}; const ai=x?.ai||m?.ai||{}; const scores=m?.scores||x?.scores||{};
+    return num(first(x?.finalScore,x?.score,x?.aiScore,x?.ai,x?.AI,ai?.score,ai?.finalScore,scores?.ai,scores?.final,m?.score,m?.aiScore),0);
+  }
+  function confidenceOf(x){
+    const m=x?.master||x?.masterObject||x?.standard||{}; const ai=x?.ai||m?.ai||{}; const scores=m?.scores||x?.scores||{};
+    const raw=first(x?.confidence,x?.confidencePct,x?.confidenceScore,x?.guven,x?.güven,ai?.confidence,ai?.confidencePct,scores?.confidence,m?.confidence,m?.confidencePct);
+    if(typeof raw==='string' && /A\+/.test(raw)) return 92;
+    if(typeof raw==='string' && /A/.test(raw)) return 85;
+    if(typeof raw==='string' && /B/.test(raw)) return 70;
+    return num(raw,0);
+  }
+  function indicatorsOf(x){
+    const m=x?.master||x?.masterObject||x?.standard||{};
+    return Object.assign({},x?.indicators||{},m?.indicators||{},x?.indicatorPanel||{},m?.indicatorPanel||{});
+  }
+  function normalize(x,source='json'){
+    const symbol=symbolOf(x); const decision=decisionOf(x); const price=priceOf(x); const score=scoreOf(x); const confidence=confidenceOf(x); const indicators=indicatorsOf(x);
+    return {symbol, decision, group:group(decision), price, score, confidence, indicators, raw:x, source};
+  }
+  function unique(arr,source='json'){
+    const map=new Map();
+    (arr||[]).map(x=>normalize(x,source)).filter(x=>x.symbol).forEach(x=>{
+      const prev=map.get(x.symbol);
+      if(!prev || (Number.isFinite(x.price)&&!Number.isFinite(prev.price)) || x.score>prev.score) map.set(x.symbol,x);
+    });
+    return [...map.values()].sort((a,b)=>b.score-a.score||a.symbol.localeCompare(b.symbol));
+  }
+  function collectCurrentFromMemory(){
+    const pools=[];
+    ['scanCache','r3Rows','r3Data','r3MasterRows','masterObjects','lastScanRows','lastScanResults','decisionRows','institutionalRows','dayTradingRows'].forEach(k=>{
+      const v=window[k]; if(Array.isArray(v)&&v.length) pools.push(...v);
+    });
+    if(window.lastStock) pools.push(window.lastStock.master||window.lastStock);
+    return unique(pools,'current-memory');
+  }
+  async function collectCurrent(){
+    let cur=collectCurrentFromMemory();
+    if(cur.length) return cur;
+    if(typeof window.scanAll==='function'){
+      try{ if(window.setStatus) window.setStatus('v1.1 için güncel Master Object taraması hazırlanıyor...'); await window.scanAll(false); }catch(e){}
+      cur=collectCurrentFromMemory(); if(cur.length) return cur;
+    }
+    const urls=['/api/core?action=scan&limit=600','/api/core?action=decision&limit=600','/api/core?action=symbols'];
+    for(const url of urls){
+      try{
+        const r=await fetch(url+'&t='+Date.now()); const j=await r.json();
+        const arr=extractArray(j); const got=unique(arr,'current-api'); if(got.length) return got;
+      }catch(e){}
+    }
+    return [];
+  }
+  function success(g,ret){ if(!Number.isFinite(ret)) return null; if(g==='AL') return ret>0; if(g==='SAT') return ret<0; return Math.abs(ret)<=3; }
+  function factors(o){
+    const r=o.raw||{}, ind=o.indicators||{}; const out=[];
+    const rv=num(first(r.rvol,r.rvol20,ind.rvol,ind.rvol20),0); if(rv>2) out.push('RVOL>2');
+    const cmf=num(first(r.cmf,ind.cmf),0); if(cmf>0) out.push('CMF+'); else if(cmf<0) out.push('CMF-');
+    const mfi=num(first(r.mfi,ind.mfi),0); if(mfi>=80) out.push('MFI yüksek'); else if(mfi>50) out.push('MFI pozitif');
+    const vwap=num(first(r.vwap,ind.vwap),0); if(vwap>0&&Number.isFinite(o.price)&&o.price>vwap) out.push('VWAP üstü');
+    if(o.score>=75) out.push('AI>=75'); if(o.confidence>=75) out.push('Güven>=75');
+    return out.length?out:['Genel sinyal'];
+  }
+  function build(oldRows,curRows){
+    const cm=new Map(curRows.map(x=>[x.symbol,x]));
+    return oldRows.map(o=>{
+      const c=cm.get(o.symbol);
+      const ret=(c&&Number.isFinite(o.price)&&o.price>0&&Number.isFinite(c.price))?((c.price-o.price)/o.price*100):NaN;
+      let reason='';
+      if(!o.symbol) reason='Snapshot sembol alanı bulunamadı';
+      else if(!c) reason='Güncel listede sembol bulunamadı';
+      else if(!Number.isFinite(o.price)) reason='Eski fiyat alanı bulunamadı';
+      else if(!Number.isFinite(c.price)) reason='Güncel fiyat alanı bulunamadı';
+      const ok=success(o.group,ret);
+      return {symbol:o.symbol,old:o,cur:c,oldDecision:o.decision,newDecision:c?.decision||'YOK',oldScore:o.score,newScore:c?.score??0,oldPrice:o.price,newPrice:c?.price,ret,success:ok,missing:!c||!!reason,reason,factors:factors(o)};
+    });
+  }
+  function table(rs){
+    if(!rs.length) return '<tr><td>Veri yok.</td></tr>';
+    return '<tr><th>#</th><th>Hisse</th><th>Eski</th><th>Yeni</th><th>AI</th><th>Getiri</th><th>Sonuç</th><th>Sebep/Faktör</th></tr>'+rs.map((r,i)=>{
+      const label=r.reason?'Veri yok':r.success?'✅ Doğrulandı':r.success===false?'❌ Yanıldı':'Bekliyor';
+      const cls=r.reason?'byellow':r.success?'bgreen':r.success===false?'bred':'byellow';
+      return `<tr><td>${i+1}</td><td><b>${esc(r.symbol)}</b></td><td>${esc(r.oldDecision)}</td><td>${esc(r.newDecision)}</td><td>${fmt(r.oldScore,0)} → ${fmt(r.newScore,0)}</td><td>${Number.isFinite(r.ret)?'%'+fmt(r.ret,2):'-'}</td><td><span class="badge ${cls}">${label}</span></td><td>${esc(r.reason||r.factors.slice(0,3).join(' • '))}</td></tr>`;
+    }).join('');
+  }
+  function render(oldRows,curRows){
+    const rows=build(oldRows,curRows); v11Rows=rows;
+    const matched=rows.filter(x=>!x.reason&&x.cur); const tested=matched.filter(x=>x.success!==null);
+    const acc=tested.length?tested.filter(x=>x.success).length/tested.length*100:NaN;
+    const avg=matched.length?matched.reduce((s,x)=>s+(Number.isFinite(x.ret)?x.ret:0),0)/matched.length:NaN;
+    const diff=matched.length?matched.reduce((s,x)=>s+(num(x.newScore,0)-num(x.oldScore,0)),0)/matched.length:NaN;
+    const grade=Number.isFinite(acc)?(acc>=70?'A':acc>=55?'B':acc>=40?'C':'D'):'D';
+    const missing=rows.filter(x=>x.reason).length;
+    if($p('prodPlusMatched')) $p('prodPlusMatched').textContent=matched.length;
+    if($p('prodPlusAccuracy')) $p('prodPlusAccuracy').textContent=Number.isFinite(acc)?'%'+fmt(acc,1):'-';
+    if($p('prodPlusAvgReturn')) $p('prodPlusAvgReturn').textContent=Number.isFinite(avg)?'%'+fmt(avg,2):'-';
+    if($p('prodPlusScoreDiff')) $p('prodPlusScoreDiff').textContent=Number.isFinite(diff)?fmt(diff,1):'-';
+    if($p('prodPlusGrade')) $p('prodPlusGrade').textContent=grade;
+    if($p('prodPlusBestTable')) $p('prodPlusBestTable').innerHTML=table([...matched].sort((a,b)=>(b.ret??-999)-(a.ret??-999)).slice(0,10));
+    if($p('prodPlusWorstTable')) $p('prodPlusWorstTable').innerHTML=table([...matched].sort((a,b)=>(a.ret??999)-(b.ret??999)).slice(0,10));
+    if($p('prodPlusAllTable')) $p('prodPlusAllTable').innerHTML=table(rows.slice(0,160));
+    const fmap=new Map(); matched.forEach(r=>r.factors.forEach(f=>{const o=fmap.get(f)||{n:0,ok:0,avg:0}; o.n++; if(r.success)o.ok++; if(Number.isFinite(r.ret))o.avg+=r.ret; fmap.set(f,o)}));
+    const fac=[...fmap.entries()].map(([k,v])=>({k,n:v.n,rate:v.n?v.ok/v.n*100:0,avg:v.n?v.avg/v.n:0})).sort((a,b)=>b.rate-a.rate||b.n-a.n);
+    if($p('prodPlusIndicatorTable')) $p('prodPlusIndicatorTable').innerHTML='<tr><th>İndikatör/Faktör</th><th>Sinyal</th><th>Başarı</th><th>Ort. Getiri</th><th>Öneri</th></tr>'+fac.map(f=>`<tr><td><b>${esc(f.k)}</b></td><td>${f.n}</td><td>%${fmt(f.rate,1)}</td><td>%${fmt(f.avg,2)}</td><td>${f.rate>=65?'Ağırlık artır':f.rate<45?'Ağırlık azalt':'Nötr izle'}</td></tr>`).join('');
+    if($p('prodPlusHorizonTable')) $p('prodPlusHorizonTable').innerHTML='<tr><th>Ufuk</th><th>Durum</th></tr><tr><td>Mevcut</td><td>Mevcut güncel fiyatla eşleştirildi.</td></tr><tr><td>Eşleşmeyen</td><td>'+missing+' kayıt: sembol/fiyat/şema uyumsuzluğu sebebi tabloda gösterildi.</td></tr>';
+    if($p('prodPlusStatus')) $p('prodPlusStatus').innerHTML=`<b>v1.1 Snapshot Intelligence:</b> ${oldRows.length} snapshot kaydı okundu, ${curRows.length} güncel kayıt bulundu, <b>${matched.length}</b> kayıt eşleşti, ${missing} kayıt eşleşmedi. Yön başarısı ${Number.isFinite(acc)?'%'+fmt(acc,1):'hesaplanamadı'}.`;
+  }
+  async function compare(){
+    const file=$p('prodPlusSnapshotFile')?.files?.[0]; if(!file){alert('Önce JSON snapshot seçin.');return;}
+    const json=JSON.parse(await file.text()); const oldRows=unique(extractArray(json),'snapshot'); const curRows=await collectCurrent();
+    render(oldRows,curRows); if(window.setStatus) window.setStatus('v1.1 Snapshot Intelligence tamamlandı: '+oldRows.length+' snapshot, '+curRows.length+' güncel kayıt.');
+  }
+  function downloadSnapshot(){
+    const cur=collectCurrentFromMemory(); if(!cur.length){alert('Önce güncel tarama yapın.');return;}
+    const payload={createdAt:new Date().toISOString(),version:'BIST Radar Pro v1.1 Snapshot Intelligence',data:cur};
+    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'})); a.download='bist_radar_v1_1_snapshot_'+new Date().toISOString().slice(0,10)+'.json'; a.click(); URL.revokeObjectURL(a.href);
+  }
+  function exportCsv(){
+    if(!v11Rows.length){alert('Önce karşılaştırma yapın.');return;}
+    const arr=[['Hisse','EskiKarar','YeniKarar','EskiAI','YeniAI','EskiFiyat','YeniFiyat','Getiri%','Basari','Sebep','Faktorler']].concat(v11Rows.map(r=>[r.symbol,r.oldDecision,r.newDecision,r.oldScore,r.newScore,r.oldPrice,r.newPrice,Number.isFinite(r.ret)?r.ret:'',r.success===true?'Doğru':r.success===false?'Yanlış':r.reason?'Veri yok':'-',r.reason,r.factors.join('|')]));
+    if(window.downloadCSV) window.downloadCSV(arr,'v1_1_snapshot_intelligence.csv');
+  }
+  setTimeout(()=>{
+    const old=$p('prodPlusCompareBtn'); if(old){ const n=old.cloneNode(true); old.parentNode.replaceChild(n,old); n.addEventListener('click',()=>compare().catch(e=>{if($p('prodPlusStatus'))$p('prodPlusStatus').textContent='v1.1 Snapshot Intelligence hata: '+e.message;})); }
+    const ds=$p('prodPlusSnapshotBtn'); if(ds){ const n=ds.cloneNode(true); ds.parentNode.replaceChild(n,ds); n.addEventListener('click',downloadSnapshot); }
+    const csv=$p('prodPlusCsvBtn'); if(csv){ const n=csv.cloneNode(true); csv.parentNode.replaceChild(n,csv); n.addEventListener('click',exportCsv); }
+  },1500);
 })();
 </script>
 
