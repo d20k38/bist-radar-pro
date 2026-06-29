@@ -1,15 +1,10 @@
-# BIST Radar Pro R22 - Unified Master Object
+# BIST Radar Pro R23 – Core Schema Standard
 
-Bu sürüm yeni modül eklemez; alan adı uyuşmazlıklarını düzeltir.
+Bu sürüm yeni özellik kalabalığı eklemez; sistemin tüm ekranlarında aynı standart Master Object şemasını kullanır.
 
 ## Yapılanlar
-- Tek standart Master Object şeması eklendi.
-- API tarafında `one()` çıktısı `normalizeMasterObject()` ile standartlaştırıldı.
-- Hisse Analizi ekranı için `analysis` alias paketi üretildi.
-- `decision/action`, `price/close/lastPrice`, `score/finalScore/aiScore`, `confidence/confidencePct/confidenceScore`, `risk/riskScore`, `target/target1`, `stop` alanları tekleştirildi.
-- Hisse Analizi, Karar Merkezi, Explainable AI, Day Trading ve Portföy ekranlarının aynı veri modelini okuyabilmesi hedeflendi.
-- `undefined`, `% -`, `- TL` gibi görünümlerin temel sebebi olan alan uyuşmazlığı azaltıldı.
-- API function sayısı yine 1: `api/core.js`.
-
-## Not
-GitHub/Vercel içinde `api/` klasöründe sadece `core.js` kalmalıdır. `lib/` kök dizinde olmalıdır.
+- `dipScore`, `trendScore`, `momentumScore`, `moneyScore`, `confidencePct`, `riskScore` gibi alanlar standartlaştırıldı.
+- Eski modüllerdeki `Cannot read properties of undefined` tipindeki alan okuma hatalarına karşı güvenli erişim fonksiyonları eklendi.
+- Hisse Analizi ve Explainable AI ekranlarına seçilen hisseye ait indikatör tablosu eklendi.
+- EMA, RSI, MACD, RVOL, VWAP, CMF, MFI, ATR, IQS, Day/Swing/Pozisyon/Kurumsal/Dip skorları tek panelde gösterilir.
+- API function sayısı 1 olarak korunur: `api/core.js`.

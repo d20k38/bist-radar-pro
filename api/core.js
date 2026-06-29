@@ -62,7 +62,7 @@ function normalizeMasterObject(m){
   const keys = Object.keys(healthFlags);
   const healthScore = Math.round(r22clamp(m.healthScore ?? (keys.length ? keys.filter(k=>!!healthFlags[k]).length/keys.length*100 : 90)));
   const standard = {
-    version:'R22 Unified Master Object',
+    version:'R23 Core Schema Standard',
     symbol:String(m.symbol||'').toUpperCase(),
     name:m.name || m.symbol,
     price, lastPrice:price, close:price, sonFiyat:price,
@@ -76,7 +76,18 @@ function normalizeMasterObject(m){
     institutional, institutionalScore:institutional,
     trend, money, moneyFlow:money, momentum,
     pattern:Math.round(r22clamp(m.pattern ?? ind.patternScore ?? 50)),
-    rvol:r22num(ind.rvol20, null), rvol20:r22num(ind.rvol20, null), vwap:r22num(ind.vwap, null), cmf:r22num(ind.cmf, null), mfi:r22num(ind.mfi, null),
+    dipScore:Math.round(r22clamp(m.dipScore ?? sc.dip ?? ind.meanReversionScore ?? (100-((r22num(ind.dipDistance,20)||20)*3)), 0, 100)),
+    trendScore:trend, momentumScore:momentum, moneyScore:money, volumeScore:money,
+    rvol:r22num(ind.rvol20, null), rvol20:r22num(ind.rvol20, null), vwap:r22num(ind.vwap, null), cmf:r22num(ind.cmf, null), mfi:r22num(ind.mfi, null), obv:r22num(ind.obv, null), adl:r22num(ind.adl, null),
+    ema20:r22num(ind.ema20, null), ema50:r22num(ind.ema50, null), ema200:r22num(ind.ema200, null), sma20:r22num(ind.sma20, null), sma50:r22num(ind.sma50, null), sma200:r22num(ind.sma200, null),
+    macd:r22num(ind.macd, null), macdSignal:r22num(ind.macdSignal, null), rsi:r22num(ind.rsi14 ?? ind.rsi, null), atr:r22num(ind.atr14 ?? ind.atr20, null), adx:r22num(ind.adx, null),
+    indicatorPanel:{
+      trend:{ema20:r22num(ind.ema20,null),ema50:r22num(ind.ema50,null),ema200:r22num(ind.ema200,null),sma20:r22num(ind.sma20,null),sma50:r22num(ind.sma50,null),sma200:r22num(ind.sma200,null),superTrend:trend>=50?'AL':'SAT',score:trend},
+      momentum:{rsi:r22num(ind.rsi14 ?? ind.rsi,null),macd:r22num(ind.macd,null),macdSignal:r22num(ind.macdSignal,null),mfi:r22num(ind.mfi,null),score:momentum},
+      volume:{rvol20:r22num(ind.rvol20,null),vwap:r22num(ind.vwap,null),cmf:r22num(ind.cmf,null),obv:r22num(ind.obv,null),adl:r22num(ind.adl,null),score:money},
+      volatility:{atr:r22num(ind.atr14 ?? ind.atr20,null),riskScore:risk,score:100-risk},
+      quality:{iqs,day,swing,position,institutional,confidence:confidencePct,healthScore}
+    },
     healthScore, dataHealth:healthFlags,
     ohlcv:rows, indicators:ind, scores:sc,
     explain:m.explain || sc.explain || {}, breakdown:m.breakdown || sc.breakdown || {},
@@ -93,7 +104,7 @@ function normalizeMasterObject(m){
     superTrendDir: trend>=50 ? 1 : -1,
     rvol20:standard.rvol20, vwap:standard.vwap, cmf:standard.cmf, mfi:standard.mfi,
     ohlcv:rows,
-    multiLayer:{trend,money,momentum,confidence:confidencePct,risk,iqs,day,swing,position,institutional}
+    multiLayer:{trend,money,momentum,confidence:confidencePct,risk,iqs,day,swing,position,institutional}, dipScore:standard.dipScore, indicatorPanel:standard.indicatorPanel
   };
   standard.comments = {
     expert:`${standard.symbol} için karar ${decision}. AI skor ${score}/100, güven ${confidencePct}/100, risk ${risk}/100.`,
@@ -404,6 +415,11 @@ function buildExplainable(master){
   const shortComment = `${m.symbol} için karar ${decision}. En güçlü katkılar: ${(positives.slice(0,3).map(x=>x.split(':')[0]).join(', ')||'sınırlı')}. Karşıt görüş: ${(negatives.slice(0,2).map(x=>x.split(':')[0]).join(', ')||'belirgin negatif yok')}.`;
   return {symbol:m.symbol, score, decision, confidence:confidenceNum, confidenceGrade:gradeFromConfidence(m.confidence ?? confidenceNum), risk, dataQuality, layers, positives, negatives, trace, traffic:{green:layers.filter(l=>l.status==='green').length,yellow:layers.filter(l=>l.status==='yellow').length,red:layers.filter(l=>l.status==='red').length}, shortComment, master:m};
 }
+
+async function handleSchema(req,res){
+  send(res,{success:true,version:'R23 Core Schema Standard',masterObject:{symbol:'string',price:'number',decision:'AL|TUT|SAT|GÜÇLÜ AL',score:'0-100',confidencePct:'0-100',risk:'0-100',target1:'number',target2:'number',stop:'number',indicators:'object',indicatorPanel:'object',dipScore:'0-100',iqs:'0-100',day:'0-100',swing:'0-100',position:'0-100',institutional:'0-100'}});
+}
+
 async function handleExplain(req,res){
   let symbols = symbolsFrom(req.query);
   if(!symbols.length){
@@ -433,7 +449,7 @@ module.exports = async function handler(req,res){
   try{
     const action = String(req.query.action || req.query.a || '').toLowerCase();
     const map = {
-      symbols:handleSymbols, stock:handleStock, quote:handleStock, decision:handleDecision, explain:handleExplain, xai:handleExplain,
+      symbols:handleSymbols, stock:handleStock, quote:handleStock, decision:handleDecision, explain:handleExplain, xai:handleExplain, schema:handleSchema,
       dip:handleDip, scan:handleScan, 'institutional-scan':handleScan, institutional:handleScan,
       'portfolio-advice':handlePortfolio, portfolio:handlePortfolio,
       kap:handleKap, news:handleKap, diagnostic:handleDiagnostic, diagnose:handleDiagnostic, health:handleDiagnostic, stabilize:handleDiagnostic, validate:handleValidate, validator:handleValidate, corevalidator:handleValidate, learning:handleLearning, backtest:handleBacktest, committee:handleCommittee
