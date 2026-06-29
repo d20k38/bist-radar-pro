@@ -1,12 +1,8 @@
-<!doctype html>
-<html lang="tr">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro v1.0 Production+</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="js/r10-runtime.js"></script>
-<script>
+
+
+
+
+
 // R26 Production: minimal DOM helper. No jQuery dependency.
 (function(){
   function dom(id){
@@ -20,8 +16,10 @@
   window.$ = dom;
   window.$$ = dom.all;
 })();
-</script>
-<script>
+
+
+
+
 // R12.1 Vercel Hobby API Consolidation: all legacy /api/* calls are routed to one Serverless Function.
 (function(){
   const nativeFetch = window.fetch.bind(window);
@@ -44,9 +42,10 @@
   }
   window.fetch = function(input, init){ return nativeFetch(rewrite(input), init); };
 })();
-</script>
 
-<script>
+
+
+
 // R9.2 compatibility: eski KAP/Haber alanı renderKapNews() çağrısını yeni /api/kap yanıtına bağlar.
 async function renderKapNews(symbol=''){
   const target=(symbol||'').toString().toUpperCase().trim();
@@ -98,852 +97,12 @@ async function renderKapNews(symbol=''){
   }
 }
 if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
-</script>
-<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
-<style>
-:root{--bg:#eef5ff;--card:#fff;--ink:#07162d;--muted:#64748b;--blue:#145bf5;--green:#16a34a;--red:#dc2626;--yellow:#f59e0b;--cyan:#06b6d4;--line:#dbe5f3;--dark:#0b1220}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#eef5ff,#f8fbff);font-family:Arial,Helvetica,sans-serif;color:var(--ink)}.wrap{max-width:1480px;margin:auto;padding:18px}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.brand{font-size:30px;font-weight:900;letter-spacing:.2px}.pill{background:#fff;border:1px solid var(--line);border-radius:99px;padding:10px 14px;font-weight:800;box-shadow:0 8px 20px #0000000d}.controls{display:grid;grid-template-columns:2fr 1.2fr auto auto;gap:10px;margin:16px 0}.controls input,.controls select{padding:14px;border:1px solid var(--line);border-radius:14px;font-size:16px;background:#fff}.btn{border:0;border-radius:14px;background:var(--blue);color:white;font-weight:900;padding:13px 16px;cursor:pointer;box-shadow:0 8px 18px #145bf522}.btn:hover{filter:brightness(.96)}.btn.gray{background:#64748b}.btn.green{background:var(--green)}.btn.red{background:var(--red)}.tabs{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.tab{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 15px;font-weight:900;cursor:pointer}.tab.active{background:var(--blue);color:#fff}.status{background:#fff7e6;border:1px solid #ffd889;padding:13px;border-radius:14px;margin:12px 0;color:#7a5200}.grid{display:grid;gap:16px}.g5{grid-template-columns:repeat(5,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1.2fr .8fr}.card{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 10px 25px #0001}.head{background:var(--blue);color:#fff;font-weight:900;font-size:20px;padding:15px}.head.green{background:var(--green)}.head.red{background:var(--red)}.head.yellow{background:var(--yellow);color:#111}.head.cyan{background:var(--cyan)}.head.dark{background:#0b1220}.body{padding:16px}.metric{text-align:center}.metric .v{font-size:28px;font-weight:900;margin:7px 0}.ok{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--yellow)}.muted{color:var(--muted);font-size:13px}.barw{height:10px;background:#e7eef8;border-radius:99px;overflow:hidden}.bar{height:100%;border-radius:99px}.comment{background:#f6f8fb;border:1px solid var(--line);border-radius:14px;padding:14px;line-height:1.55}.hidden{display:none}.table{width:100%;border-collapse:collapse}.table th{background:#243449;color:white;padding:10px;text-align:left;font-size:14px}.table td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}.table tr:hover td{background:#f8fbff}.chartbox{height:460px;min-height:360px}.indicatorToggles{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 10px;font-weight:800;cursor:pointer;font-size:13px}.chip input{margin-right:6px}.chartNote{font-size:12px;color:var(--muted);margin-top:8px}.badge{display:inline-block;border-radius:999px;padding:6px 9px;color:#fff;font-weight:900;font-size:12px}.bgreen{background:var(--green)}.byellow{background:var(--yellow);color:#111}.bred{background:var(--red)}.bblue{background:var(--blue)}.sectionTitle{font-size:18px;font-weight:900;margin:4px 0 12px}.mini{font-size:12px;color:var(--muted)}.dashList{display:flex;flex-direction:column;gap:8px}.dashItem{display:grid;grid-template-columns:70px 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px;background:#fbfdff;cursor:pointer}.dashItem:hover{border-color:#bcd1f5}.rank{font-weight:900;color:var(--blue)}.symbol{font-weight:900}.score{font-weight:900}.quickFilters{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}.quickFilters .btn{padding:10px 12px;font-size:13px}.kpi{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:8px 0}.kpi:last-child{border-bottom:0}.layerGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.layerRow{display:grid;grid-template-columns:140px 1fr 70px;gap:10px;align-items:center;border-bottom:1px solid var(--line);padding:9px 0}.layerScore{font-weight:900;text-align:right}.layerSmall{font-size:12px;color:var(--muted)}.loading{opacity:.7;animation:pulse 1.1s infinite}@keyframes pulse{50%{opacity:.38}}@media(max-width:920px){.wrap{padding:10px}.brand{font-size:22px}.controls,.g5,.g4,.g3,.g2{grid-template-columns:1fr}.chartbox{height:310px}.btn,.tab{width:100%}.dashItem{grid-template-columns:55px 1fr}.dashItem .score{grid-column:2}.pill{width:100%;text-align:center}.table{font-size:13px}.table th,.table td{padding:8px}}
 
-.cockpitHero{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}.cockpitMetric{border:1px solid var(--line);border-radius:16px;padding:14px;background:#fbfdff}.cockpitMetric .big{font-size:30px;font-weight:900}.signalGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.signal{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff}.signal b{display:block;margin-bottom:4px}.signal.good{border-color:#8bd6a6;background:#f0fff5}.signal.warn{border-color:#ffd27a;background:#fff9eb}.signal.bad{border-color:#ffabab;background:#fff3f3}.priceLevels{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.levelBox{border-radius:14px;padding:12px;border:1px solid var(--line);background:#fff}.levelBox b{display:block;color:var(--muted);font-size:12px}.aiBubble{border-left:5px solid var(--blue);background:#f6f9ff;border-radius:12px;padding:12px;margin:8px 0}.cockpitBars .layerRow{grid-template-columns:120px 1fr 60px}.miniChart{height:520px;min-height:420px}.scenario{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:9px 0}.scenario:last-child{border-bottom:0}@media(max-width:920px){.cockpitHero,.signalGrid,.priceLevels{grid-template-columns:1fr}.miniChart{height:360px}}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro v1.0 Production+</div><div class="pill">%100 Gerçek OHLCV • v1.0 Production+ • Explainable AI + Öğrenen Karşılaştırma</div></div>
-  <div class="controls">
-    <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
-    <select id="symbol"></select>
-    <button class="btn" id="analyzeBtn">Analiz Et</button>
-    <button class="btn gray" id="backtestBtn">Backtest</button>
-  </div>
-  <div class="tabs simplified-tabs">
-    <button class="tab active" data-page="dashboard">🧠 Karar Merkezi</button>
-    <button class="tab" data-page="explainableAI">🔎 R20.1 Explainable AI</button>
-    <button class="tab" data-page="snapshotCompare">🧪 Karşılaştırma</button>
-    <button class="tab" data-page="prodPlusPage">🏁 v1.0 Production+</button>
-    <button class="tab" data-page="dayTradingAI">⚡ Day Trading AI</button>
-    <button class="tab" data-page="analysis">📈 Hisse Analizi</button>
-    <button class="tab" data-page="tradingCockpit">🚀 R28A Trading Cockpit</button>
-    <button class="tab" data-page="r29Suite2">🏛️ R29 Institutional AI 2.0</button>
-    <button class="tab" data-page="portfolio">💼 Portföy Radarım</button>
-    <button class="tab" data-page="portfolioIntelligence">🧠 Portföy Intelligence</button>
-    <button class="tab" data-page="radarLab">🧪 Radar Lab</button>
-    <button class="tab" data-page="backtestPage">📊 Backtest</button>
-    <button class="tab" data-page="kapPage">📢 KAP/Haber AI</button>
-    <button class="tab" data-page="dipProfessional">🎯 Dip Avcısı PRO</button>
-  </div>
-  <div id="status" class="status">Hazır.</div>
-  <div class="barw" style="margin:8px 0 14px"><div id="scanProgressBar" class="bar" style="width:0%;background:var(--blue)"></div></div>
-  <div id="scanProgressText" class="muted" style="margin:-8px 0 14px">Tarama bekleniyor.</div>
-  <div id="dataProviderPanel" class="comment" style="margin-bottom:14px"><b>Veri Kaynağı:</b> Henüz analiz yapılmadı. Analiz sonrası sağlayıcı, veri zamanı ve güncellik burada görünür.</div>
 
-  <section id="dashboard">
-    <div class="card"><div class="head dark">🧠 R3 Dashboard + AI Decision Center</div><div class="body">
-      <div class="quickFilters">
-        <button class="btn" id="r3RefreshBtn">R3 Karar Merkezini Güncelle</button>
-        <button class="btn green" id="r3FullScanBtn">Küçük Parçalarla Tara</button>
-        <button class="btn gray" id="r3ExportBtn">R3 CSV</button>
-      </div>
-      <div id="r3Narrative" class="comment">R3, R1 Veri Katmanı ve R2 Karar Motoru sonuçlarını tek ekranda gösterir. Yeni veri üretmez; Master Stock Object + AI Final Decision okur.</div>
-    </div></div>
-    <br>
-    <div class="grid g5">
-      <div class="card metric"><div class="body"><div class="muted">Taranan</div><div id="mCount" class="v">-</div><div class="muted">BIST sembolü</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Master Object</div><div id="r3MasterCount" class="v ok">-</div><div class="muted">tekil karar kaydı</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">AL / Güçlü AL</div><div id="r3BuyCount" class="v ok">-</div><div class="muted">öncelikli aday</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">İZLE / TUT</div><div id="r3HoldCount" class="v warn">-</div><div class="muted">takip listesi</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">SAT / Kaçın</div><div id="r3SellCount" class="v bad">-</div><div class="muted">riskli kayıt</div></div></div>
-    </div>
-    <br>
-    <div class="grid g3">
-      <div class="card"><div class="head green">🏆 AI En İyi 10</div><div class="body"><table id="r3Top10Table" class="table"></table></div></div>
-      <div class="card"><div class="head cyan">⚡ Day Trading Liderleri</div><div class="body"><table id="r3DayTable" class="table"></table></div></div>
-      <div class="card"><div class="head yellow">⭐ IQS / Kalite Liderleri</div><div class="body"><table id="r3IqsTable" class="table"></table></div></div>
-    </div>
-    <br>
-    <div class="grid g2">
-      <div class="card"><div class="head dark">🎯 AI Decision Center / Karar Listesi</div><div class="body"><table id="r3DecisionTable" class="table"></table></div></div>
-      <div class="card"><div class="head red">⚠️ Risk ve Veri Uyarıları</div><div class="body"><div id="r3RiskBox" class="comment">Tarama sonrası risk ve veri uyarıları burada görünür.</div><br><table id="r3RiskTable" class="table"></table></div></div>
-    </div>
-    <br>
-    <div class="grid g3">
-      <div class="card"><div class="head green">🔥 En Güçlü 20</div><div class="body"><div id="dashLeaders" class="dashList"></div></div></div>
-      <div class="card"><div class="head cyan">💎 Güvenli Kazançlar</div><div class="body"><div id="dashSafe" class="dashList"></div></div></div>
-      <div class="card"><div class="head yellow">🚀 Fırsat Avcısı</div><div class="body"><div id="dashOpp" class="dashList"></div></div></div>
-    </div>
-    <br>
-    <div class="grid g2">
-      <div class="card"><div class="head red">⚠️ Riskli Hisseler</div><div class="body"><div id="dashRisk" class="dashList"></div></div></div>
-      <div class="card"><div class="head dark">📢 KAP / Haber Etki Analizi</div><div class="body"><div id="dashKapBox" class="comment">KAP/Haber AI bekleniyor.</div></div></div>
-    </div>
-  </section>
 
 
-  <section id="r9Suite" class="hidden">
-    <div class="card"><div class="head dark">🏛️ R9 Institutional AI Suite</div><div class="body">
-      <div class="comment"><b>R9 yeni veri üretmez.</b> R1 Veri Katmanı, R7 Indicator Engine, R2 Karar Motoru ve R8 Dinamik Portföy verilerini tek kurumsal çalışma alanında birleştirir. Simülasyon, Smart Portfolio, Fırsat Avcısı ve Formasyonlar aynı Master Stock Object üzerinden değerlendirilir.</div><br>
-      <div class="quickFilters">
-        <button class="btn green" id="r9RunBtn">R9 Suite'i Güncelle</button>
-        <button class="btn" id="r9FullBtn">Tara + R9 Güncelle</button>
-        <button class="btn gray" id="r9ExportBtn">R9 CSV</button>
-      </div>
-      <div id="r9Status" class="status">R9 hazır. Önce tarama varsa onu kullanır; yoksa tarama başlatılabilir.</div>
-    </div></div>
-    <br>
-    <div class="grid g5">
-      <div class="card metric"><div class="body"><div class="muted">AI Fırsat</div><div id="r9OppCount" class="v ok">-</div><div class="muted">yüksek öncelik</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Portföy Sağlığı</div><div id="r9PortfolioScore" class="v warn">-</div><div class="muted">Smart Portfolio</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Simülasyon Risk</div><div id="r9SimRisk" class="v bad">-</div><div class="muted">Monte Carlo / senaryo</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Formasyon</div><div id="r9PatternCount" class="v ok">-</div><div class="muted">onaylı aday</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Veri Kalitesi</div><div id="r9DataQuality" class="v ok">-</div><div class="muted">tekil kayıt</div></div></div>
-    </div>
-    <br>
-    <div class="grid g2">
-      <div class="card"><div class="head green">🚀 AI Fırsat Avcısı</div><div class="body"><div id="r9OppNarrative" class="comment">Tarama sonrası en güçlü çoklu sinyal adayları burada görünür.</div><br><table id="r9OpportunityTable" class="table"></table></div></div>
-      <div class="card"><div class="head cyan">🧠 Smart Portfolio 2.0</div><div class="body"><div id="r9PortfolioNarrative" class="comment">Portföyünüz R8 verileriyle değerlendirilir; zayıf halka ve fırsat eşleşmeleri gösterilir.</div><br><table id="r9SmartTable" class="table"></table></div></div>
-    </div>
-    <br>
-    <div class="grid g2">
-      <div class="card"><div class="head yellow">🧪 AI Simulation Studio</div><div class="body"><div id="r9SimulationBox" class="comment">Portföy için 1 hafta / 1 ay / stres senaryosu üretilir.</div><br><table id="r9SimulationTable" class="table"></table></div></div>
-      <div class="card"><div class="head dark">🔎 Formasyon Radar Pro</div><div class="body"><div id="r9PatternBox" class="comment">Formasyon, momentum, RVOL ve karar motoru birlikte değerlendirilir.</div><br><table id="r9PatternTable" class="table"></table></div></div>
-    </div>
-    <br>
-    <div class="card"><div class="head red">⚠️ R9 Kurumsal Uyarılar</div><div class="body"><table id="r9AlertTable" class="table"></table></div></div>
-  </section>
 
 
-  <section id="tradingCockpit" class="hidden">
-    <div class="card"><div class="head dark">🚀 R28A Professional Trading Cockpit</div><div class="body">
-      <div class="quickFilters">
-        <button class="btn green" id="r28RunBtn">Seçili Hisse Cockpit</button>
-        <button class="btn" id="r28FromAnalysisBtn">Hisse Analiziyle Yenile</button>
-        <button class="btn gray" id="r28CsvBtn">R28 CSV</button>
-      </div>
-      <div id="r28Summary" class="comment">Seçili hisse için profesyonel grafik, destek/direnç, stop/hedef, olasılık ve AI gerekçesi burada gösterilir.</div>
-    </div></div>
-    <br>
-    <div class="cockpitHero">
-      <div class="card"><div class="head blue">📊 Profesyonel Grafik + Seviye Paneli</div><div class="body">
-        <div id="r28Chart" class="chartbox miniChart"></div>
-        <div class="chartNote">R28A: Mum + EMA20/50/200 + Bollinger + VWAP + otomatik destek/direnç + stop/hedef çizgileri. Veri kaynağı mevcut OHLCV zincirinden okunur.</div>
-      </div></div>
-      <div class="card"><div class="head green">🧠 AI Trade Kokpiti</div><div class="body">
-        <div class="grid g2">
-          <div class="cockpitMetric"><div class="muted">AI Score</div><div id="r28Ai" class="big ok">-</div></div>
-          <div class="cockpitMetric"><div class="muted">Karar</div><div id="r28Decision" class="big">-</div></div>
-          <div class="cockpitMetric"><div class="muted">Güven</div><div id="r28Confidence" class="big ok">-</div></div>
-          <div class="cockpitMetric"><div class="muted">Risk</div><div id="r28Risk" class="big warn">-</div></div>
-        </div>
-        <br><div class="priceLevels">
-          <div class="levelBox"><b>Giriş</b><span id="r28Entry">-</span></div>
-          <div class="levelBox"><b>Stop</b><span id="r28Stop">-</span></div>
-          <div class="levelBox"><b>Hedef 1</b><span id="r28T1">-</span></div>
-          <div class="levelBox"><b>Hedef 2</b><span id="r28T2">-</span></div>
-        </div>
-        <br><div id="r28Narrative" class="comment">AI yorumu bekleniyor.</div>
-      </div></div>
-    </div>
-    <br>
-    <div class="grid g3">
-      <div class="card"><div class="head cyan">🚦 İndikatör Heat Map</div><div class="body"><div id="r28Signals" class="signalGrid"></div></div></div>
-      <div class="card"><div class="head yellow">🎯 Destek / Direnç / Fibonacci</div><div class="body"><table id="r28Levels" class="table"></table></div></div>
-      <div class="card"><div class="head red">⚠️ Risk ve Olasılık</div><div class="body"><div id="r28Probability"></div></div></div>
-    </div>
-    <br>
-    <div class="grid g2">
-      <div class="card"><div class="head green">✅ AI Pozitif Gerekçeler</div><div class="body"><div id="r28Positives"></div></div></div>
-      <div class="card"><div class="head red">⚠️ Karşıt Görüş / Dikkat</div><div class="body"><div id="r28Negatives"></div></div></div>
-    </div>
-  </section>
-
-  <section id="r29Suite2" class="hidden">
-    <div class="card"><div class="head dark">🏛️ R29 Institutional AI Suite 2.0</div><div class="body">
-      <div class="quickFilters">
-        <button class="btn green" id="r29RunBtn">R29 Suite'i Çalıştır</button>
-        <button class="btn" id="r29UseScanBtn">Mevcut Taramadan Güncelle</button>
-        <button class="btn gray" id="r29CsvBtn">R29 CSV</button>
-      </div>
-      <div id="r29Summary" class="comment">R29, R20 Explainable AI, R21 Portföy Intelligence ve R28A Trading Cockpit verilerini tek kurumsal karar ekranında birleştirir. Yeni veri uydurmaz; mevcut Master Object ve gerçek OHLCV zincirini okur.</div>
-    </div></div>
-    <br>
-    <div class="grid g5">
-      <div class="card metric"><div class="body"><div class="muted">Institutional AI</div><div id="r29Institutional" class="v ok">-</div><div class="muted">toplam kalite</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Karar</div><div id="r29Decision" class="v">-</div><div class="muted">AL / TUT / SAT</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Güven</div><div id="r29Confidence" class="v ok">-</div><div class="muted">veri + AI</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Risk</div><div id="r29Risk" class="v warn">-</div><div class="muted">karşıt görüş</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Portföy Aksiyon</div><div id="r29PortfolioAction" class="v">-</div><div class="muted">rotasyon / tut</div></div></div>
-    </div>
-    <br>
-    <div class="grid g2">
-      <div class="card"><div class="head green">🧠 Kurumsal AI Komitesi</div><div class="body"><div id="r29Committee" class="dashList"></div></div></div>
-      <div class="card"><div class="head cyan">🎯 R29 Trade + Portföy Planı</div><div class="body"><table id="r29PlanTable" class="table"></table></div></div>
-    </div>
-    <br>
-    <div class="grid g3">
-      <div class="card"><div class="head green">🚀 En Güçlü Fırsatlar</div><div class="body"><table id="r29TopTable" class="table"></table></div></div>
-      <div class="card"><div class="head yellow">⚠️ Risk / Karşıt Görüş</div><div class="body"><table id="r29RiskTable" class="table"></table></div></div>
-      <div class="card"><div class="head dark">📊 Kurumsal Kalite Dağılımı</div><div class="body"><div id="r29QualityBox" class="comment">Çalıştırıldığında trend, momentum, para girişi, risk, veri sağlığı ve portföy katkısı burada özetlenir.</div></div></div>
-    </div>
-    <br>
-    <div class="card"><div class="head red">🧾 R29 Açıklanabilir Kurumsal Özet</div><div class="body"><div id="r29Narrative" class="comment">R29 raporu bekleniyor.</div></div></div>
-  </section>
-
-  <section id="snapshotCompare" class="hidden">
-    <div class="card"><div class="head dark">🧪 R6 Snapshot Comparison / Kalite Karşılaştırma</div><div class="body">
-      <div class="comment">Önceden aldığınız JSON snapshot dosyasını yükleyin. Sistem, yüklenen o anki karar/fiyat/skorları mevcut gerçek tarama verileriyle karşılaştırır; AL/TUT/SAT kararlarının ne kadar isabetli olduğunu, skor değişimini ve bozulup güçlenen hisseleri raporlar.</div><br>
-      <div class="quickFilters">
-        <input type="file" id="snapshotFile" accept=".json,application/json" style="padding:12px;border:1px solid var(--line);border-radius:14px;background:#fff">
-        <button class="btn green" id="snapshotCompareBtn">JSON Yükle ve Karşılaştır</button>
-        <button class="btn" id="snapshotCurrentBtn">Mevcut Veriden Snapshot JSON İndir</button>
-        <button class="btn gray" id="snapshotExportBtn">Karşılaştırma CSV</button>
-      </div>
-      <div id="snapshotStatus" class="comment">Henüz JSON yüklenmedi. Karşılaştırma için önce güncel tarama yapılır; yoksa sistem R5 Universal Scanner ile küçük partiler halinde gerçek veriyi üretir.</div>
-    </div></div>
-    <br>
-    <div class="grid g5">
-      <div class="card metric"><div class="body"><div class="muted">JSON Kayıt</div><div id="snapOldCount" class="v">-</div><div class="muted">yüklenen tekil hisse</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Eşleşen</div><div id="snapMatchCount" class="v ok">-</div><div class="muted">mevcut veriyle bulunan</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Başarı</div><div id="snapAccuracy" class="v ok">-</div><div class="muted">karar yönü testi</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Ort. Getiri</div><div id="snapAvgReturn" class="v warn">-</div><div class="muted">eşleşenlerde fiyat farkı</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Karar Değişti</div><div id="snapChanged" class="v bad">-</div><div class="muted">AL/TUT/SAT sınıfı</div></div></div>
-    </div>
-    <br>
-    <div class="grid g3">
-      <div class="card"><div class="head green">✅ En İyi Doğrulananlar</div><div class="body"><table id="snapBestTable" class="table"></table></div></div>
-      <div class="card"><div class="head red">⚠️ En Çok Bozulanlar</div><div class="body"><table id="snapWorstTable" class="table"></table></div></div>
-      <div class="card"><div class="head yellow">🔁 Karar Değişimleri</div><div class="body"><table id="snapChangedTable" class="table"></table></div></div>
-    </div>
-    <br>
-    <div class="card"><div class="head dark">📋 Tüm Karşılaştırma Listesi</div><div class="body"><table id="snapAllTable" class="table"></table></div></div>
-  </section>
-
-
-
-  <section id="institutionalDashboard" class="hidden">
-    <div class="grid g5">
-      <div class="card metric"><div class="body"><div class="muted">Piyasa Sağlığı</div><div id="v27Market" class="v ok">-</div><div class="muted">Core Engine ortak skor</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Institutional Aday</div><div id="v27InstCount" class="v ok">-</div><div class="muted">skor 80+</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">RVOL Lideri</div><div id="v27RvolLead" class="v warn">-</div><div class="muted">hacim patlaması</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Portföy Sağlığı</div><div id="v27Portfolio" class="v ok">-</div><div class="muted">V25 koç skoru</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Risk Uyarısı</div><div id="v27Risk" class="v bad">-</div><div class="muted">yüksek riskli aday</div></div></div>
-    </div><br>
-    <div class="card"><div class="head dark">🏛️ V27 Institutional Dashboard</div><div class="body"><div class="quickFilters"><button class="btn" id="v27RefreshBtn">Dashboard Güncelle</button><button class="btn gray" id="v27FullScanBtn">Day + Institutional Tara</button><button class="btn green" id="v27ExportBtn">Dashboard CSV</button></div><div id="v27Summary" class="comment">V27, yeni hesaplama yapmaz; V26 Core Engine, V23 Day Trading, V24 Institutional Scanner ve V25 Portfolio Manager sonuçlarını tek ekranda birleştirir.</div></div></div><br>
-    <div class="grid g3">
-      <div class="card"><div class="head green">🔥 İlk 20 Kurumsal Aday</div><div class="body"><table id="v27TopTable" class="table"></table></div></div>
-      <div class="card"><div class="head yellow">⚡ Relative Volume Liderleri</div><div class="body"><table id="v27RvolTable" class="table"></table></div></div>
-      <div class="card"><div class="head cyan">💧 Kurumsal Para Akışı</div><div class="body"><table id="v27MoneyTable" class="table"></table></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head">💼 Portföy ve Rotasyon</div><div class="body"><table id="v27PortfolioTable" class="table"></table></div></div>
-      <div class="card"><div class="head red">⚠️ Risk ve Fırsat Uyarıları</div><div class="body"><table id="v27AlertTable" class="table"></table></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head dark">📢 KAP / Haber Etkisi</div><div class="body"><div id="v27KapBox" class="comment">KAP/Haber AI çalıştırılırsa burada canlı sonuçlar özetlenir. Timeout durumunda JSON dışı cevap gösterilmez; son gerçek arşiv/önbellek kullanılır.</div></div></div>
-      <div class="card"><div class="head green">🧠 AI Advisor Mini Rapor</div><div class="body"><div id="v27Advisor" class="comment">Dashboard güncellendiğinde piyasa, RVOL, kurumsal para, portföy ve risk tek paragrafta özetlenir.</div></div></div>
-    </div>
-  </section>
-
-
-  <section id="aiAdvisor" class="hidden">
-    <div class="grid g5">
-      <div class="card metric"><div class="body"><div class="muted">Piyasa Sağlığı</div><div id="advMarket" class="v ok">-</div><div class="muted">ortak skor</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Güçlü Aday</div><div id="advStrong" class="v ok">-</div><div class="muted">skor 78+</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">RVOL Alarmı</div><div id="advRvol" class="v warn">-</div><div class="muted">RVOL 2+</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Portföy Riski</div><div id="advPfRisk" class="v bad">-</div><div class="muted">Smart Portfolio</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">KAP Etkisi</div><div id="advKap" class="v">-</div><div class="muted">haber motoru</div></div></div>
-    </div><br>
-    <div class="card"><div class="head dark">🤖 V28 AI Advisor</div><div class="body">
-      <div class="quickFilters"><button class="btn" id="advRunBtn">AI Advisor Raporu Oluştur</button><button class="btn gray" id="advFullBtn">Tara + Rapor Oluştur</button><button class="btn green" id="advExportBtn">Advisor CSV</button></div>
-      <div id="advNarrative" class="comment">V28, ayrı veri üretmez. V26 Core Engine, V23 Day Trading AI, V24 Institutional Scanner, V25 Smart Portfolio Manager ve V27 Dashboard sonuçlarını tek günlük karar destek raporuna dönüştürür.</div>
-    </div></div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head green">✅ Bugünün Öncelikli Aksiyonları</div><div class="body"><table id="advActionTable" class="table"></table></div></div>
-      <div class="card"><div class="head yellow">⚡ RVOL ve Günlük Trade İzleme</div><div class="body"><table id="advTradeTable" class="table"></table></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head cyan">💧 Kurumsal Para / Sektör Eğilimi</div><div class="body"><div id="advSectorBox" class="comment">Rapor oluşturulunca güçlü para akışı ve sektör/tema özeti burada görünür.</div></div></div>
-      <div class="card"><div class="head red">⚠️ Risk ve Koruma Planı</div><div class="body"><table id="advRiskTable" class="table"></table></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head">💼 Portföy Koçu Özeti</div><div class="body"><table id="advPortfolioTable" class="table"></table></div></div>
-      <div class="card"><div class="head dark">🧠 Açıklanabilir AI Karar Gerekçeleri</div><div class="body"><div id="advExplainBox" class="comment">Skorların neden oluştuğu burada katman katman özetlenir.</div></div></div>
-    </div>
-  </section>
-
-
-  <section id="explainableAI" class="hidden">
-    <div class="grid g5">
-      <div class="card metric"><div class="body"><div class="muted">AI Decision</div><div id="xaiScore" class="v ok">-</div><div class="muted">ortak karar skoru</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Karar</div><div id="xaiDecision" class="v">-</div><div class="muted">AL / İZLE / RİSKLİ</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Güven</div><div id="xaiConfidence" class="v ok">-</div><div class="muted">A+ / A / B</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Risk</div><div id="xaiRisk" class="v bad">-</div><div class="muted">karşıt görüş</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Veri Kalitesi</div><div id="xaiDataQuality" class="v">-</div><div class="muted">gerçek veri kontrolü</div></div></div>
-    </div><br>
-    <div class="card"><div class="head dark">🔎 R20 Explainable AI 2.0 / Karar Gerekçesi</div><div class="body">
-      <div class="quickFilters"><button class="btn" id="xaiRunBtn">Seçili Hisseyi Açıkla</button><button class="btn gray" id="xaiOpenAnalysisBtn">Hisse Analizine Git</button><button class="btn green" id="xaiExportBtn">XAI CSV</button></div>
-      <div id="xaiNarrative" class="comment">R20.1, AI kararının neden oluştuğunu katman katman açıklar. Trend, momentum, hacim, kurumsal para, risk, IQS ve veri kalitesi aynı ekranda özetlenir. Gereksiz modül kalabalığı kaldırıldı.</div>
-    </div>
-    <div class="grid g3" style="margin-top:16px">
-      <div class="card"><div class="head yellow">📢 Son KAP Bildirimi</div><div class="body"><div id="xaiKapLatest" class="comment">Hisse seçip çalıştırın.</div></div></div>
-      <div class="card"><div class="head green">🤖 KAP AI Yorumu</div><div class="body"><div id="xaiKapComment" class="comment">Son bildirim okununca etki, güven ve teknik uyum burada açıklanır.</div></div></div>
-      <div class="card"><div class="head cyan">⏳ KAP Etki Süresi</div><div class="body"><div id="xaiKapHorizon" class="comment">Bugün / 3 gün / 1 hafta / 1 ay etkisi burada görünür.</div></div></div>
-    </div>
-    <div class="grid g2" style="margin-top:16px">
-      <div class="card"><div class="head dark">📊 Financial AI</div><div class="body"><div id="xaiFinancialBox" class="comment">Finansal tablo/finansal KAP katmanı burada açıklanır.</div></div></div>
-      <div class="card"><div class="head cyan">🧾 Finansal Gerekçeler</div><div class="body"><div id="xaiFinancialReasons" class="comment">Kârlılık, büyüme, borçluluk, nakit ve veri kapsamı burada görünür.</div></div></div>
-    </div></div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head green">✅ Kararın Pozitif Nedenleri</div><div class="body"><div id="xaiPositiveBox" class="comment">Hisse seçip çalıştırın.</div></div></div>
-      <div class="card"><div class="head red">⚠️ Karşıt Görüş / Riskler</div><div class="body"><div id="xaiNegativeBox" class="comment">Risk katmanları burada gösterilir.</div></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head cyan">🧩 Puan Katkı Kırılımı</div><div class="body"><table id="xaiLayerTable" class="table"></table></div></div>
-      <div class="card"><div class="head yellow">🚦 Trafik Işığı</div><div class="body"><div id="xaiTrafficBox" class="comment"></div><br><table id="xaiTraceTable" class="table"></table></div></div>
-    </div><br>
-    <div class="card"><div class="head cyan">📊 Hisse İndikatörleri</div><div class="body"><div id="xaiIndicatorBox" class="comment">Seçili hissenin ana indikatörleri burada görünür.</div><br><table id="xaiIndicatorTable" class="table"></table></div></div><br>
-    <div class="card"><div class="head dark">🧠 AI Karar İzleme</div><div class="body"><div id="xaiTraceBox" class="comment">Karar ağacı ve puan izi burada görünür.</div></div></div>
-  </section>
-
-  <section id="analysis" class="hidden">
-    <div id="cards" class="grid g5"></div><br>
-    <div class="grid g2"><div class="card"><div class="head">📈 Mum Grafik ve Teknik Göstergeler</div><div class="body"><div class="indicatorToggles"><label class="chip"><input type="checkbox" id="showEma20" checked>EMA20</label><label class="chip"><input type="checkbox" id="showEma50" checked>EMA50</label><label class="chip"><input type="checkbox" id="showEma200" checked>EMA200</label><label class="chip"><input type="checkbox" id="showBB" checked>Bollinger</label><label class="chip"><input type="checkbox" id="showVWAP" checked>VWAP</label></div><div id="candleChart" class="chartbox"></div><div class="chartNote">Grafik: OHLC mumlar + EMA20/50/200 + Bollinger Bandı + VWAP. Veri kaynağı API OHLC çıktısıdır.</div></div></div><div class="card"><div class="head green">🧠 Uzman Motor Özeti</div><div class="body" id="engine"></div></div></div><br>
-    <div class="grid g2"><div class="card"><div class="head dark">👨‍🏫 Uzman Yorumu</div><div class="body"><div id="expert" class="comment"></div></div></div><div class="card"><div class="head dark">🤖 AI Yorumu</div><div class="body"><div id="ai" class="comment"></div></div></div></div><br>
-    <div class="grid g3">
-      <div class="card"><div class="head green">🟢 AI Karar Motoru</div><div class="body" id="aiDecision"></div></div>
-      <div class="card"><div class="head yellow">✅ Neden Bu Karar?</div><div class="body" id="aiReasons"></div></div>
-      <div class="card"><div class="head red">⚠️ Risk / İşlem Planı</div><div class="body" id="aiRiskPlan"></div></div>
-    </div><br>
-    <div class="card"><div class="head cyan">🔎 Formasyon Motoru</div><div class="body" id="patternBox"></div></div><br>
-    <div class="card"><div class="head dark">🧩 Çok Katmanlı Güven Puanı</div><div class="body" id="multiLayerBox"><div class="comment">Hisse analizi sonrası trend, momentum, para girişi, formasyon, Haber/KAP ve backtest katmanları burada gösterilir.</div></div></div><br>
-    <div class="card"><div class="head cyan">📊 Hisseye Ait İndikatörler / R23 Schema</div><div class="body"><div id="indicatorPanelBox" class="comment">Hisse analizi sonrası EMA, RSI, MACD, RVOL, VWAP, CMF, MFI, ATR ve kalite skorları burada görünür.</div><br><table id="indicatorPanelTable" class="table"></table></div></div>
-  </section>
-
-  <section id="leaders" class="hidden"><div class="card"><div class="head green">🔥 En Güçlü 20 Hisse</div><div class="body"><div class="quickFilters"><button class="btn" id="scanBtn1">Taramayı Yenile</button></div><table id="leaderTable" class="table"></table></div></div></section>
-  <section id="safe" class="hidden"><div class="card"><div class="head cyan">💎 Güvenli Kazançlar</div><div class="body"><div class="comment">Kriter: düşük risk, yüksek güven, pozitif trend ve güçlü final skor.</div><br><table id="safeTable" class="table"></table></div></div></section>
-  <section id="opportunity" class="hidden"><div class="card"><div class="head yellow">🚀 Fırsat Avcısı</div><div class="body"><div class="comment">Kriter: yüksek potansiyel, para girişi, momentum veya formasyon desteği.</div><br><table id="oppTable" class="table"></table></div></div></section>
-  <section id="risky" class="hidden"><div class="card"><div class="head red">⚠️ Riskli Hisseler</div><div class="body"><div class="comment">Risk yüksek, güven düşük veya karar zayıf olan hisseler burada izlenir.</div><br><table id="riskTable" class="table"></table></div></div></section>
-  <section id="patterns" class="hidden"><div class="card"><div class="head cyan">🔎 Formasyon Radar</div><div class="body"><div class="comment">Kriter: formasyon puanı yüksek, hedef/stop planı üretilebilen hisseler. Önce tarama yapın.</div><br><table id="patternTable" class="table"></table></div></div></section>
-  <section id="backtestPage" class="hidden">
-    <div class="grid g5">
-      <div class="card metric"><div class="body"><div class="muted">Sinyal Sayısı</div><div id="btSignals" class="v">-</div><div class="muted">son 5-10 yıl örneklem</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Başarı Oranı</div><div id="btSuccess" class="v ok">-</div><div class="muted">ileri test sonucu</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Ortalama Getiri</div><div id="btAvg" class="v warn">-</div><div class="muted">sinyal sonrası</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Ort. Bekleme</div><div id="btHold" class="v">-</div><div class="muted">gün</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Risk/Getiri</div><div id="btRR" class="v ok">-</div><div class="muted">ortalama oran</div></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head dark">📊 Backtest Özeti</div><div class="body"><div class="quickFilters"><button class="btn" id="runBtBtn">Seçili hisseyi test et</button><button class="btn gray" id="runPortfolioBtBtn">Portföyü test et</button></div><div id="btSummary" class="comment">Backtest için hisse seçip düğmeye basın.</div><br><table id="btDecisionTable" class="table"></table></div></div>
-      <div class="card"><div class="head green">📈 İstatistik ve Yorum</div><div class="body"><div id="btAiComment" class="comment">Sinyal başarı oranı, ortalama getiri ve karar türlerine göre dağılım burada gösterilecek.</div><br><table id="btPortfolioTable" class="table"></table></div></div>
-    </div>
-  </section>
-
-  <section id="learningPage" class="hidden">
-    <div class="grid g5">
-      <div class="card metric"><div class="body"><div class="muted">Örnek Sinyal</div><div id="learnSamples" class="v">-</div><div class="muted">geçmiş test sayısı</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">5 Gün Başarı</div><div id="learn5Success" class="v ok">-</div><div class="muted">kısa vade</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">20 Gün Başarı</div><div id="learn20Success" class="v ok">-</div><div class="muted">orta vade</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">30 Gün Başarı</div><div id="learnSuccess" class="v ok">-</div><div class="muted">ana ölçüm</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Güven Düzeltmesi</div><div id="learnAdj" class="v warn">-</div><div class="muted">AI puanına etki</div></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head dark">🧠 V30 AI Learning Engine Özeti</div><div class="body"><div class="quickFilters"><button class="btn" id="runLearningBtn">Seçili hisseyi öğren</button><button class="btn green" id="saveSignalBtn">Bu sinyali hafızaya kaydet</button><button class="btn gray" id="clearSignalsBtn">Yerel hafızayı temizle</button></div><div id="learningComment" class="comment">V30 AI Learning Engine için hisse seçip düğmeye basın. Sistem sinyal kombinasyonlarını farklı zaman ufuklarında öğrenir ve V31 IQS için hazırlık puanı üretir.</div><br><table id="learnYearTable" class="table"></table></div></div>
-      <div class="card"><div class="head green">🏆 En İyi Çalışan Kurallar</div><div class="body"><table id="learnRuleTable" class="table"></table></div></div>
-    </div><br>
-
-    <div class="grid g2">
-      <div class="card"><div class="head dark">🧬 En İyi Sinyal Kombinasyonları</div><div class="body"><table id="learnComboTable" class="table"></table></div></div>
-      <div class="card"><div class="head cyan">📌 Bugünkü Sinyal İmzası</div><div class="body"><div id="learnSignatureBox" class="comment">Seçilen hisse için geçmişte en çok çalışan kombinasyon burada görünür.</div></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head green">🧠 V30 Öğrenme Skoru</div><div class="body"><div id="v30LearningBox" class="comment">V30 öğrenme skoru, istikrar, örnek sayısı, başarı ve risk dengesinden üretilir.</div></div></div>
-      <div class="card"><div class="head dark">⭐ V31 IQS Ön Hazırlık</div><div class="body"><table id="v30IqsTable" class="table"></table></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head yellow">📅 Karar Türüne Göre Başarı</div><div class="body"><table id="learnDecisionTable" class="table"></table></div></div>
-      <div class="card"><div class="head red">⚠️ Zayıf Kurallar ve Uyarılar</div><div class="body"><table id="learnWeakTable" class="table"></table></div></div>
-    </div><br>
-    <div class="card"><div class="head cyan">💾 Yerel Sinyal Hafızası</div><div class="body"><div class="comment">Bu alan tarayıcıda saklanır. Alınan sinyalleri daha sonra gerçekleşen fiyatlarla karşılaştırmak için başlangıç hafızası oluşturur.</div><br><table id="signalJournalTable" class="table"></table></div></div>
-  </section>
-
-
-
-  <section id="tradingCenter" class="hidden">
-    <div class="card"><div class="head dark">🎯 V31 Trading Center & Institutional Quality Score</div><div class="body">
-      <div class="quickFilters">
-        <button class="btn" id="tcRefreshBtn">Trading Center Güncelle</button>
-        <button class="btn green" id="tcFullScanBtn">Gerekirse Taramaları Çalıştır</button>
-        <button class="btn gray" id="tcExportBtn">CSV Dışa Aktar</button>
-      </div>
-      <div id="tcNarrative" class="comment">V31; Day, Swing, Pozisyon, Scalping, AI Trading ve AI Model Portföyleri için ortak Core Engine + Explainable AI + Learning Engine verisini kullanır. Scalping modülü günlük OHLC ile sınırlı çalışır; tam kapasite için dakikalık veri gerekir.</div>
-    </div></div>
-
-    <div class="grid g5" style="margin-top:16px">
-      <div class="card metric"><div class="body"><div class="muted">Genel IQS</div><div id="tcIqs" class="v">-</div><div id="tcIqsGrade" class="muted">-</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">En Uygun Tarz</div><div id="tcBestStyle" class="v">-</div><div class="muted">AI seçimi</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Day Adayı</div><div id="tcDayLead" class="v">-</div><div class="muted">Gün içi</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Swing Adayı</div><div id="tcSwingLead" class="v">-</div><div class="muted">3-20 gün</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Pozisyon Adayı</div><div id="tcPositionLead" class="v">-</div><div class="muted">1-12 ay</div></div></div>
-    </div>
-
-    <div class="grid g3" style="margin-top:16px">
-      <div class="card"><div class="head green">📈 Trading Tarzı Skorları</div><div class="body"><table id="tcStyleTable" class="table"></table></div></div>
-      <div class="card"><div class="head cyan">⭐ IQS Katmanları</div><div class="body"><table id="tcIqsTable" class="table"></table></div></div>
-      <div class="card"><div class="head yellow">🤖 AI Trading Yorumu</div><div class="body"><div id="tcAdvisorBox" class="comment">Veri bekleniyor.</div></div></div>
-    </div>
-
-    <div class="grid g2" style="margin-top:16px">
-      <div class="card"><div class="head green">🏆 V31 En İyi Adaylar</div><div class="body"><table id="tcTopTable" class="table"></table></div></div>
-      <div class="card"><div class="head dark">🧺 AI Model Portföyleri</div><div class="body"><table id="tcModelTable" class="table"></table></div></div>
-    </div>
-
-    <div class="grid g2" style="margin-top:16px">
-      <div class="card"><div class="head cyan">🌊 Swing Trading Adayları</div><div class="body"><table id="tcSwingTable" class="table"></table></div></div>
-      <div class="card"><div class="head yellow">🏦 Pozisyon Trading Adayları</div><div class="body"><table id="tcPositionTable" class="table"></table></div></div>
-    </div>
-
-    <div class="grid g2" style="margin-top:16px">
-      <div class="card"><div class="head red">⚡ Scalping Uygunluk</div><div class="body"><div id="tcScalpBox" class="comment">Scalping günlük OHLC ile sadece likidite/volatilite ön elemesi yapar. Dakikalık veri olmadan emir akışı/spread kesin yorumlanamaz.</div><br><table id="tcScalpTable" class="table"></table></div></div>
-      <div class="card"><div class="head green">🧪 Radar Lab / Strategy Optimizer Bağlantısı</div><div class="body"><div id="tcLabBox" class="comment">V31, Radar Lab strateji sonuçlarını Trading Center kararına referans olarak bağlar.</div><br><table id="tcLabTable" class="table"></table></div></div>
-    </div>
-  </section>
-
-  <section id="portfolio" class="hidden">
-    <div class="grid g2">
-      <div class="card"><div class="head">💼 R8 Dinamik Portföy Radarım</div><div class="body">
-        <div id="portfolioBox" class="comment"></div><br>
-        <div class="quickFilters">
-          <input id="pfSymbol" placeholder="Hisse" style="padding:12px;border:1px solid var(--line);border-radius:12px;max-width:110px">
-          <input id="pfLot" type="number" placeholder="Lot" style="padding:12px;border:1px solid var(--line);border-radius:12px;max-width:110px">
-          <input id="pfCost" type="number" step="0.01" placeholder="Maliyet" style="padding:12px;border:1px solid var(--line);border-radius:12px;max-width:130px">
-          <button class="btn green" id="pfAddBtn">Ekle / Güncelle</button>
-          <button class="btn" id="pfAnalyzeBtn">Anlık Analiz</button>
-          <button class="btn gray" id="pfSaveBtn">Kaydet</button>
-          <button class="btn red" id="pfClearBtn">Temizle</button>
-        </div>
-        <div class="quickFilters" style="margin-top:8px">
-          <button class="btn green" id="pfExportJsonBtn">JSON İndir</button>
-          <button class="btn gray" id="pfExportCsvBtn">CSV İndir</button>
-          <label class="btn gray" style="cursor:pointer">JSON Yükle<input id="pfImportJson" type="file" accept="application/json,.json" style="display:none"></label>
-        </div>
-        <div id="portfolioChangeBox" class="comment" style="margin-top:10px">Portföyünüz değiştiğinde Ekle/Güncelle sonrası sistem otomatik kaydeder ve portföy radarını yeniden hesaplar.</div><br>
-        <table id="portfolioTable" class="table"></table>
-      </div></div>
-      <div class="card"><div class="head green">🤖 Portföy AI Yorumu</div><div class="body"><div id="portfolioAi" class="comment">Portföy taraması sonrası güçlü/zayıf hisseler ve öneriler burada görünecek.</div></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head cyan">🌟 Portföy Dışı Fırsatlar</div><div class="body"><table id="portfolioOppTable" class="table"></table></div></div>
-      <div class="card"><div class="head yellow">🔁 Portföy Rotasyonu</div><div class="body"><table id="portfolioRotationTable" class="table"></table></div></div>
-    </div>
-  </section>
-
-
-  <section id="portfolioIntelligence" class="hidden">
-    <div class="card"><div class="head dark">🧠 R21 Portfolio Intelligence / Smart Portfolio Coach</div><div class="body">
-      <div class="quickFilters">
-        <button class="btn green" onclick="runR21PortfolioIntelligence()">R21 Portföy Koçunu Çalıştır</button>
-        <button class="btn" onclick="analyzePortfolioNow(true).then(()=>runR21PortfolioIntelligence())">Portföyü Güncelle + Analiz Et</button>
-        <button class="btn gray" onclick="exportR21PortfolioCSV()">R21 CSV</button>
-        <button class="btn gray" onclick="showPage('portfolio',document.querySelector('[data-page=&quot;portfolio&quot;]'))">Portföyü Düzenle</button>
-      </div>
-      <div id="r21Narrative" class="comment">Portföyünüzdeki hisseler; güncel fiyat, maliyet, AI skoru, risk, yoğunlaşma ve portföy dışı fırsatlarla birlikte değerlendirilir.</div>
-    </div></div><br>
-    <div class="grid g5">
-      <div class="card metric"><div class="body"><div class="muted">Portföy Sağlığı</div><div id="r21Health" class="v ok">-</div><div class="muted">0-100</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Güncel Değer</div><div id="r21Value" class="v ok">-</div><div class="muted">TL</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Kâr/Zarar</div><div id="r21Pnl" class="v warn">-</div><div class="muted">maliyet bazlı</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">En Güçlü</div><div id="r21Best" class="v ok">-</div><div class="muted">pozisyon</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">En Zayıf Halka</div><div id="r21Weak" class="v bad">-</div><div class="muted">risk uyarısı</div></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head green">💼 Portföy Aksiyonları</div><div class="body"><table id="r21ActionTable" class="table"></table></div></div>
-      <div class="card"><div class="head red">⚠️ Risk ve Yoğunlaşma</div><div class="body"><div id="r21RiskBox" class="comment"></div><br><table id="r21RiskTable" class="table"></table></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head cyan">🌟 Portföy Dışı Fırsatlar</div><div class="body"><table id="r21OppTable" class="table"></table></div></div>
-      <div class="card"><div class="head yellow">🔁 AI Rotasyon Önerileri</div><div class="body"><table id="r21RotationTable" class="table"></table></div></div>
-    </div>
-  </section>
-
-  <section id="portfolioAdvice" class="hidden">
-    <div class="grid g4">
-      <div class="card metric"><div class="body"><div class="muted">Günlük Trade</div><div id="paDailyCount" class="v warn">-</div><div class="muted">hızlı fırsat</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Haftalık Portföy</div><div id="paWeeklyCount" class="v ok">-</div><div class="muted">3-10 gün</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Aylık Portföy</div><div id="paMonthlyCount" class="v ok">-</div><div class="muted">daha sakin</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Nakit Önerisi</div><div id="paCash" class="v warn">-</div><div class="muted">risk tamponu</div></div></div>
-    </div><br>
-    <div class="card"><div class="head dark">🤖 V24.1 AI Portfolio Coach 2.0</div><div class="body"><div class="quickFilters"><button class="btn" id="portfolioAdviceBtn">Portföy Koçunu Güncelle</button><button class="btn gray" id="portfolioAdviceScanBtn">Day + Institutional Tara ve Koça Bağla</button><button class="btn green" id="coachExportBtn">Koç Raporu CSV</button></div><div id="portfolioCoach" class="comment">Tarama tamamlandığında mevcut portföy, portföy dışı fırsatlar ve rotasyon önerileri birlikte oluşur.</div></div></div><br>
-    <div class="grid g3">
-      <div class="card"><div class="head yellow">⚡ Günlük / Anlık Trade Adayları</div><div class="body"><div class="comment">Kriter: hacim/para girişi, momentum, düşük stop mesafesi, hızlı hareket potansiyeli.</div><br><table id="dailyTradeTable" class="table"></table></div></div>
-      <div class="card"><div class="head green">📅 Haftalık Portföy Önerisi</div><div class="body"><div class="comment">Kriter: trend + güven + risk/getiri dengesi; 3-10 günlük taşıma için.</div><br><table id="weeklyPortfolioTable" class="table"></table></div></div>
-      <div class="card"><div class="head cyan">🧺 Aylık Portföy Önerisi</div><div class="body"><div class="comment">Kriter: güçlü trend, düşük/orta risk, yüksek güven ve daha dengeli volatilite.</div><br><table id="monthlyPortfolioTable" class="table"></table></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head red">💼 Mevcut Portföy Revizyonu</div><div class="body"><table id="portfolioRevisionTable" class="table"></table></div></div>
-      <div class="card"><div class="head green">📊 Önerilen Ağırlık Dağılımı</div><div class="body"><div id="allocationBox" class="comment"></div><br><table id="allocationTable" class="table"></table></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head cyan">🌟 V24.1 Portföy Dışı Yeni Fırsatlar</div><div class="body"><div class="comment">Day Trading AI ve Institutional Scanner ilk 20 listelerinde olup mevcut portföyde olmayan hisseler burada görünür.</div><br><table id="coachOpportunityTable" class="table"></table></div></div>
-      <div class="card"><div class="head yellow">🔁 V24.1 AI Portföy Rotasyonu</div><div class="body"><div class="comment">Zayıf portföy hisseleri ile güçlü portföy dışı adaylar skor farkına göre eşleştirilir.</div><br><table id="coachRotationTable" class="table"></table></div></div>
-    </div>
-  </section>
-
-
-
-
-
-  <section id="smartPortfolio" class="hidden">
-    <div class="grid g4">
-      <div class="card metric"><div class="body"><div class="muted">V25 Portföy Skoru</div><div id="spmScore" class="v ok">-</div><div class="muted">0-100</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Beklenen 1 Hafta</div><div id="spmW1" class="v ok">-</div><div class="muted">senaryo</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Beklenen 1 Ay</div><div id="spmM1" class="v warn">-</div><div class="muted">senaryo</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Risk</div><div id="spmRisk" class="v bad">-</div><div class="muted">düşük/orta/yüksek</div></div></div>
-    </div><br>
-    <div class="card"><div class="head dark">🧠 V25 Smart Portfolio Manager</div><div class="body">
-      <div class="quickFilters"><button class="btn" id="spmRunBtn">Portföyü V25 ile Analiz Et</button><button class="btn gray" id="spmScanBtn">Önce V23+V24 Tara</button><button class="btn green" id="spmExportBtn">V25 CSV</button></div>
-      <div id="spmSummary" class="comment">Portföyünüz; Day Trading, Institutional Scanner, risk, korelasyon ve yeni fırsatlarla birlikte analiz edilir.</div>
-    </div></div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head green">💼 Portföy Aksiyonları</div><div class="body"><table id="spmActionTable" class="table"></table></div></div>
-      <div class="card"><div class="head cyan">🌟 Portföy Dışı En İyi Fırsatlar</div><div class="body"><table id="spmOpportunityTable" class="table"></table></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head yellow">🔁 Akıllı Rotasyon</div><div class="body"><table id="spmRotationTable" class="table"></table></div></div>
-      <div class="card"><div class="head red">🔗 Korelasyon / Yoğunlaşma Riski</div><div class="body"><div id="spmCorrelation" class="comment">Korelasyon için portföy hisselerinin gerçek OHLC verileri alınır.</div></div></div>
-    </div>
-  </section>
-
-  <section id="radarLab" class="hidden">
-    <div class="grid g4">
-      <div class="card metric"><div class="body"><div class="muted">Başarı</div><div id="rlSuccess" class="v ok">-</div><div class="muted">hedefe ulaşan sinyal</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Ortalama Getiri</div><div id="rlAvg" class="v ok">-</div><div class="muted">işlem başına</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Maks. Düşüş</div><div id="rlDD" class="v bad">-</div><div class="muted">ortalama adverse</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Sinyal</div><div id="rlTrades" class="v warn">-</div><div class="muted">işlem sayısı</div></div></div>
-    </div><br>
-    <div class="card"><div class="head dark">🧪 Radar Lab — Kendi Stratejini Backtest Et</div><div class="body">
-      <div class="grid g3">
-        <label>Hisse Kodu<input id="rlSymbol" value="PAPIL" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:12px"></label>
-        <label>Backtest Aralığı<select id="rlRange" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:12px"><option value="5y" selected>5 yıl</option><option value="2y">2 yıl</option><option value="1y">1 yıl</option></select></label>
-        <label>Bekleme Süresi<select id="rlHold" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:12px"><option value="5">5 işlem günü</option><option value="10" selected>10 işlem günü</option><option value="20">20 işlem günü</option></select></label>
-      </div><br>
-      <div class="quickFilters">
-        <label class="chip"><input type="checkbox" id="rlRVOL" checked>RVOL &gt; <input id="rlRVOLVal" value="2" style="width:45px"></label>
-        <label class="chip"><input type="checkbox" id="rlCMF" checked>CMF &gt; 0</label>
-        <label class="chip"><input type="checkbox" id="rlOBV" checked>OBV yükseliyor</label>
-        <label class="chip"><input type="checkbox" id="rlVWAP" checked>VWAP üzerinde</label>
-        <label class="chip"><input type="checkbox" id="rlRSI" checked>RSI <input id="rlRSIMin" value="45" style="width:38px">–<input id="rlRSIMax" value="70" style="width:38px"></label>
-        <label class="chip"><input type="checkbox" id="rlKAP">KAP puanı &gt; <input id="rlKAPVal" value="70" style="width:45px"></label>
-      </div>
-      <div class="quickFilters"><button class="btn" id="rlRunBtn">Stratejiyi Backtest Et</button><button class="btn gray" id="rlPresetBtn">Varsayılan Strateji</button><button class="btn green" id="rlExportBtn">Radar Lab CSV</button></div>
-      <div id="rlSummary" class="comment">Varsayılan strateji: RVOL &gt; 2, CMF &gt; 0, OBV yükseliyor, VWAP üzerinde, RSI 45–70. Tüm hesaplamalar seçilen hissenin gerçek OHLC/hacim verisiyle yapılır.</div>
-    </div></div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head green">📊 Backtest Sonuçları</div><div class="body"><table id="rlResultTable" class="table"></table></div></div>
-      <div class="card"><div class="head cyan">🧠 Sinyal Açıklaması</div><div class="body"><div id="rlExplain" class="comment">Sinyaller oluştuğunda nedenleri ve örnek işlemler burada görünür.</div></div></div>
-    </div>
-  </section>
-
-  <section id="v20Portfolio" class="hidden">
-    <div class="grid g4">
-      <div class="card metric"><div class="body"><div class="muted">1 Hafta Beklenti</div><div id="v20W1" class="v ok">-</div><div class="muted">5 işlem günü</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">2 Hafta Beklenti</div><div id="v20W2" class="v ok">-</div><div class="muted">10 işlem günü</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">1 Ay Beklenti</div><div id="v20M1" class="v warn">-</div><div class="muted">22 işlem günü</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Portföy Risk Skoru</div><div id="v20Risk" class="v bad">-</div><div class="muted">0 düşük / 100 yüksek</div></div></div>
-    </div><br>
-    <div class="card"><div class="head dark">🧪 V20 Institutional Portföy Motoru</div><div class="body">
-      <div class="quickFilters"><button class="btn" id="v20RunBtn">Mevcut Portföyü Simüle Et</button><button class="btn gray" onclick="showPage('portfolio',document.querySelector('[data-page=\"portfolio\"]'))">Portföyü Düzenle</button></div>
-      <div id="v20Summary" class="comment">Monte Carlo senaryosu, korelasyon analizi ve ağırlık optimizasyonu için portföyü simüle edin. Hesaplamalar gerçek OHLC günlük getirilerinden yapılır; random/pseudo veri kullanılmaz.</div>
-    </div></div><br>
-    <div class="grid g3">
-      <div class="card"><div class="head green">📈 Senaryo Dağılımı</div><div class="body"><table id="v20ScenarioTable" class="table"></table></div></div>
-      <div class="card"><div class="head cyan">🔗 Korelasyon Riski</div><div class="body"><div id="v20CorrBox" class="comment"></div><br><table id="v20CorrTable" class="table"></table></div></div>
-      <div class="card"><div class="head yellow">⚖️ Optimize Ağırlık</div><div class="body"><table id="v20OptTable" class="table"></table></div></div>
-    </div><br>
-    <div class="card"><div class="head red">💼 Mevcut Portföy Revizyonu</div><div class="body"><table id="v20ActionTable" class="table"></table></div></div>
-  </section>
-
-
-  <section id="dayTradingAI" class="hidden">
-    <div class="grid g4">
-      <div class="card metric"><div class="body"><div class="muted">En Yüksek Day Skoru</div><div id="dtBestScore" class="v ok">-</div><div class="muted">0-100</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">RVOL Lideri</div><div id="dtRvolLeader" class="v ok">-</div><div class="muted">20 günlük ortalamaya göre</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Güçlü Aday</div><div id="dtStrongCount" class="v ok">-</div><div class="muted">skor ≥ 72</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Taranan</div><div id="dtScanned" class="v warn">-</div><div class="muted">gerçek OHLC + hacim</div></div></div>
-    </div><br>
-    <div class="card"><div class="head dark">⚡ V23 Day Trading AI</div><div class="body">
-      <div class="quickFilters"><button class="btn" id="dtScanBtn">Yarın İçin Day Trading Taraması</button><button class="btn gray" id="dtExportBtn">CSV Dışa Aktar</button></div>
-      <div id="dtStatus" class="comment"><b>Öne çıkarılan modül:</b> Borsa kapanışı sonrası çalıştırın. Sistem RVOL20/RVOL5, VWAP, OBV, CMF, MFI, ATR ve göreceli güç bileşenleriyle yarın izlenecek adayları sıralar. Random/pseudo veri kullanılmaz; veri alınamayan hisseler listeye zorla eklenmez.</div>
-    </div></div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head green">🏆 Yarının En Güçlü 20 Day Trading Adayı</div><div class="body"><table id="dtTable" class="table"></table></div></div>
-      <div class="card"><div class="head cyan">🔍 Seçili Aday Açıklaması</div><div class="body"><div id="dtExplain" class="comment">Listeden bir hisseye tıklayın. Skorun neden oluştuğu ve giriş/stop/hedef planı burada gösterilir.</div><br><table id="dtLayerTable" class="table"></table></div></div>
-    </div>
-  </section>
-
-
-  <section id="tradePlanner" class="hidden">
-    <div class="grid g4">
-      <div class="card metric"><div class="body"><div class="muted">AI Kararı</div><div id="tpDecision" class="v warn">-</div><div class="muted">AL / TUT / SAT</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Güven</div><div id="tpConfidence" class="v ok">-</div><div class="muted">0-100</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Risk/Getiri</div><div id="tpRR" class="v ok">-</div><div class="muted">hedef / stop</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Plan Türü</div><div id="tpStyle" class="v warn">-</div><div class="muted">Day / Swing / Pozisyon</div></div></div>
-    </div><br>
-    <div class="card"><div class="head dark">🎯 V32 AI Trade Planner</div><div class="body">
-      <div class="quickFilters">
-        <button class="btn" id="tpRunBtn">Seçili Hisse İçin Trade Planı Oluştur</button>
-        <button class="btn gray" id="tpFromDayBtn">Day Trading Liderinden Plan Yap</button>
-        <button class="btn green" id="tpExportBtn">Plan CSV</button>
-      </div>
-      <div id="tpSummary" class="comment">V32; V23 Day Trading, V29 Explainable AI, V30 Learning ve V31 IQS çıktısını tek plana çevirir: AL/TUT/SAT, giriş aralığı, stop, hedef, risk/getiri ve takip koşulları.</div>
-    </div></div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head green">✅ Uygulanabilir İşlem Planı</div><div class="body"><div id="tpPlanBox" class="comment">Önce hisse seçin ve plan oluşturun.</div><br><table id="tpPlanTable" class="table"></table></div></div>
-      <div class="card"><div class="head cyan">🧠 Neden Bu Karar?</div><div class="body"><div id="tpWhyBox" class="comment">Kararın pozitif nedenleri, karşıt görüşleri ve teyit şartları burada gösterilir.</div><br><table id="tpWhyTable" class="table"></table></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head yellow">⏱️ Yarın İçin Takip Kuralları</div><div class="body"><table id="tpRulesTable" class="table"></table></div></div>
-      <div class="card"><div class="head red">🛡️ Risk Yönetimi</div><div class="body"><div id="tpRiskBox" class="comment"></div><br><table id="tpSizeTable" class="table"></table></div></div>
-    </div>
-  </section>
-
-  <section id="institutionalScanner" class="hidden">
-    <div class="grid g4">
-      <div class="card metric"><div class="body"><div class="muted">En Yüksek Institutional Score</div><div id="isBestScore" class="v ok">-</div><div class="muted">0-100</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Kurumsal Aday</div><div id="isInstCount" class="v ok">-</div><div class="muted">skor ≥ 88</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Güçlü Aday</div><div id="isStrongCount" class="v warn">-</div><div class="muted">skor ≥ 78</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Taranan</div><div id="isScanned" class="v">-</div><div class="muted">gerçek OHLC + hacim</div></div></div>
-    </div><br>
-    <div class="card"><div class="head dark">🏦 V24 Institutional Scanner Pro</div><div class="body">
-      <div class="quickFilters"><button class="btn" id="isScanBtn">Kurumsal Tarama Başlat</button><button class="btn gray" id="isExportBtn">CSV Dışa Aktar</button></div>
-      <div id="isStatus" class="comment">620+ BIST hedefi için sembol listesindeki tüm hisseler parça parça taranır. Skor; RVOL, göreceli güç, para akışı, VWAP, Dip Avcısı, trend, KAP/haber, backtest, risk ve likidite katmanlarından oluşur. Random/pseudo veri kullanılmaz.</div>
-    </div></div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head green">🏆 Kurumsal İlk 20 Aday</div><div class="body"><table id="isTable" class="table"></table></div></div>
-      <div class="card"><div class="head cyan">🧠 Açıklanabilir Institutional AI</div><div class="body"><div id="isExplain" class="comment">Listeden bir hisseye tıklayın. Skor katmanları ve kurumsal adaylık nedeni burada gösterilir.</div><br><table id="isLayerTable" class="table"></table></div></div>
-    </div><br>
-    <div class="card"><div class="head yellow">📊 Tarama Dağılımı</div><div class="body"><table id="isBucketTable" class="table"></table></div></div>
-  </section>
-
-
-  <section id="dailyReport" class="hidden">
-    <div class="grid g2">
-      <div class="card"><div class="head dark">📰 Günlük AI Raporu</div><div class="body">
-        <div class="quickFilters"><button class="btn" id="dailyReportBtn">Raporu Güncelle</button><button class="btn gray" id="kapRefreshBtn">KAP/Haber Alanını Yenile</button></div>
-        <div id="dailyReportBox" class="comment">Tüm BIST taraması sonrası günlük rapor üretilecek.</div>
-      </div></div>
-      <div class="card"><div class="head yellow">📢 KAP / Haber Alanı</div><div class="body"><div id="kapNewsBox" class="comment">Bu alan şimdilik manuel/yer tutucu haber özetidir. Sonraki sürümde KAP API veya güvenilir haber kaynağı bağlanabilir.</div></div></div>
-    </div><br>
-    <div class="grid g4">
-      <div class="card"><div class="head green">🔥 En Güçlü 10</div><div class="body"><div id="reportStrong" class="dashList"></div></div></div>
-      <div class="card"><div class="head red">⚠️ En Riskli 10</div><div class="body"><div id="reportRisk" class="dashList"></div></div></div>
-      <div class="card"><div class="head cyan">🔎 Yeni Formasyonlar</div><div class="body"><div id="reportPatterns" class="dashList"></div></div></div>
-      <div class="card"><div class="head yellow">💥 Hacim / Para Girişi</div><div class="body"><div id="reportMoney" class="dashList"></div></div></div>
-    </div>
-  </section>
-
-
-  <section id="kapPage" class="hidden">
-    <div class="grid g3">
-      <div class="card metric"><div class="body"><div class="muted">Haber Sayısı</div><div id="kapCount" class="v">-</div><div class="muted">son kayıtlar</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">AI Etki Skoru</div><div id="kapImpact" class="v ok">-</div><div class="muted">0-100</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Duyarlılık</div><div id="kapSentiment" class="v warn">-</div><div class="muted">olumlu / olumsuz</div></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head yellow">📢 Son KAP Bildirimleri / Haberler</div><div class="body"><div class="quickFilters"><button class="btn" id="kapSymbolBtn">Seçili Hisse Haberleri</button><button class="btn gray" id="kapAllBtn">Genel Haberler</button></div><div id="kapSummaryBox" class="comment">KAP/Haber verisi bekleniyor.</div><br><table id="kapTable" class="table"></table></div></div>
-      <div class="card"><div class="head green">🤖 AI Etki Analizi</div><div class="body"><div id="kapAiBox" class="comment">Haberlerin teknik sinyale etkisi burada açıklanacak.</div></div></div>
-    </div>
-  </section>
-
-  <section id="v22News" class="hidden">
-    <div class="grid g4">
-      <div class="card metric"><div class="body"><div class="muted">Kurumsal Haber Skoru</div><div id="v22InstitutionalScore" class="v ok">-</div><div class="muted">0-100 karar desteği</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Güvenilirlik</div><div id="v22Reliability" class="v ok">-</div><div class="muted">haber önem/güven</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Pozitif / Negatif</div><div id="v22Balance" class="v warn">-</div><div class="muted">duyarlılık dengesi</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Canlı Veri</div><div id="v22Live" class="v warn">-</div><div class="muted">KAP bağlantısı</div></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head dark">🏢 V22 Kurumsal Haber Motoru</div><div class="body"><div class="quickFilters"><button class="btn" id="v22SymbolBtn">Seçili hisseyi analiz et</button><button class="btn gray" id="v22AllBtn">Genel KAP akışı</button></div><div id="v22Summary" class="comment">KAP canlı akışı veya gerçek yerel arşiv bekleniyor. Demo/random haber kullanılmaz.</div></div></div>
-      <div class="card"><div class="head green">⭐ En Önemli Bildirim</div><div class="body"><div id="v22Important" class="comment">Henüz analiz yapılmadı.</div></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head yellow">⏱️ Haber Etki Süresi</div><div class="body"><table id="v22DecayTable" class="table"></table></div></div>
-      <div class="card"><div class="head cyan">🏭 Sektör Etkisi</div><div class="body"><table id="v22SectorTable" class="table"></table></div></div>
-    </div><br>
-    <div class="card"><div class="head red">📋 Bildirim Sınıflandırma Tablosu</div><div class="body"><table id="v22NewsTable" class="table"></table></div></div>
-  </section>
-
-  <section id="confidencePage" class="hidden">
-    <div class="grid g3">
-      <div class="card metric"><div class="body"><div class="muted">AI Genel</div><div id="mlGeneral" class="v ok">-</div><div class="muted">çok katmanlı skor</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Nihai Karar</div><div id="mlDecision" class="v warn">-</div><div class="muted">AL / İZLE / BEKLE</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Risk</div><div id="mlRisk" class="v bad">-</div><div class="muted">0-100</div></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head dark">🧩 Katman Tablosu</div><div class="body"><div class="quickFilters"><button class="btn" id="refreshConfidenceBtn">Seçili hisse için güncelle</button></div><div id="mlTableBox" class="comment">Trend, Momentum, Para Girişi, Formasyon, Haber/KAP, Backtest ve AI Genel puanları burada gösterilir.</div></div></div>
-      <div class="card"><div class="head green">🤖 Şeffaf AI Yorumu</div><div class="body"><div id="mlComment" class="comment">Kararın nedenleri ve zayıf katmanlar burada açıklanır.</div></div></div>
-    </div>
-  </section>
-
-
-  <section id="dipProfessional" class="hidden">
-    <div class="grid g4">
-      <div class="card metric"><div class="head green">Genel Dip Skoru</div><div class="body"><div id="v18DipScore" class="v">-</div><div class="muted">Gerçek OHLC üzerinden</div></div></div>
-      <div class="card metric"><div class="head cyan">Başarı Olasılığı</div><div class="body"><div id="v18Success" class="v">-</div><div class="muted">Backtest destekli</div></div></div>
-      <div class="card metric"><div class="head yellow">Risk/Getiri</div><div class="body"><div id="v18RR" class="v">-</div><div class="muted">İlk hedef / stop</div></div></div>
-      <div class="card metric"><div class="head dark">Karar</div><div class="body"><div id="v18Decision" class="v" style="font-size:22px">-</div><div class="muted">AI sonucu</div></div></div>
-    </div>
-
-    <div class="grid g3" style="margin-top:16px">
-      <div class="card"><div class="head green">🎯 Dip Fiyat Tahmini</div><div class="body" id="v18Region">Analiz bekleniyor...</div></div>
-      <div class="card"><div class="head cyan">⏳ Dip Süreci</div><div class="body" id="v18Time">Analiz bekleniyor...</div></div>
-      <div class="card"><div class="head yellow">🟢 AI Giriş Planı</div><div class="body" id="v18Levels">Analiz bekleniyor...</div></div>
-    </div>
-
-    <div class="grid g2" style="margin-top:16px">
-      <div class="card"><div class="head">📈 Gerçek Veri Dip Bölgesi Grafiği</div><div class="body"><div id="v18DipChart" style="height:330px;border:1px solid var(--line);border-radius:14px;position:relative;background:#fff;overflow:hidden"></div></div></div>
-      <div class="card"><div class="head green">🧠 AI Raporu</div><div class="body"><div id="v18AI" class="comment">Analiz bekleniyor...</div></div></div>
-    </div>
-
-    <div class="grid g2" style="margin-top:16px">
-      <div class="card"><div class="head">📊 Gerçek Gösterge Katmanları</div><div class="body"><table class="table"><tbody id="v18Layers"></tbody></table></div></div>
-      <div class="card"><div class="head green">📌 Teknik Değerler</div><div class="body"><table class="table"><tbody id="v18Indicators"></tbody></table></div></div>
-    </div>
-
-    <div class="card" style="margin-top:16px">
-      <div class="head green">🎯 Gerçek Verili Dip Adayları</div>
-      <div class="body">
-        <button class="btn green" id="v18ScanDipBtn">Dip Adaylarını Tara</button>
-        <button class="btn gray" id="v18ExportCsvBtn">CSV Dışa Aktar</button>
-        <div id="v18ScanStatus" class="status">Henüz tarama yapılmadı.</div>
-        <table class="table"><thead><tr><th>Hisse</th><th>Son Fiyat</th><th>Dip Skoru</th><th>Dip Bölgesi</th><th>Güçlü Seviye</th><th>Başarı</th><th>Karar</th></tr></thead><tbody id="v18ScanRows"></tbody></table>
-      </div>
-    </div>
-  </section>
-
-
-
-  <section id="v19Institutional" class="hidden">
-    <div class="grid g4">
-      <div class="card metric"><div class="head green">Dip Skoru</div><div class="body"><div id="v19DipScore" class="v">-</div><div class="muted">%100 gerçek veri</div></div></div>
-      <div class="card metric"><div class="head cyan">AI Güven</div><div class="body"><div id="v19Trust" class="v">-</div><div class="muted">veri + backtest</div></div></div>
-      <div class="card metric"><div class="head yellow">Kurumsal Toplama</div><div class="body"><div id="v19Inst" class="v">-</div><div class="muted">OBV + hacim</div></div></div>
-      <div class="card metric"><div class="head dark">Karar</div><div class="body"><div id="v19Decision" class="v" style="font-size:22px">-</div><div class="muted">Institutional AI</div></div></div>
-    </div>
-    <div class="grid g3" style="margin-top:16px">
-      <div class="card"><div class="head green">🎯 250 Günlük Dip Kümesi</div><div class="body" id="v19Region">Analiz bekleniyor...</div></div>
-      <div class="card"><div class="head cyan">⏳ Dip Süreci</div><div class="body" id="v19Time">Analiz bekleniyor...</div></div>
-      <div class="card"><div class="head yellow">🟢 Kademeli Giriş Planı</div><div class="body" id="v19Levels">Analiz bekleniyor...</div></div>
-    </div>
-    <div class="grid g2" style="margin-top:16px">
-      <div class="card"><div class="head">📈 Institutional Dip Grafiği</div><div class="body"><div id="v19Chart" style="height:330px;border:1px solid var(--line);border-radius:14px;position:relative;background:#fff;overflow:hidden"></div></div></div>
-      <div class="card"><div class="head green">🧠 AI Raporu</div><div class="body"><div id="v19AI" class="comment">Analiz bekleniyor...</div></div></div>
-    </div>
-    <div class="grid g2" style="margin-top:16px">
-      <div class="card"><div class="head">📊 Puan Katmanları</div><div class="body"><table class="table"><tbody id="v19Layers"></tbody></table></div></div>
-      <div class="card"><div class="head green">📌 Gerçek Göstergeler</div><div class="body"><table class="table"><tbody id="v19Indicators"></tbody></table></div></div>
-    </div>
-    <div class="card" style="margin-top:16px"><div class="head green">🔍 Tüm BIST Dip Taraması</div><div class="body">
-      <button class="btn green" id="v19ScanBtn">Tümünü Tara</button> <button class="btn gray" id="v19ExportBtn">CSV Dışa Aktar</button>
-        <button class="btn" onclick="optimizeV19Portfolio(50000)">50.000 TL Portföy Optimize</button>
-      <div id="v19ScanStatus" class="status">Henüz tarama yapılmadı.</div>
-      <table class="table"><thead><tr><th>Hisse</th><th>Son Fiyat</th><th>Dip Skoru</th><th>AI Güven</th><th>Dip Bölgesi</th><th>Güçlü Seviye</th><th>Karar</th></tr></thead><tbody id="v19Rows"></tbody></table>
-    </div></div>
-  </section>
-
-  <section id="committeePage" class="hidden">
-    <div class="grid g3">
-      <div class="card metric"><div class="body"><div class="muted">Komite Nihai Karar</div><div id="committeeDecision" class="v warn">-</div><div class="muted">5 uzman ortak sonucu</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Komite Güveni</div><div id="committeeScore" class="v ok">-</div><div class="muted">0-100</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Uzlaşma</div><div id="committeeAgreement" class="v ok">-</div><div class="muted">uzman görüş uyumu</div></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head dark">🏛️ Altın Modül: AI Yatırım Komitesi</div><div class="body"><div class="quickFilters"><button class="btn" id="committeeBtn">Seçili hisse için komiteyi çalıştır</button></div><div id="committeeBox" class="comment">Teknik Analist, Temel Analist, Haber Analisti, Risk Yöneticisi ve Öğrenen AI aynı hisseyi ayrı ayrı değerlendirir.</div><br><table id="committeeTable" class="table"></table></div></div>
-      <div class="card"><div class="head green">🧠 Üç Temel Prensip</div><div class="body"><div id="principlesBox" class="comment">Açıklanabilir AI, Öğrenen Sistem ve Performans Takibi sonuçları burada gösterilir.</div></div></div>
-    </div>
-  </section>
-
-
-
-
-
-  <section id="coreValidatorPage" class="hidden">
-    <div class="card"><div class="head dark">🔬 R20 Explainable AI / Tek Hisse Debug</div><div class="body">
-      <div class="quickFilters">
-        <button class="btn green" id="r16SelectedBtn">Seçili Hisse Zincirini Test Et</button>
-        <button class="btn" id="r16PapilBtn">PAPIL Test</button>
-        <button class="btn gray" id="r16CsvBtn">R16 CSV</button>
-      </div>
-      <div id="r16Summary" class="comment">R16 tüm piyasayı taramaz; tek hisse için Symbols → OHLCV → Volume → Indicator → Decision → Master Object zincirinin hangi adımda kırıldığını gösterir.</div>
-    </div></div>
-    <br>
-    <div class="grid g5">
-      <div class="card metric"><div class="body"><div class="muted">Hisse</div><div id="r16Symbol" class="v">-</div><div class="muted">test edilen</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Health</div><div id="r16Health" class="v">-</div><div class="muted">veri zinciri</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Karar</div><div id="r16Decision" class="v ok">-</div><div class="muted">Decision Engine</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">RVOL</div><div id="r16Rvol" class="v warn">-</div><div class="muted">hacim sağlığı</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Master</div><div id="r16Master" class="v">-</div><div class="muted">object</div></div></div>
-    </div>
-    <br>
-    <div class="grid g2">
-      <div class="card"><div class="head green">✅ Adım Adım Core Zinciri</div><div class="body"><table id="r16StepTable" class="table"></table></div></div>
-      <div class="card"><div class="head red">⚠️ İlk Kırılan Nokta</div><div class="body"><div id="r16FatalBox" class="comment">Henüz test çalışmadı.</div><br><table id="r16MasterTable" class="table"></table></div></div>
-    </div>
-  </section>
-
-  <section id="diagnosticPage" class="hidden">
-    <div class="card"><div class="head dark">🧪 R20 Explainable AI / Veri Sağlığı</div><div class="body">
-      <div class="quickFilters">
-        <button class="btn green" id="diagSelectedBtn">Seçili Hisseyi Test Et</button>
-        <button class="btn" id="diagBatchBtn">İlk 20 Hisseyi Test Et</button>
-        <button class="btn gray" id="diagCsvBtn">Diagnostic CSV</button>
-      </div>
-      <div id="diagSummary" class="comment">R14, sembol → OHLCV → hacim → indicator → karar motoru zincirinde hangi adımın bozulduğunu gösterir.</div>
-    </div></div>
-    <br>
-    <div class="grid g5">
-      <div class="card metric"><div class="body"><div class="muted">Test Edilen</div><div id="diagTotal" class="v">-</div><div class="muted">hisse</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">OHLC Sağlıklı</div><div id="diagOhlc" class="v ok">-</div><div class="muted">50+ gün</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Hacim Sağlıklı</div><div id="diagVolume" class="v ok">-</div><div class="muted">20+ pozitif hacim</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">RVOL/VWAP</div><div id="diagRvolVwap" class="v warn">-</div><div class="muted">hesaplanabilir</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Başarısız</div><div id="diagFailed" class="v bad">-</div><div class="muted">hata/eksik</div></div></div>
-    </div>
-    <br>
-    <div class="grid g2">
-      <div class="card"><div class="head green">✅ Aşama Tablosu</div><div class="body"><table id="diagTable" class="table"></table></div></div>
-      <div class="card"><div class="head red">⚠️ Hata / Eksik Veri Detayı</div><div class="body"><table id="diagErrorTable" class="table"></table></div></div>
-    </div>
-  </section>
-
-  <section id="prodPlusPage" class="hidden">
-    <div class="card"><div class="head dark">🏁 BIST Radar Pro v1.0 Production+ / Öğrenen Kalite Merkezi</div><div class="body">
-      <div class="comment"><b>Production+</b>, eski JSON snapshot kararlarını mevcut gerçek OHLCV verileriyle karşılaştırır; AL/TUT/SAT kararlarının yön başarısını, skor bozulmasını, fiyat değişimini ve hangi indikatörlerin daha iyi çalıştığını ölçer. Demo/random veri üretmez.</div><br>
-      <div class="quickFilters">
-        <input type="file" id="prodPlusSnapshotFile" accept=".json,application/json" style="padding:12px;border:1px solid var(--line);border-radius:14px;background:#fff">
-        <button class="btn green" id="prodPlusCompareBtn">JSON Yükle + Production+ Analiz</button>
-        <button class="btn" id="prodPlusSnapshotBtn">Mevcut Snapshot JSON İndir</button>
-        <button class="btn gray" id="prodPlusCsvBtn">Production+ CSV</button>
-      </div>
-      <div id="prodPlusStatus" class="comment">Henüz Production+ karşılaştırması yapılmadı. Önce eski snapshot JSON yükleyin.</div>
-    </div></div><br>
-    <div class="grid g5">
-      <div class="card metric"><div class="body"><div class="muted">Eşleşen</div><div id="prodPlusMatched" class="v">-</div><div class="muted">hisse</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Yön Başarısı</div><div id="prodPlusAccuracy" class="v ok">-</div><div class="muted">AL/TUT/SAT</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Ortalama Getiri</div><div id="prodPlusAvgReturn" class="v">-</div><div class="muted">mevcut fiyatla</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">AI Skor Değişimi</div><div id="prodPlusScoreDiff" class="v warn">-</div><div class="muted">yeni - eski</div></div></div>
-      <div class="card metric"><div class="body"><div class="muted">Production+ Notu</div><div id="prodPlusGrade" class="v">-</div><div class="muted">kalite skoru</div></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head green">✅ Doğrulanan / Güçlenen Kararlar</div><div class="body"><table id="prodPlusBestTable" class="table"></table></div></div>
-      <div class="card"><div class="head red">⚠️ Yanılan / Bozulan Kararlar</div><div class="body"><table id="prodPlusWorstTable" class="table"></table></div></div>
-    </div><br>
-    <div class="grid g2">
-      <div class="card"><div class="head cyan">🧠 İndikatör Başarı Haritası</div><div class="body"><table id="prodPlusIndicatorTable" class="table"></table></div></div>
-      <div class="card"><div class="head yellow">⏳ Çok Zamanlı Değerlendirme</div><div class="body"><div id="prodPlusHorizonBox" class="comment">Snapshot içinde 1/3/5/10/20 günlük fiyatlar varsa çok zamanlı başarı burada ayrıştırılır. Yoksa mevcut fiyat üzerinden tek dönem ölçülür.</div><br><table id="prodPlusHorizonTable" class="table"></table></div></div>
-    </div><br>
-    <div class="card"><div class="head dark">📋 Production+ Tüm Karşılaştırma Listesi</div><div class="body"><table id="prodPlusAllTable" class="table"></table></div></div>
-  </section>
-
-</div>
-<script>
 let chart, candleChart, candleSeries, lineSeries=[], lastRows=[], syms=[], scanCache=[], lastStock=null;
 const defaultPortfolio=[{symbol:'MRSHL',lot:286,cost:2470},{symbol:'PAPIL',lot:7000,cost:27.50},{symbol:'TEZOL',lot:6156,cost:20.96},{symbol:'USAK',lot:29222,cost:3.05},{symbol:'VKING',lot:1000,cost:55}];
 
@@ -2770,8 +1929,10 @@ init();
 
 setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]'); if(b)b.addEventListener('click',()=>loadV19().catch(e=>setStatus(e.message))); if($('v19ScanBtn'))$('v19ScanBtn').addEventListener('click',scanV19); if($('v19ExportBtn'))$('v19ExportBtn').addEventListener('click',exportV19);},700);
 setTimeout(()=>{const b=document.querySelector('[data-page="dipProfessional"]'); if(b){b.addEventListener('click',()=>loadV18Dip().catch(e=>setStatus(e.message)));} if($('v18ScanDipBtn'))$('v18ScanDipBtn').addEventListener('click',scanV18Dip); if($('v18ExportCsvBtn'))$('v18ExportCsvBtn').addEventListener('click',exportV18DipCSV);},500);
-</script>
-<script>
+
+
+
+
 
 /* V19.1 FIX - response shape guard + full BIST progress + portfolio allocation */
 function v19Normalize(raw){
@@ -2947,9 +2108,10 @@ function r9ExportCSV(){ if(!r9Rows.length) r9Render(); if(!r9Rows.length)return 
 setTimeout(()=>{const a=$('r9RunBtn'); if(a)a.addEventListener('click',r9Render); const b=$('r9FullBtn'); if(b)b.addEventListener('click',()=>r9RunFull().catch(e=>setStatus('R9 hata: '+e.message))); const c=$('r9ExportBtn'); if(c)c.addEventListener('click',r9ExportCSV); const tab=document.querySelector('[data-page="r9Suite"]'); if(tab)tab.addEventListener('click',()=>setTimeout(r9Render,80));},1100);
 
 setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]'); if(b)b.addEventListener('click',()=>loadV19().catch(e=>setStatus(e.message))); if($('v19ScanBtn'))$('v19ScanBtn').addEventListener('click',scanV19); if($('v19ExportBtn'))$('v19ExportBtn').addEventListener('click',exportV19);},900);
-</script>
 
-<script id="r11-1-compat-layer">
+
+
+
 (function(){
   'use strict';
   const W=window;
@@ -3076,10 +2238,10 @@ setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]')
     if(typeof W.setStatus==='function') W.setStatus('Uygulama hatası yakalandı: '+(ev.message||'bilinmeyen hata'));
   });
 })();
-</script>
 
 
-<script>
+
+
 // R19 AI Decision Engine UI
 (function(){
   let diagRows=[];
@@ -3150,10 +2312,10 @@ setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]')
     const tab=document.querySelector('[data-page="diagnosticPage"]'); if(tab)tab.addEventListener('click',()=>setTimeout(()=>{ if($('diagTable') && !$('diagTable').innerHTML) runR14Diagnostic('symbol').catch(()=>{}); },80));
   },900);
 })();
-</script>
 
 
-<script>
+
+
 // R19 AI Decision Engine UI
 (function(){
   let lastR16=null;
@@ -3284,10 +2446,10 @@ setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]')
   };
   setTimeout(()=>{['r28RunBtn','r28FromAnalysisBtn'].forEach(id=>{const b=$id(id); if(b)b.addEventListener('click',runR28Cockpit);}); const c=$id('r28CsvBtn'); if(c)c.addEventListener('click',exportR28CSV);},1000);
 })();
-</script>
 
 
-<script>
+
+
 /* R29 Institutional AI Suite 2.0 - client side integration layer */
 (function(){
   const $id=(id)=>document.getElementById(id);
@@ -3383,84 +2545,5 @@ setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]')
     const tab=document.querySelector('[data-page="r29Suite2"]'); if(tab)tab.addEventListener('click',()=>setTimeout(()=>runR29Suite(false),150));
   },1200);
 })();
-</script>
 
 
-<script>
-/* v1.0 Production+ - horizon-aware snapshot comparison + indicator learning */
-(function(){
-  'use strict';
-  const $p=(id)=>document.getElementById(id);
-  const n=(v,d=0)=>{v=Number(String(v??'').replace(',','.').replace('%','')); return Number.isFinite(v)?v:d;};
-  const up=(v)=>String(v||'').toUpperCase().replace(/\.IS$/,'').trim();
-  const fmtp=(v,d=1)=>Number.isFinite(Number(v))?Number(v).toLocaleString('tr-TR',{minimumFractionDigits:d,maximumFractionDigits:d}):'-';
-  let rows=[];
-  function group(dec){ dec=up(dec); if(dec.includes('AL')) return 'AL'; if(dec.includes('SAT')||dec.includes('KAÇ')||dec.includes('UZAK')||dec.includes('RİSK')) return 'SAT'; return 'TUT'; }
-  function norm(x){
-    const m=x?.master||x?.masterObject||x?.standard||{}; const ai=x?.ai||m?.ai||{}; const scores=m?.scores||x?.scores||{}; const ind=m?.indicators||x?.indicators||{};
-    const sym=up(x?.symbol||x?.hisse||x?.kod||m?.symbol||ai?.symbol);
-    const price=n(x?.close ?? x?.price ?? x?.sonFiyat ?? x?.son_fiyat ?? x?.last ?? x?.lastPrice ?? m?.price ?? m?.lastPrice ?? m?.price?.close, NaN);
-    const score=n(x?.finalScore ?? x?.score ?? x?.aiScore ?? x?.ai ?? x?.AI ?? ai?.score ?? scores.ai, 0);
-    const decision=String(x?.decision ?? x?.karar ?? ai?.decision ?? ai?.label ?? m?.decision ?? m?.decision?.label ?? 'TUT').toUpperCase();
-    const confidence=n(x?.confidence ?? x?.confidencePct ?? x?.guven ?? ai?.confidence ?? scores.confidence, 0);
-    return {symbol:sym, price, score, decision, group:group(decision), confidence, indicators:ind, raw:x};
-  }
-  function extract(json){
-    if(Array.isArray(json)) return json;
-    for(const k of ['data','results','rows','stocks','symbols','snapshot','items','decisions','master']) if(Array.isArray(json?.[k])) return json[k];
-    if(json && typeof json==='object'){ const vals=Object.values(json); if(vals.length && vals.every(v=>v&&typeof v==='object')) return vals; }
-    return [];
-  }
-  function unique(arr){ const map=new Map(); (arr||[]).map(norm).filter(x=>x.symbol).forEach(x=>{const p=map.get(x.symbol); if(!p||x.score>p.score) map.set(x.symbol,x)}); return [...map.values()].sort((a,b)=>b.score-a.score); }
-  function current(){
-    const base=(window.scanCache&&window.scanCache.length?window.scanCache:window.r3Rows)||[];
-    const mapped=base.map(x=>({symbol:x.symbol,price:x.price??x.close??x.lastPrice,decision:x.decision,score:x.finalScore??x.ai??x.score,confidence:x.confidence??x.confidencePct,indicators:x.indicators||x.master?.indicators||x.raw?.indicators,raw:x}));
-    return unique(mapped);
-  }
-  function success(g,ret){ if(!Number.isFinite(ret)) return null; if(g==='AL') return ret>0; if(g==='SAT') return ret<0; return Math.abs(ret)<=3; }
-  function getRet(old,cur){ return (cur&&Number.isFinite(old.price)&&old.price>0&&Number.isFinite(cur.price))?((cur.price-old.price)/old.price*100):NaN; }
-  function factors(o){
-    const r=o.raw||{}, ind=o.indicators||r.indicators||{};
-    const out=[];
-    const rv=n(r.rvol??r.rvol20??ind.rvol??ind.rvol20,0); if(rv>2) out.push('RVOL>2');
-    const cmf=n(r.cmf??ind.cmf,0); if(cmf>0) out.push('CMF+'); else if(cmf<0) out.push('CMF-');
-    const mfi=n(r.mfi??ind.mfi,0); if(mfi>=80) out.push('MFI yüksek'); else if(mfi>50) out.push('MFI pozitif');
-    const vwap=n(r.vwap??ind.vwap,0), price=n(o.price,0); if(vwap>0&&price>vwap) out.push('VWAP üstü');
-    const score=n(o.score,0); if(score>=75) out.push('AI>=75');
-    const conf=n(o.confidence,0); if(conf>=75) out.push('Güven>=75');
-    return out.length?out:['Genel sinyal'];
-  }
-  function build(oldRows,curRows){ const cm=new Map(curRows.map(x=>[x.symbol,x])); return oldRows.map(o=>{const c=cm.get(o.symbol); const ret=getRet(o,c); const ok=success(o.group,ret); return {symbol:o.symbol, old:o, cur:c, oldDecision:o.decision, newDecision:c?.decision||'YOK', oldScore:o.score, newScore:c?.score??0, oldPrice:o.price, newPrice:c?.price, ret, success:ok, changed:!!c&&o.group!==group(c.decision), missing:!c, factors:factors(o)};}); }
-  function table(rs){ if(!rs.length) return '<tr><td>Veri yok.</td></tr>'; return '<tr><th>#</th><th>Hisse</th><th>Eski</th><th>Yeni</th><th>AI</th><th>Getiri</th><th>Sonuç</th><th>Faktör</th></tr>'+rs.map((r,i)=>{const cls=r.success?'bgreen':r.success===false?'bred':'byellow'; const label=r.missing?'Veri yok':r.success?'✅ Doğrulandı':r.success===false?'❌ Yanıldı':'Bekliyor'; return `<tr><td>${i+1}</td><td><b>${r.symbol}</b></td><td>${r.oldDecision}</td><td>${r.newDecision}</td><td>${fmtp(r.oldScore,0)} → ${fmtp(r.newScore,0)}</td><td>${Number.isFinite(r.ret)?'%'+fmtp(r.ret,2):'-'}</td><td><span class="badge ${cls}">${label}</span></td><td>${r.factors.slice(0,3).join(' • ')}</td></tr>`}).join(''); }
-  function render(){
-    const matched=rows.filter(x=>!x.missing), tested=matched.filter(x=>x.success!==null); const acc=tested.length?tested.filter(x=>x.success).length/tested.length*100:0; const avg=matched.length?matched.reduce((s,x)=>s+(Number.isFinite(x.ret)?x.ret:0),0)/matched.length:0; const diff=matched.length?matched.reduce((s,x)=>s+(n(x.newScore)-n(x.oldScore)),0)/matched.length:0; const grade=acc>=70?'A':acc>=55?'B':acc>=40?'C':'D';
-    if($p('prodPlusMatched')) $p('prodPlusMatched').textContent=matched.length;
-    if($p('prodPlusAccuracy')) $p('prodPlusAccuracy').textContent=tested.length?'%'+fmtp(acc,1):'-';
-    if($p('prodPlusAvgReturn')) $p('prodPlusAvgReturn').textContent=matched.length?'%'+fmtp(avg,2):'-';
-    if($p('prodPlusScoreDiff')) $p('prodPlusScoreDiff').textContent=matched.length?fmtp(diff,1):'-';
-    if($p('prodPlusGrade')) $p('prodPlusGrade').textContent=grade;
-    const best=[...matched].sort((a,b)=>(b.ret||-999)-(a.ret||-999)).slice(0,10), worst=[...matched].sort((a,b)=>(a.ret||999)-(b.ret||999)).slice(0,10);
-    if($p('prodPlusBestTable')) $p('prodPlusBestTable').innerHTML=table(best);
-    if($p('prodPlusWorstTable')) $p('prodPlusWorstTable').innerHTML=table(worst);
-    if($p('prodPlusAllTable')) $p('prodPlusAllTable').innerHTML=table(rows.slice(0,120));
-    const map=new Map(); matched.forEach(r=>r.factors.forEach(f=>{const o=map.get(f)||{n:0,ok:0,avg:0}; o.n++; if(r.success)o.ok++; if(Number.isFinite(r.ret))o.avg+=r.ret; map.set(f,o)}));
-    const fac=[...map.entries()].map(([k,v])=>({k,n:v.n,rate:v.n?v.ok/v.n*100:0,avg:v.n?v.avg/v.n:0})).sort((a,b)=>b.rate-a.rate||b.n-a.n);
-    if($p('prodPlusIndicatorTable')) $p('prodPlusIndicatorTable').innerHTML='<tr><th>İndikatör/Faktör</th><th>Sinyal</th><th>Başarı</th><th>Ort. Getiri</th><th>Öneri</th></tr>'+fac.map(f=>`<tr><td><b>${f.k}</b></td><td>${f.n}</td><td>%${fmtp(f.rate,1)}</td><td>%${fmtp(f.avg,2)}</td><td>${f.rate>=65?'Ağırlık artır':f.rate<45?'Ağırlık azalt':'Nötr izle'}</td></tr>`).join('');
-    if($p('prodPlusHorizonTable')) $p('prodPlusHorizonTable').innerHTML='<tr><th>Ufuk</th><th>Durum</th></tr><tr><td>Mevcut</td><td>Gerçek mevcut fiyatla ölçüldü.</td></tr><tr><td>1/3/5/10/20 gün</td><td>Snapshot içinde bu ufuklara ait fiyat alanları varsa sonraki sürümde ayrıştırılır; mevcut JSON yapısında bulunmayan ufuklar beklemede kalır.</td></tr>';
-    if($p('prodPlusStatus')) $p('prodPlusStatus').innerHTML=`<b>v1.0 Production+:</b> ${rows.length} snapshot kaydı işlendi, ${matched.length} mevcut veriyle eşleşti. Yön başarısı ${tested.length?'%'+fmtp(acc,1):'hesaplanamadı'}. Ortalama getiri ${matched.length?'%'+fmtp(avg,2):'-'}. Bu sonuçlar karar motorunu iyileştirmek için kalite ölçümüdür; yatırım tavsiyesi değildir.`;
-  }
-  async function compare(){
-    const file=$p('prodPlusSnapshotFile')?.files?.[0]; if(!file){alert('Önce JSON snapshot seçin.');return;}
-    if(!current().length && typeof window.scanAll==='function'){ if(typeof window.setStatus==='function') window.setStatus('Production+ için güncel tarama hazırlanıyor...'); await window.scanAll(false); }
-    const old=unique(extract(JSON.parse(await file.text()))); rows=build(old,current()); render(); if(typeof window.setStatus==='function') window.setStatus('v1.0 Production+ kalite karşılaştırması tamamlandı.');
-  }
-  function downloadSnapshot(){
-    const cur=current(); if(!cur.length){alert('Önce tarama yapın.');return;} const payload={createdAt:new Date().toISOString(),version:'BIST Radar Pro v1.0 Production+',data:cur}; const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='bist_radar_v1_production_plus_snapshot_'+new Date().toISOString().slice(0,10)+'.json'; a.click(); URL.revokeObjectURL(a.href);
-  }
-  function exportCsv(){ if(!rows.length){alert('Önce karşılaştırma yapın.');return;} const arr=[['Hisse','EskiKarar','YeniKarar','EskiAI','YeniAI','EskiFiyat','YeniFiyat','Getiri%','Basari','Faktorler']].concat(rows.map(r=>[r.symbol,r.oldDecision,r.newDecision,r.oldScore,r.newScore,r.oldPrice,r.newPrice,Number.isFinite(r.ret)?r.ret:'',r.success===true?'Doğru':r.success===false?'Yanlış':'-',r.factors.join('|')])); if(typeof window.downloadCSV==='function') window.downloadCSV(arr,'v1_production_plus_quality.csv'); }
-  setTimeout(()=>{ const a=$p('prodPlusCompareBtn'); if(a)a.addEventListener('click',()=>compare().catch(e=>{if($p('prodPlusStatus'))$p('prodPlusStatus').textContent='Production+ hata: '+e.message;})); const b=$p('prodPlusSnapshotBtn'); if(b)b.addEventListener('click',downloadSnapshot); const c=$p('prodPlusCsvBtn'); if(c)c.addEventListener('click',exportCsv); },800);
-})();
-</script>
-
-</body>
-</html>

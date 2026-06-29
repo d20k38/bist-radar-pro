@@ -1,14 +1,14 @@
-# BIST Radar Pro R29 Institutional AI Suite 2.0
+# BIST Radar Pro v1.0 Production+
 
-R28A Professional Trading Cockpit üzerine kurulan kurumsal karar ekranı.
+R29 tabanı üzerine Production+ kalite/öğrenme katmanı eklendi.
 
 ## Eklenenler
-- R29 Institutional AI Suite 2.0 sekmesi
-- R20 Explainable AI + R21 Portföy Intelligence + R28A Cockpit birleşik karar ekranı
-- Kurumsal AI Komitesi
-- Trade + Portföy Planı
-- En güçlü fırsatlar / riskli adaylar
-- Kurumsal kalite dağılımı
+- v1.0 Production+ sekmesi
+- JSON snapshot ile mevcut gerçek OHLCV karşılaştırması
+- AL/TUT/SAT yön başarısı
+- Ortalama getiri ve AI skor değişimi
+- İndikatör/faktör başarı haritası
+- Mevcut veriden snapshot JSON indirme
 - CSV dışa aktarım
 
 ## Korunanlar

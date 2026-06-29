@@ -1,6 +1,6 @@
 {
-  "name": "bist-radar-pro-r26",
-  "version": "26.0.0",
+  "name": "bist-radar-pro-v1-production-plus",
+  "version": "1.0.0",
   "private": true,
   "type": "commonjs",
   "dependencies": {
