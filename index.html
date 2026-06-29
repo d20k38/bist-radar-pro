@@ -136,7 +136,6 @@ body.v2-terminal .wrap>section.v2-active{display:block;}
     <button class="tab" data-page="institutionalRiskEngine">🛡️ Risk</button>
     <button class="tab" data-page="explainableAI">🧠 AI Açıklama</button>
     <button class="tab" data-page="snapshotCompare">🧪 Karşılaştırma</button>
-    <button class="tab" data-page="diagnosticPage">⚙️ Sistem</button>
   </div>
   <div id="status" class="status">Hazır.</div>
   <div class="barw" style="margin:8px 0 14px"><div id="scanProgressBar" class="bar" style="width:0%;background:var(--blue)"></div></div>
@@ -211,7 +210,7 @@ body.v2-terminal .wrap>section.v2-active{display:block;}
     </div>
     <br>
     <div class="grid g2">
-      <div class="card"><div class="head yellow">🎯 Institutional Dip Scanner PRO</div><div class="body"><div id="v21DipBox" class="comment">Ucuz hisse değil; trendi bozulmadan geri çekilen, para girişi toparlayan ve manipülasyon riski düşük adaylar listelenir.</div><br><table id="v21DipTable" class="table"></table></div></div>
+      <div class="card"><div class="head yellow">🎯 Institutional Dip Scanner PRO</div><div class="body"><div id="v21DipBox" class="comment">Ucuz hisse değil; trendi bozulmadan geri çekilen, para girişi toparlayan ve manipülasyon riski düşük adaylar listelenir.</div><br><button class="btn green" id="v21DipScanBtn">🎯 Dip Scanner PRO Tara</button><button class="btn gray" id="v21DipCsvBtn">Dip CSV</button><br><br><table id="v21DipTable" class="table"></table></div></div>
       <div class="card"><div class="head red">⚠️ Manipulation & Smart Money Radar</div><div class="body"><div id="v21RiskBox" class="comment">RVOL, CMF, MFI, ATR, likidite ve trend teyidi birlikte okunur.</div><br><table id="v21RiskTable" class="table"></table></div></div>
     </div>
   </section>
@@ -3908,6 +3907,139 @@ setTimeout(()=>{
   },900);
 })();
 
+</script>
+
+
+<script id="v21-1-dip-scanner-system-clean-fix">
+(function(){
+  'use strict';
+  const W=window;
+  const $id=(id)=>document.getElementById(id);
+  const num=(v,d=0)=>{const n=Number(v); return Number.isFinite(n)?n:d;};
+  const clamp=(v,a=0,b=100)=>Math.max(a,Math.min(b,num(v,0)));
+  const fmt=(v,d=0)=>Number.isFinite(Number(v))?Number(v).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';
+  const tl=(v)=>Number.isFinite(Number(v))?Number(v).toLocaleString('tr-TR',{maximumFractionDigits:2,minimumFractionDigits:2})+' TL':'-';
+  const badge=(v,inv=false)=>{const n=clamp(v); const c=inv?(n<35?'bgreen':n<60?'byellow':'bred'):(n>=75?'bgreen':n>=55?'byellow':'bred'); return `<span class="badge ${c}">${fmt(n,0)}</span>`;};
+  function sym(o){return String(o?.symbol||o?.code||o?.ticker||o?.master?.symbol||o?.analysis?.symbol||'').toUpperCase().replace(/\.IS$/,'').trim();}
+  function master(x){
+    try{ if(typeof W.v12UnifiedMaster==='function') return W.v12UnifiedMaster(x?.master||x?.masterObject||x?.standard||x); }catch(_){ }
+    return x?.master||x?.masterObject||x?.standard||x||{};
+  }
+  function get(o,paths,def=null){
+    for(const p of paths){try{const v=p.split('.').reduce((a,k)=>a?.[k],o); if(v!==undefined&&v!==null&&v!=='' && !(typeof v==='number' && Number.isNaN(v))) return v;}catch(_){}}
+    return def;
+  }
+  function rowsPool(){
+    const arr=[];
+    if(Array.isArray(W.scanCache)) arr.push(...W.scanCache);
+    if(Array.isArray(W.r3Rows)) arr.push(...W.r3Rows);
+    if(W.lastStock) arr.unshift(W.lastStock);
+    if(W.__MASTER_OBJECT__) arr.unshift(W.__MASTER_OBJECT__);
+    const map=new Map();
+    arr.map(master).filter(x=>sym(x)).forEach(x=>{const s=sym(x); if(!map.has(s)) map.set(s,x);});
+    return [...map.values()];
+  }
+  function calcDip(x){
+    const m=master(x), ind=m.indicators||{}, a=m.analysis||{}, sc=m.scores||{};
+    const symbol=sym(m);
+    const price=num(get(m,['price','lastPrice','close','analysis.price','analysis.close'],0),0);
+    const ema20=num(get(m,['ema20','indicators.ema20','analysis.ema20','indicatorPanel.trend.ema20'],null),null);
+    const ema50=num(get(m,['ema50','indicators.ema50','analysis.ema50','indicatorPanel.trend.ema50'],null),null);
+    const ema200=num(get(m,['ema200','indicators.ema200','analysis.ema200','indicatorPanel.trend.ema200'],null),null);
+    const rsi=num(get(m,['rsi','indicators.rsi14','indicators.rsi','analysis.rsi','indicatorPanel.momentum.rsi'],50),50);
+    const mfi=num(get(m,['mfi','indicators.mfi14','indicators.mfi','analysis.mfi','indicatorPanel.momentum.mfi'],50),50);
+    const rvol=num(get(m,['rvol20','rvol','indicators.rvol20','indicators.rvol','analysis.rvol','indicatorPanel.volume.rvol20'],0),0);
+    const cmf=num(get(m,['cmf','indicators.cmf20','indicators.cmf','analysis.cmf','indicatorPanel.volume.cmf'],0),0);
+    const atr=num(get(m,['atr','indicators.atr14','indicators.atr','analysis.atr','indicatorPanel.volatility.atr'],0),0);
+    const ai=num(get(m,['ai.score','aiScore','finalScore','score','analysis.finalScore'],50),50);
+    const risk=num(get(m,['risk','riskScore','analysis.risk'],50),50);
+    const trend=num(get(m,['trend','trendScore','scores.trend','analysis.trend','indicatorPanel.trend.score'],50),50);
+    const money=num(get(m,['money','moneyFlow','moneyScore','scores.volume','analysis.money','indicatorPanel.volume.score'],50),50);
+    const institutional=num(get(m,['institutional','institutionalScore','analysis.institutional','indicatorPanel.quality.institutional'],50),50);
+    const dipRaw=num(get(m,['dipScore','scores.dip','analysis.dipScore','indicators.meanReversionScore'],0),0);
+    const ios=clamp(ai*0.24 + trend*0.18 + money*0.18 + institutional*0.18 + (100-risk)*0.12 + (dipRaw||50)*0.10);
+    const distEma20=(price&&ema20)?Math.abs(price-ema20)/price*100:null;
+    const distEma50=(price&&ema50)?Math.abs(price-ema50)/price*100:null;
+    let score=0; const why=[];
+    if(price&&ema200&&price>ema200){score+=18; why.push('EMA200 üstü ana trend korunuyor');}
+    if(price&&ema50&&price>ema50){score+=10; why.push('EMA50 üstünde');}
+    if(distEma20!==null && distEma20<=7){score+=12; why.push('EMA20 yakınında');}
+    if(distEma50!==null && distEma50<=10){score+=10; why.push('EMA50 destek bölgesi');}
+    if(rsi>=30&&rsi<=62){score+=16; why.push('RSI dip/toparlanma bandında');}
+    else if(rsi<30){score+=8; why.push('RSI çok düşük, tepki izlenebilir');}
+    else if(rsi>78){score-=8; why.push('RSI yüksek, dip değil momentum hareketi');}
+    if(mfi>=35&&mfi<=72){score+=10; why.push('MFI dengeli/toparlanıyor');}
+    else if(mfi>85){score-=5; why.push('MFI aşırı alım');}
+    if(rvol>=1.15){score+=12; why.push('RVOL ortalama üstü');}
+    if(cmf>-0.05){score+=12; why.push('CMF toparlıyor');}
+    else if(cmf<-0.15){score-=8; why.push('CMF negatif, para akışı zayıf');}
+    if(money>=60){score+=10; why.push('Para girişi teyidi');}
+    if(risk<=50){score+=8; why.push('Risk yönetilebilir');}
+    if(ai>=68){score+=8; why.push('AI skoru destekliyor');}
+    if(dipRaw>0) score = Math.max(score, dipRaw*0.65 + score*0.35);
+    score=clamp(score);
+    const manipulation=clamp(100-(money*.30+trend*.15+institutional*.20)+(rvol>4?15:0)+(cmf<0&&rvol>1.5?12:0)+(price&&atr?atr/price*450:20));
+    const label=score>=80&&manipulation<45?'🎯 Kurumsal Dip':score>=65?'🟢 İzlenebilir Dip':score>=50?'🟡 Yakın Takip':'⚪ Zayıf Dip';
+    return {symbol,price,ema20,ema50,ema200,rsi,mfi,rvol,cmf,atr,ai,risk,trend,money,institutional,ios,dip:score,manipulation,label,why:why.slice(0,4).join(' • ')||'Yeterli dip teyidi yok'};
+  }
+  function renderDipScanner(){
+    const rows=rowsPool().map(calcDip).filter(x=>x.symbol&&x.price>0).sort((a,b)=>(b.dip+b.ios-b.manipulation*0.35)-(a.dip+a.ios-a.manipulation*0.35)).slice(0,30);
+    const box=$id('v21DipBox'), table=$id('v21DipTable');
+    if(box) box.innerHTML=rows.length?`<b>${rows.length}</b> aday listelendi. Sıralama: Dip Skoru + IOS - Manipülasyon Riski. Bu liste al/sat emri değil; kaliteli geri çekilme izleme listesidir.`:'Dip Scanner için önce <b>Tara + Fırsatları Güncelle</b> veya genel tarama çalıştırın.';
+    if(table) table.innerHTML=rows.length?'<tr><th>#</th><th>Hisse</th><th>Son</th><th>Dip</th><th>IOS</th><th>AI</th><th>Risk</th><th>RVOL</th><th>CMF</th><th>Durum</th><th>Neden?</th></tr>'+rows.map((x,i)=>`<tr onclick="openSymbol&&openSymbol('${x.symbol}')"><td>${i+1}</td><td><b>${x.symbol}</b></td><td>${tl(x.price)}</td><td>${badge(x.dip)}</td><td>${badge(x.ios)}</td><td>${fmt(x.ai,0)}</td><td>${badge(x.manipulation,true)}</td><td>${fmt(x.rvol,2)}x</td><td>${fmt(x.cmf,2)}</td><td>${x.label}</td><td>${x.why}</td></tr>`).join(''):'<tr><td>Dip Scanner verisi yok.</td></tr>';
+    return rows;
+  }
+  async function ensureScan(){
+    if(rowsPool().length>=50) return rowsPool();
+    if(typeof W.scanAll==='function'){
+      try{ await W.scanAll(false); }catch(e){ if(W.setStatus) W.setStatus('Dip Scanner ana tarama uyarısı: '+e.message); }
+    }
+    if(rowsPool().length) return rowsPool();
+    // Son çare: doğrudan core scan partileriyle doldur.
+    if(W.setStatus) W.setStatus('Dip Scanner PRO: core üzerinden yedek tarama başlatıldı...');
+    W.scanCache=[];
+    let total=0, offset=0, limit=20, guard=0;
+    try{
+      const sj=await fetch('/api/core?action=symbols&limit=1&t='+Date.now(),{cache:'no-store'}).then(r=>r.json());
+      total=Number(sj.total||0)||0;
+    }catch(_){ total=0; }
+    while((!total||offset<total) && guard<40){
+      try{
+        const j=await fetch(`/api/core?action=scan&limit=${limit}&offset=${offset}&t=${Date.now()}`,{cache:'no-store'}).then(r=>r.json());
+        const data=Array.isArray(j.data)?j.data:(Array.isArray(j.results)?j.results:[]);
+        if(data.length){
+          const map=new Map((W.scanCache||[]).map(x=>[sym(x),x]));
+          data.forEach(x=>{if(sym(x))map.set(sym(x),x);});
+          W.scanCache=[...map.values()];
+        }
+        total=Number(j.total||total||0)||total;
+        offset=Number(j.nextOffset||offset+limit);
+        if($id('scanProgressText')) $id('scanProgressText').textContent=`Dip Scanner PRO tarama: ${Math.min(offset,total||offset)}/${total||'?'} hisse`;
+        if(total && offset>=total) break;
+      }catch(e){ offset+=limit; }
+      guard++;
+      await new Promise(r=>setTimeout(r,10));
+    }
+    return rowsPool();
+  }
+  W.v21RenderDipScannerPro=renderDipScanner;
+  W.v21RunDipScannerPro=async function(){
+    try{ await ensureScan(); const rows=renderDipScanner(); if(W.renderV21InstitutionalIntelligence) W.renderV21InstitutionalIntelligence(); renderDipScanner(); if(W.setStatus) W.setStatus(`Dip Scanner PRO tamamlandı: ${rows.length} aday gösterildi.`); return rows; }
+    catch(e){ const box=$id('v21DipBox'); if(box) box.innerHTML='Dip Scanner PRO hatası: '+e.message; if(W.setStatus) W.setStatus('Dip Scanner PRO hatası: '+e.message); return []; }
+  };
+  W.v21ExportDipCSV=function(){
+    const rows=renderDipScanner();
+    const csv=['Sira;Hisse;Son;Dip;IOS;AI;Manipulation;RVOL;CMF;Durum;Neden'].concat(rows.map((x,i)=>[i+1,x.symbol,x.price,fmt(x.dip,0),fmt(x.ios,0),fmt(x.ai,0),fmt(x.manipulation,0),fmt(x.rvol,2),fmt(x.cmf,2),x.label,x.why].join(';'))).join('\n');
+    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'})); a.download='bist_radar_v21_dip_scanner_pro.csv'; a.click(); URL.revokeObjectURL(a.href);
+  };
+  setTimeout(()=>{
+    const sys=document.querySelector('[data-page="diagnosticPage"]'); if(sys) sys.remove();
+    const btn=$id('v21DipScanBtn'); if(btn){ const c=btn.cloneNode(true); btn.parentNode.replaceChild(c,btn); c.addEventListener('click',()=>W.v21RunDipScannerPro()); }
+    const csv=$id('v21DipCsvBtn'); if(csv){ const c=csv.cloneNode(true); csv.parentNode.replaceChild(c,csv); c.addEventListener('click',W.v21ExportDipCSV); }
+    const scan=$id('v21ScanBtn'); if(scan){ const c=scan.cloneNode(true); scan.parentNode.replaceChild(c,scan); c.addEventListener('click',async()=>{try{await ensureScan(); if(W.renderV21InstitutionalIntelligence) W.renderV21InstitutionalIntelligence(); renderDipScanner(); if(W.setStatus) W.setStatus('v2.1 Fırsatlar + Dip Scanner PRO güncellendi.');}catch(e){if(W.setStatus) W.setStatus('v2.1 tarama hatası: '+e.message);}}); }
+    const tab=document.querySelector('[data-page="institutionalIntelligence"]'); if(tab) tab.addEventListener('click',()=>setTimeout(renderDipScanner,250));
+  },1200);
+})();
 </script>
 
 </body>
