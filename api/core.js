@@ -14,8 +14,95 @@ function send(res, obj, cache='s-maxage=30, stale-while-revalidate=120'){
 }
 function bad(res, msg){ send(res,{success:false,error:msg}); }
 function symbolsFrom(q){ return String(q.symbols || q.symbol || '').split(',').map(s=>s.trim().toUpperCase()).filter(Boolean); }
+
+function r22num(v, d=null){
+  const n = Number(v && typeof v === 'object' && 'raw' in v ? v.raw : v);
+  return Number.isFinite(n) ? n : d;
+}
+function r22clamp(v,a=0,b=100){ v=r22num(v,0); return Math.max(a,Math.min(b,v)); }
+function r22gradeToPct(g){
+  if(Number.isFinite(Number(g))) return Number(g);
+  const s=String(g||'').toUpperCase();
+  return s==='A+'?95:s==='A'?88:s==='B+'?78:s==='B'?68:s==='C'?55:s==='D'?40:0;
+}
+function r22decision(score, risk){
+  score=r22num(score,50); risk=r22num(risk,50);
+  if(score>=82 && risk<55) return 'GÜÇLÜ AL';
+  if(score>=68 && risk<65) return 'AL';
+  if(score>=50) return 'TUT';
+  return 'SAT';
+}
+function normalizeMasterObject(m){
+  if(!m || !m.success) return m;
+  const ind = m.indicators || {};
+  const sc = m.scores || m.decisionScores || {};
+  const rows = Array.isArray(m.ohlcv) ? m.ohlcv : [];
+  const lastRow = rows.length ? rows[rows.length-1] : {};
+  const price = r22num(m.price ?? m.lastPrice ?? m.close ?? ind.lastPrice ?? lastRow.close, null);
+  const change = r22num(m.changePercent ?? m.change ?? 0, 0);
+  const score = Math.round(r22clamp(m.aiScore ?? m.finalScore ?? m.score ?? sc.finalScore ?? sc.aiScore ?? 50));
+  const risk = Math.round(r22clamp(m.risk ?? sc.risk ?? ind.riskScore ?? 50));
+  const confidencePct = Math.round(r22clamp(m.confidencePct ?? m.confidenceScore ?? sc.confidencePct ?? r22gradeToPct(m.confidence) ?? score));
+  const confidenceGrade = (typeof m.confidence === 'string' && m.confidence) ? m.confidence : (confidencePct>=90?'A+':confidencePct>=80?'A':confidencePct>=70?'B+':confidencePct>=60?'B':confidencePct>=50?'C':'D');
+  const decision = m.decision || m.action || sc.decision || r22decision(score,risk);
+  const close = price;
+  const atr = r22num(ind.atr14 ?? ind.atr20, null);
+  const stop = r22num(m.stop ?? (close && atr ? close - 1.5*atr : close ? close*0.965 : null), null);
+  const target1 = r22num(m.target1 ?? m.target ?? (close && atr ? close + 2*atr : close ? close*1.055 : null), null);
+  const target2 = r22num(m.target2 ?? (close && atr ? close + 3.2*atr : close ? close*1.095 : null), null);
+  const trend = Math.round(r22clamp(m.trend ?? sc.trend ?? ind.trendQuality ?? ind.categories?.trend ?? 50));
+  const momentum = Math.round(r22clamp(m.momentum ?? sc.momentum ?? ind.momentumQuality ?? ind.categories?.momentum ?? 50));
+  const money = Math.round(r22clamp(m.money ?? m.moneyFlow ?? sc.volume ?? ind.volumeQuality ?? ind.institutionalMoneyScore ?? ind.categories?.volume ?? 50));
+  const institutional = Math.round(r22clamp(m.institutional ?? sc.institutional ?? ind.institutionalMoneyScore ?? 50));
+  const iqs = Math.round(r22clamp(m.iqs ?? sc.iqs ?? ind.iqsScore ?? score));
+  const day = Math.round(r22clamp(m.day ?? m.dayTrading ?? sc.dayTrading ?? ind.dayTradingScore ?? score));
+  const swing = Math.round(r22clamp(m.swing ?? sc.swing ?? ind.swingScore ?? score));
+  const position = Math.round(r22clamp(m.position ?? sc.position ?? ind.positionScore ?? score));
+  const healthFlags = m.dataHealth || ind.health || {};
+  const keys = Object.keys(healthFlags);
+  const healthScore = Math.round(r22clamp(m.healthScore ?? (keys.length ? keys.filter(k=>!!healthFlags[k]).length/keys.length*100 : 90)));
+  const standard = {
+    version:'R22 Unified Master Object',
+    symbol:String(m.symbol||'').toUpperCase(),
+    name:m.name || m.symbol,
+    price, lastPrice:price, close:price, sonFiyat:price,
+    change, changePercent:change,
+    decision, action:decision, aiDecision:decision,
+    score, finalScore:score, aiScore:score,
+    confidence:confidencePct, confidencePct, confidenceScore:confidencePct, confidenceGrade,
+    risk, riskScore:risk,
+    target:target1, target1, target2, stop,
+    iqs, day, dayScore:day, dayTrading:day, swing, swingScore:swing, position, positionScore:position,
+    institutional, institutionalScore:institutional,
+    trend, money, moneyFlow:money, momentum,
+    pattern:Math.round(r22clamp(m.pattern ?? ind.patternScore ?? 50)),
+    rvol:r22num(ind.rvol20, null), rvol20:r22num(ind.rvol20, null), vwap:r22num(ind.vwap, null), cmf:r22num(ind.cmf, null), mfi:r22num(ind.mfi, null),
+    healthScore, dataHealth:healthFlags,
+    ohlcv:rows, indicators:ind, scores:sc,
+    explain:m.explain || sc.explain || {}, breakdown:m.breakdown || sc.breakdown || {},
+    provider:m.provider, providerErrors:m.providerErrors || [], quoteProvider:m.quoteProvider, timestamp:m.timestamp || new Date().toISOString()
+  };
+  standard.analysis = {
+    decision, action:decision, finalScore:score, score, aiScore:score,
+    confidence:confidencePct, confidencePct, confidenceGrade, risk,
+    close:price, price, lastPrice:price, change,
+    target1, target2, target:target1, stop,
+    trend, money, momentum, confidenceLayer:confidencePct,
+    pattern: { name: standard.pattern>=70 ? 'Formasyon teyidi güçlü' : '-', score: standard.pattern, confidence: standard.pattern },
+    adx: r22num(ind.adx ?? ind.trendQuality, null),
+    superTrendDir: trend>=50 ? 1 : -1,
+    rvol20:standard.rvol20, vwap:standard.vwap, cmf:standard.cmf, mfi:standard.mfi,
+    ohlcv:rows,
+    multiLayer:{trend,money,momentum,confidence:confidencePct,risk,iqs,day,swing,position,institutional}
+  };
+  standard.comments = {
+    expert:`${standard.symbol} için karar ${decision}. AI skor ${score}/100, güven ${confidencePct}/100, risk ${risk}/100.`,
+    ai:`Trend ${trend}/100, para girişi ${money}/100, momentum ${momentum}/100. RVOL ${standard.rvol20?standard.rvol20.toFixed(2)+'x':'veri yetersiz'}, VWAP ${standard.vwap?standard.vwap.toFixed(2):'veri yetersiz'}.`
+  };
+  return Object.assign({}, m, standard);
+}
 async function one(s, period='1y'){
-  try{ const { master } = getProvider(); return await master(s,{period});}
+  try{ const { master } = getProvider(); return normalizeMasterObject(await master(s,{period}));}
   catch(e){return {success:false,symbol:s,error:e.message||String(e)}}
 }
 async function handleSymbols(req,res){

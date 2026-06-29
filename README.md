@@ -1,6 +1,15 @@
-# BIST Radar Pro R21 Portfolio Intelligence
+# BIST Radar Pro R22 - Unified Master Object
 
-R20.1 tabanı korundu. R21 Smart Portfolio Coach / Portfolio Intelligence eklendi. Portföy sağlık skoru, güçlü/zayıf pozisyon, yoğunlaşma/risk uyarıları, portföy dışı fırsatlar ve rotasyon önerileri aynı karar motoru verileriyle çalışır.
+Bu sürüm yeni modül eklemez; alan adı uyuşmazlıklarını düzeltir.
 
+## Yapılanlar
+- Tek standart Master Object şeması eklendi.
+- API tarafında `one()` çıktısı `normalizeMasterObject()` ile standartlaştırıldı.
+- Hisse Analizi ekranı için `analysis` alias paketi üretildi.
+- `decision/action`, `price/close/lastPrice`, `score/finalScore/aiScore`, `confidence/confidencePct/confidenceScore`, `risk/riskScore`, `target/target1`, `stop` alanları tekleştirildi.
+- Hisse Analizi, Karar Merkezi, Explainable AI, Day Trading ve Portföy ekranlarının aynı veri modelini okuyabilmesi hedeflendi.
+- `undefined`, `% -`, `- TL` gibi görünümlerin temel sebebi olan alan uyuşmazlığı azaltıldı.
+- API function sayısı yine 1: `api/core.js`.
 
-R21.2 FIX: api/core.js içinde symbolsFrom(req) hatası düzeltildi; artık symbol/symbols query parametreleri doğru okunur. Explainable AI / decision / dip endpointleri sembolü doğru alır.
+## Not
+GitHub/Vercel içinde `api/` klasöründe sadece `core.js` kalmalıdır. `lib/` kök dizinde olmalıdır.
