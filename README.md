@@ -1,10 +1,14 @@
-# BIST Radar Pro R23 – Core Schema Standard
+# BIST Radar Pro R24 Dependency Free
 
-Bu sürüm yeni özellik kalabalığı eklemez; sistemin tüm ekranlarında aynı standart Master Object şemasını kullanır.
+Bu sürüm R23 Core Schema Standard üzerine bağımlılık temizliği ve açılış kararlılığı düzeltmesi yapar.
 
 ## Yapılanlar
-- `dipScore`, `trendScore`, `momentumScore`, `moneyScore`, `confidencePct`, `riskScore` gibi alanlar standartlaştırıldı.
-- Eski modüllerdeki `Cannot read properties of undefined` tipindeki alan okuma hatalarına karşı güvenli erişim fonksiyonları eklendi.
-- Hisse Analizi ve Explainable AI ekranlarına seçilen hisseye ait indikatör tablosu eklendi.
-- EMA, RSI, MACD, RVOL, VWAP, CMF, MFI, ATR, IQS, Day/Swing/Pozisyon/Kurumsal/Dip skorları tek panelde gösterilir.
-- API function sayısı 1 olarak korunur: `api/core.js`.
+- jQuery bağımlılığı kaldırıldı / gerekli değil.
+- `$ is not defined` hatası için vanilla JS DOM helper eklendi.
+- `$()` kullanımları `document.getElementById / querySelector` tabanlı çalışır.
+- `window.$` ve `window.$$` güvenli yardımcıları eklendi.
+- Tek API Gateway korunur: `api/core.js`.
+- Random/demo veri eklenmedi.
+
+## GitHub/Vercel notu
+`api/` klasöründe yalnızca `core.js` kalmalıdır. `api/lib` veya eski endpoint dosyaları tekrar eklenirse Vercel Hobby function sınırı aşılabilir.
