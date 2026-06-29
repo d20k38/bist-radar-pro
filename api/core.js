@@ -439,6 +439,19 @@ async function handleExplain(req,res){
   return send(res,{success:true,count:results.filter(x=>x.success).length,total:results.length,results,data:results}, 'no-store');
 }
 
+
+async function handleProvider(req,res){
+  try{
+    const symbol = String(req.query.symbol || '').toUpperCase().trim();
+    const provider = getProvider();
+    if(symbol){
+      const m = await one(symbol, req.query.range || req.query.period || '1y');
+      return send(res,{success:!!m.success,symbol,providerInfo:provider.providerInfo||{},dataProvider:m.dataProvider||null,master:m.success?{price:m.price,score:m.score,decision:m.decision,confidence:m.confidencePct}:null,error:m.error||null}, 'no-store');
+    }
+    return send(res,{success:true,providerInfo:provider.providerInfo||{},note:'R27 Multi Provider: gerçek zamanlı lisanslı kaynak yoksa veri ücretsiz sağlayıcıdan gecikmeli/son kapanış olabilir.',timestamp:new Date().toISOString()}, 'no-store');
+  }catch(e){ return send(res,{success:false,error:e.message||String(e),source:'R27 provider-status'}, 'no-store'); }
+}
+
 async function handleCommittee(req,res){
   const s=String(req.query.symbol||'').toUpperCase().trim();
   if(!s) return bad(res,'symbol gerekli');
@@ -452,7 +465,7 @@ module.exports = async function handler(req,res){
       symbols:handleSymbols, stock:handleStock, quote:handleStock, decision:handleDecision, explain:handleExplain, xai:handleExplain, schema:handleSchema,
       dip:handleDip, scan:handleScan, 'institutional-scan':handleScan, institutional:handleScan,
       'portfolio-advice':handlePortfolio, portfolio:handlePortfolio,
-      kap:handleKap, news:handleKap, diagnostic:handleDiagnostic, diagnose:handleDiagnostic, health:handleDiagnostic, stabilize:handleDiagnostic, validate:handleValidate, validator:handleValidate, corevalidator:handleValidate, learning:handleLearning, backtest:handleBacktest, committee:handleCommittee
+      kap:handleKap, news:handleKap, diagnostic:handleDiagnostic, diagnose:handleDiagnostic, health:handleDiagnostic, stabilize:handleDiagnostic, validate:handleValidate, validator:handleValidate, corevalidator:handleValidate, learning:handleLearning, backtest:handleBacktest, committee:handleCommittee, provider:handleProvider, dataprovider:handleProvider, status:handleProvider
     };
     const fn = map[action];
     if(!fn) return bad(res,'Bilinmeyen core action: '+(action||'-'));
