@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro v1.1 Snapshot Intelligence</title>
+<title>BIST Radar Pro v1.2 Unified Master Object</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/r10-runtime.js"></script>
 <script>
@@ -109,7 +109,7 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro v1.1 Snapshot Intelligence</div><div class="pill">%100 Gerçek OHLCV • v1.1 Snapshot Intelligence • Akıllı JSON Eşleştirme</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro v1.2 Unified Master Object</div><div class="pill">%100 Gerçek OHLCV • v1.2 Unified Master Object • Tek Veri Modeli</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -914,7 +914,7 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
   </section>
 
   <section id="prodPlusPage" class="hidden">
-    <div class="card"><div class="head dark">🏁 BIST Radar Pro v1.1 Snapshot Intelligence / Öğrenen Kalite Merkezi</div><div class="body">
+    <div class="card"><div class="head dark">🏁 BIST Radar Pro v1.2 Unified Master Object / Öğrenen Kalite Merkezi</div><div class="body">
       <div class="comment"><b>Production+</b>, eski JSON snapshot kararlarını mevcut gerçek OHLCV verileriyle karşılaştırır; AL/TUT/SAT kararlarının yön başarısını, skor bozulmasını, fiyat değişimini ve hangi indikatörlerin daha iyi çalıştığını ölçer. Demo/random veri üretmez.</div><br>
       <div class="quickFilters">
         <input type="file" id="prodPlusSnapshotFile" accept=".json,application/json" style="padding:12px;border:1px solid var(--line);border-radius:14px;background:#fff">
@@ -1063,7 +1063,63 @@ function renderIndicatorPanel(master, tableId='indicatorPanelTable', boxId='indi
   if(tbl) tbl.innerHTML='<tr><th>Kategori</th><th>İndikatör</th><th>Değer</th></tr>'+rows.map(r=>`<tr><td>${r[0]}</td><td><b>${r[1]}</b></td><td>${r[2]}</td></tr>`).join('');
   if(box){ const a=(master&&master.analysis)||master||{}; box.innerHTML=`<b>${master?.symbol||a.symbol||''}</b> R23 standart şeması: AI <b>${fmt(a.finalScore??master?.score,0)}/100</b>, karar <b>${a.decision||master?.decision||'-'}</b>, güven <b>${fmt(a.confidence??master?.confidence,0)}/100</b>. Ana indikatörler tek Master Object içinden okunur.`; }
 }
-function renderStock(j){j=r22ClientMaster(j); lastStock=j; const a=j.analysis||{},c=j.comments||{};const cards=[['Karar',a.decision,a.finalScore>=65?'ok':a.finalScore>=50?'warn':'bad'],['Güven','%'+fmt(a.confidence,0),'ok'],['Risk','%'+fmt(a.risk,0),a.risk<50?'ok':'bad'],['Hedef','%'+fmt(((a.target1-a.close)/a.close)*100,1),'ok'],['Son Fiyat',tl(a.close),a.change>=0?'ok':'bad']];$('cards').innerHTML=cards.map(x=>`<div class="card metric"><div class="body"><div class="muted">${x[0]}</div><div class="v ${x[2]}">${x[1]}</div><small>Değişim: ${fmt(a.change)}%</small></div></div>`).join('');$('engine').innerHTML=['trend','money','momentum','pattern','confidence','risk'].map(k=>{const v=a[k]||0;return `<b>${label(k)}: ${fmt(v,0)}/100</b><div class="barw"><div class="bar" style="width:${Math.max(0,Math.min(100,v))}%;background:${k==='risk'?(v<50?'#16a34a':'#dc2626'):(v>65?'#16a34a':v>50?'#f59e0b':'#dc2626')}"></div></div><br>`}).join('')+`<div class="comment"><b>Formasyon:</b> ${a.formation?.name||'-'}<br><b>ADX:</b> ${fmt(a.adx)} | <b>SuperTrend:</b> ${a.superTrendDir===1?'AL':'SAT'}<br><b>Stop:</b> ${tl(a.stop)} | <b>Hedef:</b> ${tl(a.target1)}</div>`;$('expert').textContent=c.expert||aiExpert(a);$('ai').textContent=c.ai||aiComment(a);renderAIEngine(a);renderInlineExplainableFromStock(a);renderMultiLayer(a.multiLayer||null,a);renderIndicatorPanel(j);draw(a.ohlcv||j.ohlcv||[]);renderDataProvider(j.dataProvider||j.providerInfo||j);setTimeout(()=>runConfidence(false),80)}
+
+
+/* v1.2 Unified Master Object: bütün ekranların aynı standart nesneyi okuması için tek normalizasyon katmanı */
+function v12Pick(...vals){ for(const v of vals){ if(v!==undefined && v!==null && v!=='' && !(typeof v==='number' && !Number.isFinite(v))) return v; } return null; }
+function v12Num(v,d=null){ const n=Number(v && typeof v==='object' && 'raw' in v ? v.raw : v); return Number.isFinite(n)?n:d; }
+function v12Clamp(v,a=0,b=100){ const n=v12Num(v,0); return Math.max(a,Math.min(b,n)); }
+function v12Grade(p){ p=v12Clamp(p); return p>=90?'A+':p>=80?'A':p>=70?'B+':p>=60?'B':p>=50?'C':'D'; }
+function v12Decision(score,risk){ score=v12Num(score,50); risk=v12Num(risk,50); if(score>=82&&risk<55)return 'GÜÇLÜ AL'; if(score>=68&&risk<65)return 'AL'; if(score>=50)return 'TUT'; return 'SAT'; }
+function v12Rows(m){ return (Array.isArray(m?.ohlcv)&&m.ohlcv.length?m.ohlcv:(Array.isArray(m?.analysis?.ohlcv)&&m.analysis.ohlcv.length?m.analysis.ohlcv:(Array.isArray(m?.rows)&&m.rows.length?m.rows:[]))).filter(r=>r&&Number.isFinite(Number(r.close))); }
+function v12BuildTrade(price,ind={},m={}){
+  price=v12Num(price,null);
+  const atr=v12Num(ind.atr14??ind.atr20??m.atr,null);
+  const stop=v12Num(m.stop??m.trade?.stop??m.analysis?.stop, price?(atr?price-1.5*atr:price*0.965):null);
+  const target1=v12Num(m.target1??m.target??m.trade?.target1??m.trade?.targets?.[0]??m.analysis?.target1, price?(atr?price+2*atr:price*1.055):null);
+  const target2=v12Num(m.target2??m.trade?.target2??m.trade?.targets?.[1]??m.analysis?.target2, price?(atr?price+3.2*atr:price*1.095):null);
+  const entryLow=v12Num(m.entryLow??m.trade?.entryLow??m.trade?.entryZone?.low, price?(atr?price-0.35*atr:price*0.992):null);
+  const entryHigh=v12Num(m.entryHigh??m.trade?.entryHigh??m.trade?.entryZone?.high, price?(atr?price+0.2*atr:price*1.006):null);
+  return {entryLow,entryHigh,entryZone:{low:entryLow,high:entryHigh},stop,target:target1,target1,target2,targets:[target1,target2]};
+}
+function v12UnifiedMaster(input){
+  if(!input) return input;
+  const base=input.master||input.masterObject||input.standard||input;
+  const m=Object.assign({},input,base);
+  const ind=m.indicators||m.analysis?.indicators||{};
+  const scores=m.scores||m.analysis?.scores||{};
+  const rows=v12Rows(m);
+  const last=rows.length?rows[rows.length-1]:{};
+  const price=v12Num(v12Pick(m.price,m.lastPrice,m.close,m.sonFiyat,m.analysis?.price,m.analysis?.close,ind.lastPrice,last.close),null);
+  const aiScore=Math.round(v12Clamp(v12Pick(m.aiScore,m.finalScore,m.score,m.ai?.score,m.analysis?.aiScore,m.analysis?.finalScore,scores.aiScore,scores.finalScore),50));
+  const risk=Math.round(v12Clamp(v12Pick(m.risk,m.riskScore,m.ai?.risk,m.analysis?.risk,scores.risk,ind.riskScore),50));
+  const confidencePct=Math.round(v12Clamp(v12Pick(m.confidencePct,m.confidenceScore,m.ai?.confidence,m.analysis?.confidence,scores.confidencePct,(typeof m.confidence==='string'?null:m.confidence)),75));
+  const confidenceGrade=v12Pick(m.confidenceGrade,(typeof m.confidence==='string'?m.confidence:null),v12Grade(confidencePct));
+  const decision=v12Pick(m.decision,m.action,m.aiDecision,m.analysis?.decision,m.ai?.decision,scores.decision,v12Decision(aiScore,risk));
+  const trend=Math.round(v12Clamp(v12Pick(m.trend,m.trendScore,m.analysis?.trend,scores.trend,ind.trendQuality,50)));
+  const momentum=Math.round(v12Clamp(v12Pick(m.momentum,m.momentumScore,m.analysis?.momentum,scores.momentum,ind.momentumQuality,50)));
+  const money=Math.round(v12Clamp(v12Pick(m.money,m.moneyFlow,m.moneyScore,m.analysis?.money,scores.volume,ind.volumeQuality,ind.institutionalMoneyScore,50)));
+  const iqs=Math.round(v12Clamp(v12Pick(m.iqs,m.analysis?.iqs,scores.iqs,ind.iqsScore,aiScore)));
+  const day=Math.round(v12Clamp(v12Pick(m.day,m.dayScore,m.dayTrading,m.analysis?.day,scores.dayTrading,ind.dayTradingScore,aiScore)));
+  const swing=Math.round(v12Clamp(v12Pick(m.swing,m.swingScore,m.analysis?.swing,scores.swing,ind.swingScore,aiScore)));
+  const position=Math.round(v12Clamp(v12Pick(m.position,m.positionScore,m.analysis?.position,scores.position,ind.positionScore,aiScore)));
+  const institutional=Math.round(v12Clamp(v12Pick(m.institutional,m.institutionalScore,m.analysis?.institutional,scores.institutional,ind.institutionalMoneyScore,aiScore)));
+  const dipScore=Math.round(v12Clamp(v12Pick(m.dipScore,m.analysis?.dipScore,scores.dip,ind.meanReversionScore,50)));
+  const trade=v12BuildTrade(price,ind,m);
+  const indicatorPanel={
+    trend:{ema20:v12Num(ind.ema20,null),ema50:v12Num(ind.ema50,null),ema200:v12Num(ind.ema200,null),sma20:v12Num(ind.sma20,null),superTrend:trend>=50?'AL':'SAT',score:trend},
+    momentum:{rsi:v12Num(ind.rsi14??ind.rsi,null),macd:v12Num(ind.macd,null),macdSignal:v12Num(ind.macdSignal,null),mfi:v12Num(ind.mfi,null),score:momentum},
+    volume:{rvol20:v12Num(ind.rvol20??ind.rvol,null),vwap:v12Num(ind.vwap,null),cmf:v12Num(ind.cmf,null),obv:v12Num(ind.obv,null),adl:v12Num(ind.adl,null),score:money},
+    volatility:{atr:v12Num(ind.atr14??ind.atr20,null),riskScore:risk,score:100-risk},
+    quality:{iqs,day,swing,position,institutional,confidence:confidencePct,healthScore:v12Num(m.healthScore,90)}
+  };
+  const analysis=Object.assign({},m.analysis||{}, {decision,action:decision,finalScore:aiScore,score:aiScore,aiScore,confidence:confidencePct,confidencePct,confidenceGrade,risk,close:price,price,lastPrice:price,change:v12Num(m.changePercent??m.change??m.analysis?.change,0),target1:trade.target1,target2:trade.target2,target:trade.target1,stop:trade.stop,trend,money,momentum,iqs,day,swing,position,institutional,dipScore,rvol20:indicatorPanel.volume.rvol20,vwap:indicatorPanel.volume.vwap,cmf:indicatorPanel.volume.cmf,mfi:indicatorPanel.momentum.mfi,ohlcv:rows,multiLayer:{trend,money,momentum,confidence:confidencePct,risk,iqs,day,swing,position,institutional,dipScore},indicatorPanel});
+  const standard=Object.assign({},m,{version:'v1.2 Unified Master Object',symbol:String(v12Pick(m.symbol,input.symbol,'')||'').toUpperCase(),price,lastPrice:price,close:price,sonFiyat:price,decision,action:decision,aiDecision:decision,score:aiScore,finalScore:aiScore,aiScore,confidence:confidencePct,confidencePct,confidenceScore:confidencePct,confidenceGrade,risk,riskScore:risk,target:trade.target1,target1:trade.target1,target2:trade.target2,stop:trade.stop,trade,iqs,day,dayScore:day,dayTrading:day,swing,swingScore:swing,position,positionScore:position,institutional,institutionalScore:institutional,trend,trendScore:trend,money,moneyScore:money,moneyFlow:money,momentum,momentumScore:momentum,dipScore,indicators:ind,scores,indicatorPanel,analysis,ohlcv:rows,rows,chart:{ohlcv:rows},ai:{score:aiScore,decision,confidence:confidencePct,risk,grade:confidenceGrade},comments:m.comments||{expert:`${String(v12Pick(m.symbol,input.symbol,'')||'')} için karar ${decision}. AI ${aiScore}/100, güven ${confidencePct}/100.`,ai:`Trend ${trend}/100, para girişi ${money}/100, momentum ${momentum}/100.`}});
+  window.__MASTER_OBJECT__=standard;
+  return standard;
+}
+
+function renderStock(j){j=v12UnifiedMaster(r22ClientMaster(j)); window.__MASTER_OBJECT__=j; window.lastStock=j; window.lastRows=(j.ohlcv||j.rows||j.analysis?.ohlcv||[]); try{ lastRows=window.lastRows; }catch(_){ } const a=j.analysis||{},c=j.comments||{};const cards=[['Karar',a.decision,a.finalScore>=65?'ok':a.finalScore>=50?'warn':'bad'],['Güven','%'+fmt(a.confidence,0),'ok'],['Risk','%'+fmt(a.risk,0),a.risk<50?'ok':'bad'],['Hedef','%'+fmt(((a.target1-a.close)/a.close)*100,1),'ok'],['Son Fiyat',tl(a.close),a.change>=0?'ok':'bad']];$('cards').innerHTML=cards.map(x=>`<div class="card metric"><div class="body"><div class="muted">${x[0]}</div><div class="v ${x[2]}">${x[1]}</div><small>Değişim: ${fmt(a.change)}%</small></div></div>`).join('');$('engine').innerHTML=['trend','money','momentum','pattern','confidence','risk'].map(k=>{const v=a[k]||0;return `<b>${label(k)}: ${fmt(v,0)}/100</b><div class="barw"><div class="bar" style="width:${Math.max(0,Math.min(100,v))}%;background:${k==='risk'?(v<50?'#16a34a':'#dc2626'):(v>65?'#16a34a':v>50?'#f59e0b':'#dc2626')}"></div></div><br>`}).join('')+`<div class="comment"><b>Formasyon:</b> ${a.formation?.name||'-'}<br><b>ADX:</b> ${fmt(a.adx)} | <b>SuperTrend:</b> ${a.superTrendDir===1?'AL':'SAT'}<br><b>Stop:</b> ${tl(a.stop)} | <b>Hedef:</b> ${tl(a.target1)}</div>`;$('expert').textContent=c.expert||aiExpert(a);$('ai').textContent=c.ai||aiComment(a);renderAIEngine(a);renderInlineExplainableFromStock(a);renderMultiLayer(a.multiLayer||null,a);renderIndicatorPanel(j);draw(a.ohlcv||j.ohlcv||[]);renderDataProvider(j.dataProvider||j.providerInfo||j);setTimeout(()=>runConfidence(false),80)}
 function label(k){return {trend:'Trend',money:'Para Girişi',momentum:'Momentum',pattern:'Formasyon',confidence:'Güven',risk:'Risk'}[k]||k}
 
 function nval(x,d=0){x=Number(x);return Number.isFinite(x)?x:d}
@@ -3216,7 +3272,7 @@ setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]')
 
 })();
 
-/* R28A Professional Trading Cockpit - clean production shim */
+/* v1.2 Unified Master Object -> R28A Trading Cockpit binding */
 (function(){
   let r28Last=null;
   const $id=(id)=>document.getElementById(id);
@@ -3226,25 +3282,30 @@ setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]')
   function ema(values,period){let k=2/(period+1), prev=null; return values.map(v=>{v=num(v); if(v==null)return null; prev=prev==null?v:v*k+prev*(1-k); return prev;});}
   function sma(values,p){return values.map((_,i)=>{if(i<p-1)return null; const a=values.slice(i-p+1,i+1).map(num).filter(x=>x!=null); return a.length===p?a.reduce((x,y)=>x+y,0)/p:null;});}
   function calc(rows, master){
-    rows=(rows||[]).filter(r=>r&&num(r.close)!=null).slice(-220);
+    master = (typeof v12UnifiedMaster==='function' ? v12UnifiedMaster(master||window.__MASTER_OBJECT__||window.lastStock||{}) : (master||window.__MASTER_OBJECT__||window.lastStock||{}));
+    rows=(rows&&rows.length?rows:(master.ohlcv||master.rows||master.chart?.ohlcv||master.analysis?.ohlcv||[])).filter(r=>r&&num(r.close)!=null).slice(-220);
     const closes=rows.map(r=>num(r.close));
     const vols=rows.map(r=>num(r.volume)||0);
-    const price=num(master?.price ?? master?.lastPrice ?? master?.close) ?? last(closes) ?? 0;
+    const price=num(master?.trade?.price ?? master?.price ?? master?.lastPrice ?? master?.close ?? master?.analysis?.price) ?? last(closes) ?? 0;
     const e20=last(ema(closes,20)); const e50=last(ema(closes,50)); const e200=last(ema(closes,200));
     const ma20=last(sma(closes,20));
     const avgVol20=vols.slice(-21,-1).filter(x=>x>0).reduce((a,b)=>a+b,0)/Math.max(1,vols.slice(-21,-1).filter(x=>x>0).length);
     const rvol=master?.indicators?.rvol20 ?? master?.indicators?.rvol ?? (avgVol20?last(vols)/avgVol20:null);
     const vwap=master?.indicators?.vwap ?? master?.vwap ?? price;
     const cmf=master?.indicators?.cmf ?? master?.cmf ?? null;
-    const ai=num(master?.aiScore ?? master?.score ?? master?.finalScore) ?? 50;
-    const risk=num(master?.risk ?? master?.riskScore) ?? 50;
-    const confidence=num(master?.confidencePct ?? master?.confidenceScore) ?? (master?.confidence==='A+'?92:75);
-    const decision=master?.decision || (ai>=75?'AL':ai>=55?'TUT':'SAT');
+    const ai=num(master?.ai?.score ?? master?.aiScore ?? master?.score ?? master?.finalScore ?? master?.analysis?.aiScore) ?? 50;
+    const risk=num(master?.ai?.risk ?? master?.risk ?? master?.riskScore ?? master?.analysis?.risk) ?? 50;
+    const confidence=num(master?.ai?.confidence ?? master?.confidencePct ?? master?.confidenceScore ?? master?.analysis?.confidence) ?? (master?.confidence==='A+'?92:75);
+    const decision=master?.ai?.decision || master?.decision || master?.action || master?.analysis?.decision || (ai>=75?'AL':ai>=55?'TUT':'SAT');
     const low=Math.min(...rows.slice(-40).map(r=>num(r.low)).filter(x=>x!=null));
     const high=Math.max(...rows.slice(-40).map(r=>num(r.high)).filter(x=>x!=null));
     const atr=Math.max(price*0.025, (high-low)/14 || price*0.03);
-    const stop=price-atr*1.8, t1=price+(price-stop)*1.8, t2=price+(price-stop)*3;
-    return {rows,price,e20,e50,e200,ma20,rvol,vwap,cmf,ai,risk,confidence,decision,stop,t1,t2,entryLow:price-atr*.35,entryHigh:price+atr*.2};
+    const stop=num(master?.trade?.stop ?? master?.stop ?? master?.analysis?.stop) ?? (price-atr*1.8);
+    const t1=num(master?.trade?.target1 ?? master?.trade?.targets?.[0] ?? master?.target1 ?? master?.target ?? master?.analysis?.target1) ?? (price+(price-stop)*1.8);
+    const t2=num(master?.trade?.target2 ?? master?.trade?.targets?.[1] ?? master?.target2 ?? master?.analysis?.target2) ?? (price+(price-stop)*3);
+    const entryLow=num(master?.trade?.entryLow ?? master?.trade?.entryZone?.low) ?? (price-atr*.35);
+    const entryHigh=num(master?.trade?.entryHigh ?? master?.trade?.entryZone?.high) ?? (price+atr*.2);
+    return {rows,price,e20,e50,e200,ma20,rvol,vwap,cmf,ai,risk,confidence,decision,stop,t1,t2,entryLow,entryHigh};
   }
   function setText(id,value){const el=$id(id); if(el) el.textContent=value;}
   function drawBasicChart(c){
@@ -3257,7 +3318,7 @@ setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]')
     chart.timeScale().fitContent();
   }
   function render(master,rows){
-    const c=calc(rows||window.lastRows, master||window.lastStock||{}); r28Last=c;
+    const c=calc(rows||window.lastRows||[], master||window.__MASTER_OBJECT__||window.lastStock||{}); r28Last=c;
     setText('r28Ai',fmt(c.ai,0)); setText('r28Decision',c.decision); setText('r28Confidence','%'+fmt(c.confidence,0)); setText('r28Risk','%'+fmt(c.risk,0));
     setText('r28Entry',fmt(c.entryLow)+' - '+fmt(c.entryHigh)+' TL'); setText('r28Stop',fmt(c.stop)+' TL'); setText('r28T1',fmt(c.t1)+' TL'); setText('r28T2',fmt(c.t2)+' TL');
     const signals=$id('r28Signals'); if(signals) signals.innerHTML=['EMA20','EMA50','EMA200','VWAP','RVOL','CMF'].map(k=>'<div class="signal good"><b>🟢 '+k+'</b><span>aktif</span></div>').join('');
@@ -3273,7 +3334,7 @@ setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]')
     if(typeof showPage==='function') showPage('tradingCockpit', document.querySelector('[data-page="tradingCockpit"]'));
     const sym=($id('search')?.value||$id('symbol')?.value||'PAPIL').toUpperCase().trim();
     if((!window.lastStock || String(window.lastStock.symbol||'').toUpperCase()!==sym) && typeof loadStock==='function') await loadStock(false);
-    render(window.lastStock?.master||window.lastStock||{symbol:sym}, window.lastRows||[]);
+    render(window.__MASTER_OBJECT__||window.lastStock?.master||window.lastStock||{symbol:sym}, window.lastRows||[]);
     if(typeof setStatus==='function') setStatus('R28A Trading Cockpit güncellendi: '+sym);
   };
   window.exportR28CSV=function(){
@@ -3455,7 +3516,7 @@ setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]')
     const old=unique(extract(JSON.parse(await file.text()))); rows=build(old,current()); render(); if(typeof window.setStatus==='function') window.setStatus('v1.0 Production+ kalite karşılaştırması tamamlandı.');
   }
   function downloadSnapshot(){
-    const cur=current(); if(!cur.length){alert('Önce tarama yapın.');return;} const payload={createdAt:new Date().toISOString(),version:'BIST Radar Pro v1.1 Snapshot Intelligence',data:cur}; const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='bist_radar_v1_production_plus_snapshot_'+new Date().toISOString().slice(0,10)+'.json'; a.click(); URL.revokeObjectURL(a.href);
+    const cur=current(); if(!cur.length){alert('Önce tarama yapın.');return;} const payload={createdAt:new Date().toISOString(),version:'BIST Radar Pro v1.2 Unified Master Object',data:cur}; const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='bist_radar_v1_production_plus_snapshot_'+new Date().toISOString().slice(0,10)+'.json'; a.click(); URL.revokeObjectURL(a.href);
   }
   function exportCsv(){ if(!rows.length){alert('Önce karşılaştırma yapın.');return;} const arr=[['Hisse','EskiKarar','YeniKarar','EskiAI','YeniAI','EskiFiyat','YeniFiyat','Getiri%','Basari','Faktorler']].concat(rows.map(r=>[r.symbol,r.oldDecision,r.newDecision,r.oldScore,r.newScore,r.oldPrice,r.newPrice,Number.isFinite(r.ret)?r.ret:'',r.success===true?'Doğru':r.success===false?'Yanlış':'-',r.factors.join('|')])); if(typeof window.downloadCSV==='function') window.downloadCSV(arr,'v1_production_plus_quality.csv'); }
   setTimeout(()=>{ const a=$p('prodPlusCompareBtn'); if(a)a.addEventListener('click',()=>compare().catch(e=>{if($p('prodPlusStatus'))$p('prodPlusStatus').textContent='Production+ hata: '+e.message;})); const b=$p('prodPlusSnapshotBtn'); if(b)b.addEventListener('click',downloadSnapshot); const c=$p('prodPlusCsvBtn'); if(c)c.addEventListener('click',exportCsv); },800);
@@ -3619,7 +3680,7 @@ setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]')
   }
   function downloadSnapshot(){
     const cur=collectCurrentFromMemory(); if(!cur.length){alert('Önce güncel tarama yapın.');return;}
-    const payload={createdAt:new Date().toISOString(),version:'BIST Radar Pro v1.1 Snapshot Intelligence',data:cur};
+    const payload={createdAt:new Date().toISOString(),version:'BIST Radar Pro v1.2 Unified Master Object',data:cur};
     const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'})); a.download='bist_radar_v1_1_snapshot_'+new Date().toISOString().slice(0,10)+'.json'; a.click(); URL.revokeObjectURL(a.href);
   }
   function exportCsv(){
