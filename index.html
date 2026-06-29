@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro v1.2 Unified Master Object</title>
+<title>BIST Radar Pro v2.0 Production</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/r10-runtime.js"></script>
 <script>
@@ -105,32 +105,37 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#eef5ff,#f8fbff);font-family:Arial,Helvetica,sans-serif;color:var(--ink)}.wrap{max-width:1480px;margin:auto;padding:18px}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.brand{font-size:30px;font-weight:900;letter-spacing:.2px}.pill{background:#fff;border:1px solid var(--line);border-radius:99px;padding:10px 14px;font-weight:800;box-shadow:0 8px 20px #0000000d}.controls{display:grid;grid-template-columns:2fr 1.2fr auto auto;gap:10px;margin:16px 0}.controls input,.controls select{padding:14px;border:1px solid var(--line);border-radius:14px;font-size:16px;background:#fff}.btn{border:0;border-radius:14px;background:var(--blue);color:white;font-weight:900;padding:13px 16px;cursor:pointer;box-shadow:0 8px 18px #145bf522}.btn:hover{filter:brightness(.96)}.btn.gray{background:#64748b}.btn.green{background:var(--green)}.btn.red{background:var(--red)}.tabs{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.tab{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 15px;font-weight:900;cursor:pointer}.tab.active{background:var(--blue);color:#fff}.status{background:#fff7e6;border:1px solid #ffd889;padding:13px;border-radius:14px;margin:12px 0;color:#7a5200}.grid{display:grid;gap:16px}.g5{grid-template-columns:repeat(5,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1.2fr .8fr}.card{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 10px 25px #0001}.head{background:var(--blue);color:#fff;font-weight:900;font-size:20px;padding:15px}.head.green{background:var(--green)}.head.red{background:var(--red)}.head.yellow{background:var(--yellow);color:#111}.head.cyan{background:var(--cyan)}.head.dark{background:#0b1220}.body{padding:16px}.metric{text-align:center}.metric .v{font-size:28px;font-weight:900;margin:7px 0}.ok{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--yellow)}.muted{color:var(--muted);font-size:13px}.barw{height:10px;background:#e7eef8;border-radius:99px;overflow:hidden}.bar{height:100%;border-radius:99px}.comment{background:#f6f8fb;border:1px solid var(--line);border-radius:14px;padding:14px;line-height:1.55}.hidden{display:none}.table{width:100%;border-collapse:collapse}.table th{background:#243449;color:white;padding:10px;text-align:left;font-size:14px}.table td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}.table tr:hover td{background:#f8fbff}.chartbox{height:460px;min-height:360px}.indicatorToggles{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 10px;font-weight:800;cursor:pointer;font-size:13px}.chip input{margin-right:6px}.chartNote{font-size:12px;color:var(--muted);margin-top:8px}.badge{display:inline-block;border-radius:999px;padding:6px 9px;color:#fff;font-weight:900;font-size:12px}.bgreen{background:var(--green)}.byellow{background:var(--yellow);color:#111}.bred{background:var(--red)}.bblue{background:var(--blue)}.sectionTitle{font-size:18px;font-weight:900;margin:4px 0 12px}.mini{font-size:12px;color:var(--muted)}.dashList{display:flex;flex-direction:column;gap:8px}.dashItem{display:grid;grid-template-columns:70px 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px;background:#fbfdff;cursor:pointer}.dashItem:hover{border-color:#bcd1f5}.rank{font-weight:900;color:var(--blue)}.symbol{font-weight:900}.score{font-weight:900}.quickFilters{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}.quickFilters .btn{padding:10px 12px;font-size:13px}.kpi{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:8px 0}.kpi:last-child{border-bottom:0}.layerGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.layerRow{display:grid;grid-template-columns:140px 1fr 70px;gap:10px;align-items:center;border-bottom:1px solid var(--line);padding:9px 0}.layerScore{font-weight:900;text-align:right}.layerSmall{font-size:12px;color:var(--muted)}.loading{opacity:.7;animation:pulse 1.1s infinite}@keyframes pulse{50%{opacity:.38}}@media(max-width:920px){.wrap{padding:10px}.brand{font-size:22px}.controls,.g5,.g4,.g3,.g2{grid-template-columns:1fr}.chartbox{height:310px}.btn,.tab{width:100%}.dashItem{grid-template-columns:55px 1fr}.dashItem .score{grid-column:2}.pill{width:100%;text-align:center}.table{font-size:13px}.table th,.table td{padding:8px}}
 
 .cockpitHero{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}.cockpitMetric{border:1px solid var(--line);border-radius:16px;padding:14px;background:#fbfdff}.cockpitMetric .big{font-size:30px;font-weight:900}.signalGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.signal{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff}.signal b{display:block;margin-bottom:4px}.signal.good{border-color:#8bd6a6;background:#f0fff5}.signal.warn{border-color:#ffd27a;background:#fff9eb}.signal.bad{border-color:#ffabab;background:#fff3f3}.priceLevels{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.levelBox{border-radius:14px;padding:12px;border:1px solid var(--line);background:#fff}.levelBox b{display:block;color:var(--muted);font-size:12px}.aiBubble{border-left:5px solid var(--blue);background:#f6f9ff;border-radius:12px;padding:12px;margin:8px 0}.cockpitBars .layerRow{grid-template-columns:120px 1fr 60px}.miniChart{height:520px;min-height:420px}.scenario{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:9px 0}.scenario:last-child{border-bottom:0}@media(max-width:920px){.cockpitHero,.signalGrid,.priceLevels{grid-template-columns:1fr}.miniChart{height:360px}}
+
+/* v2.0 Production: tek aktif workspace. Modüller alt alta birikmez. */
+body.v2-terminal .wrap>section{display:none;}
+body.v2-terminal .wrap>section.v2-active{display:block;}
+.v2-panel{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
+.v2-risk-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.v2-risk-tile{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fbfdff}
+.v2-risk-tile .label{font-size:12px;color:var(--muted);font-weight:800}
+.v2-risk-tile .value{font-size:24px;font-weight:900;margin:6px 0}
+.v2-risk-note{line-height:1.55}
+@media(max-width:920px){.v2-panel,.v2-risk-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro v1.2 Unified Master Object</div><div class="pill">%100 Gerçek OHLCV • v1.2 Unified Master Object • Tek Veri Modeli</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro v2.0 Production</div><div class="pill">%100 Gerçek OHLCV • v2.0 Production • Tek Ekran Terminal • Institutional Risk Engine</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
     <button class="btn" id="analyzeBtn">Analiz Et</button>
     <button class="btn gray" id="backtestBtn">Backtest</button>
   </div>
-  <div class="tabs simplified-tabs">
-    <button class="tab active" data-page="dashboard">🧠 Karar Merkezi</button>
-    <button class="tab" data-page="explainableAI">🔎 R20.1 Explainable AI</button>
+  <div class="tabs simplified-tabs v2-tabs">
+    <button class="tab active" data-page="dashboard">📡 Radar</button>
+    <button class="tab" data-page="analysis">📈 Analiz</button>
+    <button class="tab" data-page="tradingCockpit">🚀 Cockpit</button>
+    <button class="tab" data-page="portfolioIntelligence">💼 Portföy</button>
+    <button class="tab" data-page="institutionalRiskEngine">🛡️ Risk</button>
+    <button class="tab" data-page="explainableAI">🧠 AI Açıklama</button>
     <button class="tab" data-page="snapshotCompare">🧪 Karşılaştırma</button>
-    <button class="tab" data-page="prodPlusPage">🏁 v1.0 Production+</button>
-    <button class="tab" data-page="dayTradingAI">⚡ Day Trading AI</button>
-    <button class="tab" data-page="analysis">📈 Hisse Analizi</button>
-    <button class="tab" data-page="tradingCockpit">🚀 R28A Trading Cockpit</button>
-    <button class="tab" data-page="r29Suite2">🏛️ R29 Institutional AI 2.0</button>
-    <button class="tab" data-page="portfolio">💼 Portföy Radarım</button>
-    <button class="tab" data-page="portfolioIntelligence">🧠 Portföy Intelligence</button>
-    <button class="tab" data-page="radarLab">🧪 Radar Lab</button>
-    <button class="tab" data-page="backtestPage">📊 Backtest</button>
-    <button class="tab" data-page="kapPage">📢 KAP/Haber AI</button>
-    <button class="tab" data-page="dipProfessional">🎯 Dip Avcısı PRO</button>
+    <button class="tab" data-page="diagnosticPage">⚙️ Sistem</button>
   </div>
   <div id="status" class="status">Hazır.</div>
   <div class="barw" style="margin:8px 0 14px"><div id="scanProgressBar" class="bar" style="width:0%;background:var(--blue)"></div></div>
@@ -254,6 +259,28 @@ if (typeof window !== 'undefined') window.renderKapNews = renderKapNews;
       <div class="card"><div class="head green">✅ AI Pozitif Gerekçeler</div><div class="body"><div id="r28Positives"></div></div></div>
       <div class="card"><div class="head red">⚠️ Karşıt Görüş / Dikkat</div><div class="body"><div id="r28Negatives"></div></div></div>
     </div>
+  </section>
+
+  <section id="institutionalRiskEngine" class="hidden">
+    <div class="card"><div class="head dark">🛡️ v2.0 Institutional Risk Engine</div><div class="body">
+      <div class="quickFilters">
+        <button class="btn" id="v2RiskAnalyzeBtn">Seçili Hisse Riskini Hesapla</button>
+        <button class="btn gray" id="v2RiskFromScanBtn">Taramadan Risk Liderlerini Göster</button>
+      </div>
+      <div id="v2RiskSummary" class="comment v2-risk-note">Bir hisse analiz edin veya tarama sonrası bu paneli açın. Bu motor AL/SAT üretmez; AI kararının ne kadar güvenilir olduğunu, manipülasyon/likidite/volatilite risklerini ölçer.</div>
+      <br>
+      <div class="v2-risk-grid">
+        <div class="v2-risk-tile"><div class="label">Institutional Rating</div><div id="v2InstitutionalRating" class="value">-</div><div class="muted">A+ en iyi</div></div>
+        <div class="v2-risk-tile"><div class="label">Manipülasyon Riski</div><div id="v2ManipulationRisk" class="value">-</div><div class="muted">düşük daha iyi</div></div>
+        <div class="v2-risk-tile"><div class="label">Likidite Kalitesi</div><div id="v2LiquidityScore" class="value">-</div><div class="muted">yüksek daha iyi</div></div>
+        <div class="v2-risk-tile"><div class="label">Para Akışı</div><div id="v2MoneyFlowScore" class="value">-</div><div class="muted">CMF/OBV/MFI/RVOL</div></div>
+      </div><br>
+      <div class="grid g2">
+        <div class="card"><div class="head cyan">📊 Risk Katmanları</div><div class="body"><table id="v2RiskLayerTable" class="table"></table></div></div>
+        <div class="card"><div class="head yellow">⚠️ Risk / Karşıt Görüş</div><div class="body"><table id="v2RiskWarningTable" class="table"></table></div></div>
+      </div><br>
+      <div class="card"><div class="head green">🏆 Kurumsal Kalitesi Yüksek Adaylar</div><div class="body"><table id="v2RiskTopTable" class="table"></table></div></div>
+    </div></div>
   </section>
 
   <section id="r29Suite2" class="hidden">
@@ -965,12 +992,13 @@ window.fetch=function(input, init){ return __r27NativeFetch(r27ApiUrl(input), in
 
 var $=window.$||function(id){return document.getElementById(id)||document.querySelector(id)};const fmt=(x,d=2)=>x!==null&&x!==undefined&&x!==''&&Number.isFinite(Number(x))?Number(x).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';const tl=x=>fmt(x)+' TL';const rvolText=x=>(x!==null&&x!==undefined&&x!==''&&Number.isFinite(Number(x))&&Number(x)>0)?fmt(x,2)+'x':'veri yetersiz';
 function setStatus(t){$('status').textContent=t}
-const APP_PAGES=['dashboard','diagnosticPage','coreValidatorPage','r9Suite','snapshotCompare','tradePlanner','institutionalDashboard','aiAdvisor','explainableAI','analysis','leaders','safe','opportunity','risky','patterns','backtestPage','learningPage','tradingCenter','portfolio','portfolioIntelligence','portfolioAdvice','v20Portfolio','smartPortfolio','radarLab','dayTradingAI','dailyReport','kapPage','v22News','confidencePage','committeePage','dipProfessional','v19Institutional','institutionalScanner'];
+const APP_PAGES=[...document.querySelectorAll('.wrap > section[id]')].map(s=>s.id); document.body.classList.add('v2-terminal');
 function showPage(id,btn){
-  APP_PAGES.forEach(x=>{const el=$(x); if(el){el.classList.add('hidden'); el.style.display='none';}});
-  const page=$(id); if(page){page.classList.remove('hidden'); page.style.display='block'; document.body.setAttribute('data-page',id);}
+  APP_PAGES.forEach(x=>{const el=$(x); if(el){el.classList.add('hidden'); el.classList.remove('v2-active'); el.style.display='none';}});
+  const page=$(id); if(page){page.classList.remove('hidden'); page.classList.add('v2-active'); page.style.display='block'; document.body.setAttribute('data-page',id);}
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   const activeBtn=btn||document.querySelector(`[data-page="${id}"]`); if(activeBtn)activeBtn.classList.add('active');
+  if(id==='institutionalRiskEngine' && typeof renderV2InstitutionalRisk==='function') setTimeout(renderV2InstitutionalRisk,60);
 }
 function badgeClass(score,risk=false){score=Number(score)||0;if(risk)return score<35?'bgreen':score<60?'byellow':'bred';return score>=65?'bgreen':score>=50?'byellow':'bred'}
 function decisionClass(d){return d==='GÜÇLÜ AL'||d==='AL'?'bgreen':d==='İZLE'?'byellow':d==='BEKLE'?'bblue':'bred'}
@@ -3694,6 +3722,67 @@ setTimeout(()=>{const b=document.querySelector('[data-page="v19Institutional"]')
     const csv=$p('prodPlusCsvBtn'); if(csv){ const n=csv.cloneNode(true); csv.parentNode.replaceChild(n,csv); n.addEventListener('click',exportCsv); }
   },1500);
 })();
+
+
+/* ================= BIST Radar Pro v2.0 Production ================= */
+function v2Num(x,d=0){x=Number(x); return Number.isFinite(x)?x:d;}
+function v2Clamp(x,a=0,b=100){x=v2Num(x,0); return Math.max(a,Math.min(b,x));}
+function v2Grade(score){score=v2Clamp(score); return score>=90?'A+':score>=82?'A':score>=74?'B+':score>=66?'B':score>=58?'C+':score>=50?'C':'D';}
+function v2RiskColor(score, inverse=false){score=v2Clamp(score); if(inverse) return score<35?'bgreen':score<60?'byellow':'bred'; return score>=75?'bgreen':score>=55?'byellow':'bred';}
+function v2Master(){return window.lastStock || (Array.isArray(window.scanCache)&&window.scanCache[0]) || null;}
+function v2Get(o,paths,def=0){for(const p of paths){try{const v=p.split('.').reduce((a,k)=>a?.[k],o); if(v!==undefined&&v!==null&&v!==''&&!Number.isNaN(Number(v))) return Number(v);}catch(_){}} return def;}
+function buildV2InstitutionalRisk(o){
+  o=o||{}; const ind=o.indicators||{}; const ai=o.ai||{}; const price=v2Get(o,['price','lastPrice','close','quote.price'],0);
+  const rvol=v2Get(o,['rvol','rvol20','indicators.rvol','indicators.rvol20'],0);
+  const cmf=v2Get(o,['cmf','indicators.cmf'],0);
+  const mfi=v2Get(o,['mfi','indicators.mfi'],50);
+  const vwap=v2Get(o,['vwap','indicators.vwap'],0);
+  const atr=v2Get(o,['atr','indicators.atr'],0);
+  const aiScore=v2Get(o,['aiScore','score','finalScore','ai.score'],50);
+  const trend=v2Get(o,['trendScore','scores.trend','indicators.trendQuality','analysis.trend'],aiScore);
+  const institutional=v2Get(o,['institutionalScore','scores.institutional','iqs','ai.institutional'],aiScore);
+  const health=v2Get(o,['health','dataHealth','provider.health','dataQuality'],85);
+  const liquidity=v2Clamp((rvol>0?Math.min(100,45+rvol*14):45) + (price>vwap&&vwap>0?12:0) + (health-80)*0.25);
+  const money=v2Clamp(50 + (cmf*120) + (rvol>2?18:rvol>1.2?8:-8) + (mfi>55&&mfi<82?12:mfi>=82?-8:0));
+  const volatilityRisk=v2Clamp((atr&&price?atr/price*650:25) + (rvol>5?20:0));
+  const wickRisk=v2Get(o,['risk.wickRisk','indicators.wickRisk'],0);
+  const manipulation=v2Clamp(100-liquidity*0.45-money*0.25+volatilityRisk*0.5+wickRisk*0.3+(rvol>6?15:0));
+  const trendConf=v2Clamp(trend*0.75 + (price>vwap&&vwap>0?15:0));
+  const newsRisk=v2Get(o,['kap.risk','newsRisk','risk.news'],35);
+  const relative=v2Get(o,['relativeStrength','scores.relative','indicators.relativeStrength'],trendConf);
+  const overall=v2Clamp(liquidity*0.16 + money*0.20 + trendConf*0.18 + institutional*0.16 + health*0.12 + relative*0.10 + (100-volatilityRisk)*0.04 + (100-manipulation)*0.04);
+  return {symbol:o.symbol||o.code||o.ticker||'-',price,aiScore,overall,grade:v2Grade(overall),liquidity,money,trendConf,institutional,health,relative,volatilityRisk,manipulation,newsRisk,rvol,cmf,mfi,vwap};
+}
+function renderV2RiskObject(o){
+  const r=buildV2InstitutionalRisk(o);
+  const set=(id,val)=>{const el=$(id); if(el)el.innerHTML=val;};
+  set('v2InstitutionalRating',`<span class="badge ${v2RiskColor(r.overall)}">${r.grade} / ${fmt(r.overall,0)}</span>`);
+  set('v2ManipulationRisk',`<span class="badge ${v2RiskColor(r.manipulation,true)}">${fmt(r.manipulation,0)}</span>`);
+  set('v2LiquidityScore',`<span class="badge ${v2RiskColor(r.liquidity)}">${fmt(r.liquidity,0)}</span>`);
+  set('v2MoneyFlowScore',`<span class="badge ${v2RiskColor(r.money)}">${fmt(r.money,0)}</span>`);
+  const layer=[['Veri Sağlığı',r.health,false],['Likidite Kalitesi',r.liquidity,false],['Para Akışı',r.money,false],['Trend Güveni',r.trendConf,false],['Kurumsal Skor',r.institutional,false],['Göreceli Güç',r.relative,false],['Volatilite Riski',r.volatilityRisk,true],['Manipülasyon Riski',r.manipulation,true],['Haber Riski',r.newsRisk,true]];
+  const lt=$('v2RiskLayerTable'); if(lt)lt.innerHTML='<tr><th>Katman</th><th>Skor</th><th>Yorum</th></tr>'+layer.map(x=>`<tr><td><b>${x[0]}</b></td><td><span class="badge ${v2RiskColor(x[1],x[2])}">${fmt(x[1],0)}</span></td><td>${x[2]?(x[1]<35?'Düşük risk':x[1]<60?'Orta risk':'Yüksek risk'):(x[1]>=75?'Güçlü':x[1]>=55?'Orta':'Zayıf')}</td></tr>`).join('');
+  const warn=[];
+  if(r.manipulation>=60) warn.push(['Manipülasyon/Oynaklık','Ani hacim, volatilite veya zayıf likidite nedeniyle dikkat.']);
+  if(r.money<45) warn.push(['Para Akışı','CMF/RVOL/MFI bileşimi para girişini yeterince doğrulamıyor.']);
+  if(r.volatilityRisk>=60) warn.push(['Volatilite','ATR/fiyat oranı yüksek; stop mesafesi geniş tutulmalı.']);
+  if(r.newsRisk>=60) warn.push(['Haber/KAP','Haber riski yüksek veya belirsiz.']);
+  if(!warn.length) warn.push(['Kurumsal Görünüm','Belirgin yüksek risk sinyali yok; yine de stop ve pozisyon büyüklüğü korunmalı.']);
+  const wt=$('v2RiskWarningTable'); if(wt)wt.innerHTML='<tr><th>Başlık</th><th>Açıklama</th></tr>'+warn.map(w=>`<tr><td><b>${w[0]}</b></td><td>${w[1]}</td></tr>`).join('');
+  const sb=$('v2RiskSummary'); if(sb)sb.innerHTML=`<b>${r.symbol}</b> için Institutional Risk Engine sonucu: <b>${r.grade}</b> kalite, manipülasyon riski <b>${fmt(r.manipulation,0)}</b>, likidite <b>${fmt(r.liquidity,0)}</b>, para akışı <b>${fmt(r.money,0)}</b>. Bu skor AL/SAT önerisi değil; mevcut AI kararının güvenilirliğini ölçen risk filtresidir.`;
+  return r;
+}
+function renderV2InstitutionalRisk(){
+  const o=v2Master();
+  if(o) renderV2RiskObject(o);
+  const rows=(Array.isArray(window.scanCache)?window.scanCache:[]).map(x=>buildV2InstitutionalRisk(x)).sort((a,b)=>b.overall-a.overall).slice(0,20);
+  const t=$('v2RiskTopTable'); if(t)t.innerHTML=rows.length?'<tr><th>#</th><th>Hisse</th><th>Kalite</th><th>Manipülasyon</th><th>Likidite</th><th>Para</th><th>AI</th></tr>'+rows.map((r,i)=>`<tr><td>${i+1}</td><td><b>${r.symbol}</b></td><td><span class="badge ${v2RiskColor(r.overall)}">${r.grade} ${fmt(r.overall,0)}</span></td><td><span class="badge ${v2RiskColor(r.manipulation,true)}">${fmt(r.manipulation,0)}</span></td><td>${fmt(r.liquidity,0)}</td><td>${fmt(r.money,0)}</td><td>${fmt(r.aiScore,0)}</td></tr>`).join(''):'<tr><td>Tarama veya hisse analizi sonrası kurumsal adaylar burada görünür.</td></tr>';
+}
+setTimeout(()=>{
+  const a=$('v2RiskAnalyzeBtn'); if(a)a.addEventListener('click',()=>{const s=($('search')?.value||'').toUpperCase().trim(); if(s&&typeof loadStock==='function'){loadStock(true).then(()=>renderV2InstitutionalRisk()).catch(e=>setStatus('Risk analizi hatası: '+e.message));} else renderV2InstitutionalRisk();});
+  const b=$('v2RiskFromScanBtn'); if(b)b.addEventListener('click',()=>renderV2InstitutionalRisk());
+},1200);
+
 </script>
 
 </body>
