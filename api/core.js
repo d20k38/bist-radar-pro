@@ -266,6 +266,76 @@ async function handleValidate(req,res){
   }
 }
 
+
+function gradeFromConfidence(v){
+  const n = Number(v||0);
+  if(String(v).match(/[A-Z]/)) return String(v);
+  return n>=90?'A+':n>=80?'A':n>=70?'B+':n>=60?'B':n>=50?'C':'D';
+}
+function num(v, d=0){ const n=Number(v); return Number.isFinite(n)?n:d; }
+function layerStatus(v){ v=num(v,50); return v>=70?'green':v>=45?'yellow':'red'; }
+function contribution(v,w){ return Math.round(((num(v,50)-50)/50*w)*10)/10; }
+function buildExplainable(master){
+  const m = master && master.master ? master.master : master;
+  const ind = m.indicators || {};
+  const sc = m.scores || m.decisionScores || {};
+  const score = Math.round(num(m.score ?? m.finalScore ?? sc.finalScore, 50));
+  const confidenceNum = Math.round(num(m.confidencePct ?? m.confidenceScore ?? sc.confidencePct ?? score, score));
+  const risk = Math.round(num(m.risk ?? sc.risk ?? ind.risk, 50));
+  const decision = m.decision || sc.decision || (score>=74?'AL':score>=50?'TUT':'SAT');
+  const dataHealth = m.dataHealth || ind.health || {};
+  const add = (key,label,value,weight,explain) => ({key,label,value:Math.round(num(value,50)),weight,contribution:contribution(value,weight),status:layerStatus(value),explain});
+  const trendVal = num(sc.trend ?? ind.trendQuality ?? ind.trendScore ?? (num(ind.ema20)>num(ind.ema50)?70:45), 50);
+  const momentumVal = num(sc.momentum ?? ind.momentumScore ?? (num(ind.rsi14,50)), 50);
+  const volumeVal = num(sc.volume ?? sc.moneyFlow ?? ind.moneyFlowScore ?? Math.min(100, num(ind.rvol20,1)*25 + (num(ind.cmf,0)>0?20:0)), 50);
+  const vwapVal = num(ind.vwap && m.price ? (num(m.price)>=num(ind.vwap)?72:42) : 50, 50);
+  const rvolVal = Math.min(100, num(ind.rvol20,1)*30);
+  const cmfVal = Math.max(0, Math.min(100, 50 + num(ind.cmf,0)*120));
+  const mfiVal = num(ind.mfi,50)>80 ? 38 : (num(ind.mfi,50)>=45 && num(ind.mfi,50)<=70 ? 70 : 55);
+  const riskVal = 100-risk;
+  const layers = [
+    add('trend','Trend',trendVal,15,'EMA/SuperTrend ve trend kalitesi katkısı.'),
+    add('momentum','Momentum',momentumVal,12,'RSI, MACD ve momentum göstergeleri katkısı.'),
+    add('rvol','RVOL',rvolVal,14,`Relative volume: ${num(ind.rvol20,0).toFixed(2)}x.`),
+    add('vwap','VWAP',vwapVal,10,`Fiyat/VWAP uyumu. VWAP: ${num(ind.vwap,0).toFixed(2)}.`),
+    add('cmf','CMF / Para Akışı',cmfVal,12,`CMF: ${num(ind.cmf,0).toFixed(3)}.`),
+    add('mfi','MFI',mfiVal,8,`MFI: ${num(ind.mfi,0).toFixed(1)}. 80 üzeri aşırı alım riski sayılır.`),
+    add('risk','Risk Ters Katkı',riskVal,10,`Risk skoru: ${risk}. Düşük risk pozitif katkı verir.`),
+    add('data','Veri Kalitesi',num(m.healthScore ?? ind.healthScore ?? 90,90),9,'OHLCV ve hacim sağlığı katkısı.'),
+    add('institutional','Kurumsal Kalite',num(m.institutional ?? sc.institutional ?? sc.iqs ?? score, score),10,'IQS/kurumsal kalite bileşeni.')
+  ];
+  const positives = layers.filter(l=>l.contribution>1.5).sort((a,b)=>b.contribution-a.contribution).map(l=>`${l.label}: +${l.contribution} puan. ${l.explain}`);
+  const negatives = layers.filter(l=>l.contribution<-1.5).sort((a,b)=>a.contribution-b.contribution).map(l=>`${l.label}: ${l.contribution} puan. ${l.explain}`);
+  const healthKeys = Object.keys(dataHealth||{});
+  const dataQuality = healthKeys.length ? Math.round(healthKeys.filter(k=>!!dataHealth[k]).length/healthKeys.length*100) : Math.round(num(m.healthScore ?? 90,90));
+  const trace = [
+    `${m.symbol} için OHLCV veri zinciri okundu.`,
+    `RVOL ${num(ind.rvol20,0).toFixed(2)}x, VWAP ${num(ind.vwap,0).toFixed(2)}, CMF ${num(ind.cmf,0).toFixed(3)}, MFI ${num(ind.mfi,0).toFixed(1)} hesaplandı.`,
+    `AI final skor ${score}/100; karar ${decision}.`,
+    `Veri kalitesi yaklaşık ${dataQuality}/100.`
+  ];
+  const shortComment = `${m.symbol} için karar ${decision}. En güçlü katkılar: ${(positives.slice(0,3).map(x=>x.split(':')[0]).join(', ')||'sınırlı')}. Karşıt görüş: ${(negatives.slice(0,2).map(x=>x.split(':')[0]).join(', ')||'belirgin negatif yok')}.`;
+  return {symbol:m.symbol, score, decision, confidence:confidenceNum, confidenceGrade:gradeFromConfidence(m.confidence ?? confidenceNum), risk, dataQuality, layers, positives, negatives, trace, traffic:{green:layers.filter(l=>l.status==='green').length,yellow:layers.filter(l=>l.status==='yellow').length,red:layers.filter(l=>l.status==='red').length}, shortComment, master:m};
+}
+async function handleExplain(req,res){
+  let symbols = symbolsFrom(req);
+  if(!symbols.length){
+    const fallback = String(req.query.s || req.query.code || req.query.ticker || '').toUpperCase().trim();
+    if(fallback) symbols=[fallback];
+  }
+  if(!symbols.length) return send(res,{success:false,error:'R20.1 Explainable AI için symbol gerekli. Örnek: /api/core?action=explain&symbol=PAPIL',explainable:null}, 'no-store');
+  const period = req.query.range || req.query.period || '1y';
+  const list = symbols.slice(0, Math.max(1, Math.min(20, Number(req.query.limit||symbols.length||1))));
+  const results = [];
+  for(const s of list){
+    const m = await one(s, period);
+    if(m && m.success) results.push({...m, explainable: buildExplainable(m)});
+    else results.push({success:false,symbol:s,error:m?.error||'Master Object üretilemedi',explainable:null});
+  }
+  if(results.length===1 && !req.query.symbols) return send(res,{...results[0], success:!!results[0].success}, 'no-store');
+  return send(res,{success:true,count:results.filter(x=>x.success).length,total:results.length,results,data:results}, 'no-store');
+}
+
 async function handleCommittee(req,res){
   const s=String(req.query.symbol||'').toUpperCase().trim();
   if(!s) return bad(res,'symbol gerekli');
@@ -276,7 +346,7 @@ module.exports = async function handler(req,res){
   try{
     const action = String(req.query.action || req.query.a || '').toLowerCase();
     const map = {
-      symbols:handleSymbols, stock:handleStock, quote:handleStock, decision:handleDecision, explain:handleDecision, xai:handleDecision,
+      symbols:handleSymbols, stock:handleStock, quote:handleStock, decision:handleDecision, explain:handleExplain, xai:handleExplain,
       dip:handleDip, scan:handleScan, 'institutional-scan':handleScan, institutional:handleScan,
       'portfolio-advice':handlePortfolio, portfolio:handlePortfolio,
       kap:handleKap, news:handleKap, diagnostic:handleDiagnostic, diagnose:handleDiagnostic, health:handleDiagnostic, stabilize:handleDiagnostic, validate:handleValidate, validator:handleValidate, corevalidator:handleValidate, learning:handleLearning, backtest:handleBacktest, committee:handleCommittee
