@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro v2.0 Production</title>
+<title>BIST Radar Pro v2.1 Institutional Intelligence</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/r10-runtime.js"></script>
 <script>
@@ -120,7 +120,7 @@ body.v2-terminal .wrap>section.v2-active{display:block;}
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro v2.0 Production</div><div class="pill">%100 Gerçek OHLCV • v2.0 Production • Tek Ekran Terminal • Institutional Risk Engine</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro v2.1 Institutional Intelligence</div><div class="pill">%100 Gerçek OHLCV • v2.1 Institutional Intelligence • IOS • Dip Scanner PRO • Manipülasyon Risk</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -129,6 +129,7 @@ body.v2-terminal .wrap>section.v2-active{display:block;}
   </div>
   <div class="tabs simplified-tabs v2-tabs">
     <button class="tab active" data-page="dashboard">📡 Radar</button>
+    <button class="tab" data-page="institutionalIntelligence">🏛️ v2.1 Intelligence</button>
     <button class="tab" data-page="analysis">📈 Analiz</button>
     <button class="tab" data-page="tradingCockpit">🚀 Cockpit</button>
     <button class="tab" data-page="portfolioIntelligence">💼 Portföy</button>
@@ -180,6 +181,38 @@ body.v2-terminal .wrap>section.v2-active{display:block;}
     <div class="grid g2">
       <div class="card"><div class="head red">⚠️ Riskli Hisseler</div><div class="body"><div id="dashRisk" class="dashList"></div></div></div>
       <div class="card"><div class="head dark">📢 KAP / Haber Etki Analizi</div><div class="body"><div id="dashKapBox" class="comment">KAP/Haber AI bekleniyor.</div></div></div>
+    </div>
+  </section>
+
+
+
+
+  <section id="institutionalIntelligence" class="hidden">
+    <div class="card"><div class="head dark">🏛️ BIST Radar Pro v2.1 Institutional Intelligence</div><div class="body">
+      <div class="quickFilters">
+        <button class="btn green" id="v21RefreshBtn">v2.1 Intelligence Güncelle</button>
+        <button class="btn" id="v21ScanBtn">Tara + Fırsatları Güncelle</button>
+        <button class="btn gray" id="v21CsvBtn">v2.1 CSV</button>
+      </div>
+      <div id="v21Narrative" class="comment">v2.1, tek tek modülleri çoğaltmak yerine AI, trend, para girişi, dip, risk ve manipülasyon sinyallerini tek <b>Institutional Opportunity Score</b> altında birleştirir. Demo/random veri üretmez; mevcut Master Object ve gerçek OHLCV zincirini okur.</div>
+    </div></div>
+    <br>
+    <div class="grid g5">
+      <div class="card metric"><div class="body"><div class="muted">IOS</div><div id="v21Ios" class="v ok">-</div><div class="muted">Institutional Opportunity</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Kurumsal Not</div><div id="v21Grade" class="v ok">-</div><div class="muted">A+ en iyi</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Dip Fırsatı</div><div id="v21Dip" class="v warn">-</div><div class="muted">kaliteli geri çekilme</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Manipülasyon Risk</div><div id="v21Manip" class="v bad">-</div><div class="muted">düşük daha iyi</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">AI Güven</div><div id="v21Conf" class="v ok">-</div><div class="muted">veri + karar kalitesi</div></div></div>
+    </div>
+    <br>
+    <div class="grid g2">
+      <div class="card"><div class="head green">⭐ Opportunity Center</div><div class="body"><table id="v21OpportunityTable" class="table"></table></div></div>
+      <div class="card"><div class="head cyan">📊 Institutional Indicator Panel</div><div class="body"><div id="v21IndicatorBox" class="comment">Bir hisse analiz edin veya tarama yapın.</div><br><table id="v21IndicatorTable" class="table"></table></div></div>
+    </div>
+    <br>
+    <div class="grid g2">
+      <div class="card"><div class="head yellow">🎯 Institutional Dip Scanner PRO</div><div class="body"><div id="v21DipBox" class="comment">Ucuz hisse değil; trendi bozulmadan geri çekilen, para girişi toparlayan ve manipülasyon riski düşük adaylar listelenir.</div><br><table id="v21DipTable" class="table"></table></div></div>
+      <div class="card"><div class="head red">⚠️ Manipulation & Smart Money Radar</div><div class="body"><div id="v21RiskBox" class="comment">RVOL, CMF, MFI, ATR, likidite ve trend teyidi birlikte okunur.</div><br><table id="v21RiskTable" class="table"></table></div></div>
     </div>
   </section>
 
@@ -3782,6 +3815,98 @@ setTimeout(()=>{
   const a=$('v2RiskAnalyzeBtn'); if(a)a.addEventListener('click',()=>{const s=($('search')?.value||'').toUpperCase().trim(); if(s&&typeof loadStock==='function'){loadStock(true).then(()=>renderV2InstitutionalRisk()).catch(e=>setStatus('Risk analizi hatası: '+e.message));} else renderV2InstitutionalRisk();});
   const b=$('v2RiskFromScanBtn'); if(b)b.addEventListener('click',()=>renderV2InstitutionalRisk());
 },1200);
+
+
+/* ================= BIST Radar Pro v2.1 Institutional Intelligence ================= */
+(function(){
+  const clamp=(x,a=0,b=100)=>Math.max(a,Math.min(b,Number(x)||0));
+  const n=(x,d=0)=>Number.isFinite(Number(x))?Number(x).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';
+  const get=(o,paths,def=null)=>{for(const p of paths){try{const v=p.split('.').reduce((a,k)=>a?.[k],o); if(v!==undefined&&v!==null&&v!==''&&!Number.isNaN(Number(v))) return Number(v);}catch(_){}} return def;};
+  const symOf=o=>String(o?.symbol||o?.code||o?.ticker||o?.master?.symbol||o?.analysis?.symbol||'-').toUpperCase();
+  const masterOf=x=>{try{return typeof v12UnifiedMaster==='function'?v12UnifiedMaster(x?.master||x?.masterObject||x?.standard||x):x?.master||x||{};}catch(_){return x?.master||x||{};}};
+  const grade=s=>s>=92?'A+':s>=85?'A':s>=78?'B+':s>=70?'B':s>=60?'C':'D';
+  const cls=(s,risk=false)=>risk?(s<35?'bgreen':s<60?'byellow':'bred'):(s>=78?'bgreen':s>=60?'byellow':'bred');
+  function pool(){
+    const arr=[];
+    try{ if(Array.isArray(window.scanCache)) arr.push(...window.scanCache); }catch(_){ }
+    try{ if(typeof current==='function') arr.push(...current()); }catch(_){ }
+    try{ if(window.lastStock) arr.unshift(window.lastStock); }catch(_){ }
+    const m=new Map();
+    arr.map(masterOf).filter(x=>symOf(x)!=='-').forEach(x=>{const s=symOf(x); if(!m.has(s))m.set(s,x);});
+    return [...m.values()];
+  }
+  function calc(m){
+    m=masterOf(m); const ind=m.indicators||{}, a=m.analysis||{}, ai=m.ai||{};
+    const price=get(m,['price','lastPrice','close','analysis.close','analysis.price'],0);
+    const ema20=get(m,['indicators.ema20','analysis.indicators.ema20','analysis.ema20'],null);
+    const ema50=get(m,['indicators.ema50','analysis.indicators.ema50','analysis.ema50'],null);
+    const ema200=get(m,['indicators.ema200','analysis.indicators.ema200','analysis.ema200'],null);
+    const rsi=get(m,['indicators.rsi14','indicators.rsi','analysis.rsi'],50);
+    const macd=get(m,['indicators.macd.histogram','indicators.macdHist','analysis.macdHistogram'],0);
+    const rvol=get(m,['indicators.rvol20','indicators.rvol','rvol20','rvol','analysis.rvol'],0);
+    const vwap=get(m,['indicators.vwap','vwap','analysis.vwap'],0);
+    const cmf=get(m,['indicators.cmf20','indicators.cmf','cmf','analysis.cmf'],0);
+    const mfi=get(m,['indicators.mfi14','indicators.mfi','mfi','analysis.mfi'],50);
+    const atr=get(m,['indicators.atr14','indicators.atr','atr','analysis.atr'],0);
+    const aiScore=get(m,['ai.score','finalScore','aiScore','score','analysis.finalScore'],50);
+    const conf=get(m,['ai.confidence','confidencePct','confidenceScore','confidence','analysis.confidence'],75);
+    const trend=clamp((price&&ema20&&price>ema20?25:8)+(ema20&&ema50&&ema20>ema50?25:8)+(ema50&&ema200&&ema50>ema200?25:8)+(macd>0?25:10));
+    const money=clamp(50+(rvol>2?18:rvol>1.2?8:-10)+(cmf*115)+(mfi>55&&mfi<82?12:mfi>=82?-8:mfi<35?-8:0)+(price&&vwap&&price>vwap?10:-5));
+    const momentum=clamp(50+(rsi>45&&rsi<70?18:rsi>=80?-18:rsi<35?-8:0)+(macd>0?18:-10)+(mfi>50?8:-5));
+    const volatilityRisk=clamp(price&&atr?atr/price*650:35);
+    const liquidity=clamp(50+(rvol>1?18:0)+(price>0?12:0)+(conf-75)*.25);
+    const manipulation=clamp(100-liquidity*.45-money*.25+volatilityRisk*.52+(rvol>5?16:0)+(rsi>85?8:0)+(cmf<0&&rvol>1.5?12:0));
+    const institutional=clamp(trend*.28+money*.24+liquidity*.18+(100-manipulation)*.18+conf*.12);
+    const dipBase=clamp((ema200&&price>ema200?20:0)+(rsi>=30&&rsi<=55?22:rsi<30?12:0)+(money>55?18:0)+(cmf>-0.05?14:0)+(rvol>1.15?14:0)+(manipulation<45?12:0));
+    const dip=clamp(dipBase);
+    const ios=clamp(aiScore*.24+trend*.20+money*.20+institutional*.17+(100-manipulation)*.12+conf*.07);
+    const decision=ios>=86?'⭐ GÜÇLÜ FIRSAT':ios>=76?'AL / İZLE':ios>=64?'İZLE':'PAS GEÇ';
+    return {m,symbol:symOf(m),price,ema20,ema50,ema200,rsi,macd,rvol,vwap,cmf,mfi,atr,aiScore,conf,trend,money,momentum,liquidity,manipulation,institutional,dip,ios,decision,grade:grade(ios)};
+  }
+  function indRows(c){
+    const st=(name,val,good,bad,contrib,desc)=>({name,val,good,bad,contrib,desc,status:good?'🟢 Güçlü':bad?'🔴 Riskli':'🟡 Nötr'});
+    return [
+      st('EMA20',c.ema20,c.price&&c.ema20&&c.price>c.ema20,false,c.price>c.ema20?8:-4,'Kısa vadeli trend'),
+      st('EMA50',c.ema50,c.ema20&&c.ema50&&c.ema20>c.ema50,false,c.ema20>c.ema50?6:-3,'Orta vadeli teyit'),
+      st('EMA200',c.ema200,c.price&&c.ema200&&c.price>c.ema200,false,c.price>c.ema200?7:-8,'Uzun vadeli ana filtre'),
+      st('RSI',c.rsi,c.rsi>=45&&c.rsi<=70,c.rsi>=80,c.rsi>=80?-6:(c.rsi>=45&&c.rsi<=70?6:0),'Momentum ve aşırı alım'),
+      st('MACD',c.macd,c.macd>0,c.macd<0,c.macd>0?8:-5,'Momentum kesişim teyidi'),
+      st('RVOL',c.rvol,c.rvol>=1.3,c.rvol<=0.8,c.rvol>=1.3?7:-3,'Hacim teyidi'),
+      st('VWAP',c.vwap,c.price&&c.vwap&&c.price>c.vwap,false,c.price>c.vwap?6:-4,'Ortalama maliyet üstü/altı'),
+      st('CMF',c.cmf,c.cmf>0,c.cmf<-.08,c.cmf>0?7:-5,'Para akışı'),
+      st('MFI',c.mfi,c.mfi>=45&&c.mfi<=78,c.mfi>=85,c.mfi>=85?-4:(c.mfi>=45?4:-2),'Para akışı + momentum'),
+      st('ATR',c.atr,false,c.price&&c.atr/c.price>.055,c.price&&c.atr/c.price>.055?-3:2,'Volatilite ve stop mesafesi')
+    ];
+  }
+  function renderSelected(){
+    const m=masterOf(window.lastStock||window.__MASTER_OBJECT__||pool()[0]||{}); const c=calc(m);
+    const set=(id,html)=>{const el=document.getElementById(id); if(el)el.innerHTML=html;};
+    set('v21Ios',`<span class="badge ${cls(c.ios)}">${n(c.ios,0)}</span>`); set('v21Grade',`<span class="badge ${cls(c.ios)}">${c.grade}</span>`); set('v21Dip',`<span class="badge ${cls(c.dip)}">${n(c.dip,0)}</span>`); set('v21Manip',`<span class="badge ${cls(c.manipulation,true)}">${n(c.manipulation,0)}</span>`); set('v21Conf',`<span class="badge ${cls(c.conf)}">${n(c.conf,0)}%</span>`);
+    set('v21Narrative',`<b>${c.symbol}</b> için v2.1 Institutional Intelligence: IOS <b>${n(c.ios,0)}</b>, kurumsal not <b>${c.grade}</b>, para girişi <b>${n(c.money,0)}</b>, trend <b>${n(c.trend,0)}</b>, manipülasyon riski <b>${n(c.manipulation,0)}</b>. Bu panel AL/SAT emri değil; karar öncesi kurumsal filtre ve risk okumasıdır.`);
+    const rows=indRows(c); set('v21IndicatorBox',`<b>${c.symbol}</b> indikatör paneli: göstergeler sadece değer değil, AI katkısı ve kısa yorumla değerlendirilir.`);
+    const t=document.getElementById('v21IndicatorTable'); if(t)t.innerHTML='<tr><th>Gösterge</th><th>Değer</th><th>Durum</th><th>AI Etkisi</th><th>Yorum</th></tr>'+rows.map(r=>`<tr><td><b>${r.name}</b></td><td>${typeof r.val==='number'?n(r.val, r.name==='RVOL'||r.name==='CMF'?2:1):'-'}${r.name==='RVOL'?'x':''}</td><td>${r.status}</td><td><b>${r.contrib>0?'+':''}${r.contrib}</b></td><td>${r.desc}</td></tr>`).join('');
+  }
+  function renderTables(){
+    const rows=pool().map(calc).filter(x=>x.symbol!=='-');
+    const opp=rows.slice().sort((a,b)=>b.ios-a.ios).slice(0,20);
+    const dip=rows.filter(x=>x.dip>=55).sort((a,b)=>(b.dip+b.ios)-(a.dip+a.ios)).slice(0,20);
+    const risk=rows.slice().sort((a,b)=>b.manipulation-a.manipulation).slice(0,20);
+    const opt=document.getElementById('v21OpportunityTable'); if(opt)opt.innerHTML=opp.length?'<tr><th>#</th><th>Hisse</th><th>IOS</th><th>AI</th><th>Trend</th><th>Para</th><th>Risk</th><th>Sonuç</th></tr>'+opp.map((x,i)=>`<tr onclick="openSymbol&&openSymbol('${x.symbol}')"><td>${i+1}</td><td><b>${x.symbol}</b></td><td><span class="badge ${cls(x.ios)}">${n(x.ios,0)}</span></td><td>${n(x.aiScore,0)}</td><td>${n(x.trend,0)}</td><td>${n(x.money,0)}</td><td><span class="badge ${cls(x.manipulation,true)}">${n(x.manipulation,0)}</span></td><td>${x.decision}</td></tr>`).join(''):'<tr><td>Önce tarama veya hisse analizi yapın.</td></tr>';
+    const dt=document.getElementById('v21DipTable'); if(dt)dt.innerHTML=dip.length?'<tr><th>#</th><th>Hisse</th><th>Dip</th><th>IOS</th><th>Risk</th><th>Neden?</th></tr>'+dip.map((x,i)=>`<tr onclick="openSymbol&&openSymbol('${x.symbol}')"><td>${i+1}</td><td><b>${x.symbol}</b></td><td><span class="badge ${cls(x.dip)}">${n(x.dip,0)}</span></td><td>${n(x.ios,0)}</td><td><span class="badge ${cls(x.manipulation,true)}">${n(x.manipulation,0)}</span></td><td>${x.price>x.ema200?'EMA200 üstü, ':''}${x.rvol>1.15?'RVOL artıyor, ':''}${x.cmf>-0.05?'CMF toparlıyor, ':''}${x.manipulation<45?'risk düşük':''}</td></tr>`).join(''):'<tr><td>Kurumsal dip kriterlerine uygun aday yok veya henüz tarama yapılmadı.</td></tr>';
+    const rt=document.getElementById('v21RiskTable'); if(rt)rt.innerHTML=risk.length?'<tr><th>#</th><th>Hisse</th><th>Manipülasyon</th><th>Likidite</th><th>Para</th><th>RVOL</th><th>CMF</th><th>Yorum</th></tr>'+risk.map((x,i)=>`<tr onclick="openSymbol&&openSymbol('${x.symbol}')"><td>${i+1}</td><td><b>${x.symbol}</b></td><td><span class="badge ${cls(x.manipulation,true)}">${n(x.manipulation,0)}</span></td><td>${n(x.liquidity,0)}</td><td>${n(x.money,0)}</td><td>${n(x.rvol,2)}x</td><td>${n(x.cmf,2)}</td><td>${x.manipulation>=60?'⚠️ Spekülatif/oynak yapı ihtimali yüksek':x.money>=70?'🟢 Smart money olumlu':'🟡 İzle'}</td></tr>`).join(''):'<tr><td>Tarama sonrası risk radarları burada görünür.</td></tr>';
+  }
+  window.renderV21InstitutionalIntelligence=function(){renderSelected(); renderTables();};
+  window.exportV21InstitutionalCSV=function(){
+    const rows=pool().map(calc).sort((a,b)=>b.ios-a.ios); const csv=['Symbol;IOS;Grade;AI;Trend;Money;Dip;Manipulation;Confidence;Decision'].concat(rows.map(x=>[x.symbol,n(x.ios,0),x.grade,n(x.aiScore,0),n(x.trend,0),n(x.money,0),n(x.dip,0),n(x.manipulation,0),n(x.conf,0),x.decision].join(';'))).join('\n');
+    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'})); a.download='bist_radar_v21_institutional_intelligence.csv'; a.click(); URL.revokeObjectURL(a.href);
+  };
+  setTimeout(()=>{
+    const r=document.getElementById('v21RefreshBtn'); if(r)r.addEventListener('click',()=>{renderV21InstitutionalIntelligence(); if(typeof setStatus==='function')setStatus('v2.1 Institutional Intelligence güncellendi.');});
+    const s=document.getElementById('v21ScanBtn'); if(s)s.addEventListener('click',async()=>{try{ if(typeof scanAll==='function') await scanAll(false); renderV21InstitutionalIntelligence(); if(typeof setStatus==='function')setStatus('v2.1 tarama + fırsat merkezi tamamlandı.'); }catch(e){ if(typeof setStatus==='function')setStatus('v2.1 tarama hatası: '+e.message); }});
+    const c=document.getElementById('v21CsvBtn'); if(c)c.addEventListener('click',exportV21InstitutionalCSV);
+    const tab=document.querySelector('[data-page="institutionalIntelligence"]'); if(tab)tab.addEventListener('click',()=>setTimeout(renderV21InstitutionalIntelligence,120));
+  },900);
+})();
 
 </script>
 
