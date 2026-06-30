@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro v2.1 Institutional Intelligence</title>
+<title>BIST Radar Pro v3.0 Institutional Memory & Prediction</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/r10-runtime.js"></script>
 <script>
@@ -120,7 +120,7 @@ body.v2-terminal .wrap>section.v2-active{display:block;}
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro v2.1 Institutional Intelligence</div><div class="pill">%100 Gerçek OHLCV • v2.1 Institutional Intelligence • IOS • Dip Scanner PRO • Manipülasyon Risk</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro v3.0 Institutional Memory & Prediction</div><div class="pill">%100 Gerçek OHLCV • v3.0 Institutional Memory • IPE • Snapshot Learning</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -136,6 +136,7 @@ body.v2-terminal .wrap>section.v2-active{display:block;}
     <button class="tab" data-page="institutionalRiskEngine">🛡️ Risk</button>
     <button class="tab" data-page="explainableAI">🧠 AI Açıklama</button>
     <button class="tab" data-page="snapshotCompare">🧪 Karşılaştırma</button>
+    <button class="tab" data-page="institutionalMemory">🧠 Hafıza / IPE</button>
   </div>
   <div id="status" class="status">Hazır.</div>
   <div class="barw" style="margin:8px 0 14px"><div id="scanProgressBar" class="bar" style="width:0%;background:var(--blue)"></div></div>
@@ -187,7 +188,7 @@ body.v2-terminal .wrap>section.v2-active{display:block;}
 
 
   <section id="institutionalIntelligence" class="hidden">
-    <div class="card"><div class="head dark">🏛️ BIST Radar Pro v2.1 Institutional Intelligence</div><div class="body">
+    <div class="card"><div class="head dark">🏛️ BIST Radar Pro v3.0 Institutional Memory & Prediction</div><div class="body">
       <div class="quickFilters">
         <button class="btn green" id="v21RefreshBtn">v2.1 Intelligence Güncelle</button>
         <button class="btn" id="v21ScanBtn">Tara + Fırsatları Güncelle</button>
@@ -999,6 +1000,33 @@ body.v2-terminal .wrap>section.v2-active{display:block;}
       <div class="card"><div class="head yellow">⏳ Çok Zamanlı Değerlendirme</div><div class="body"><div id="prodPlusHorizonBox" class="comment">Snapshot içinde 1/3/5/10/20 günlük fiyatlar varsa çok zamanlı başarı burada ayrıştırılır. Yoksa mevcut fiyat üzerinden tek dönem ölçülür.</div><br><table id="prodPlusHorizonTable" class="table"></table></div></div>
     </div><br>
     <div class="card"><div class="head dark">📋 Production+ Tüm Karşılaştırma Listesi</div><div class="body"><table id="prodPlusAllTable" class="table"></table></div></div>
+
+  </section>
+
+  <section id="institutionalMemory" class="hidden">
+    <div class="card"><div class="head dark">🧠 Institutional Memory Engine / IPE</div><div class="body">
+      <div class="comment"><b>Institutional Memory</b>, her günlük tarama sonucunu yerel tarayıcı hafızasına snapshot olarak kaydeder. Ertesi gün aynı hisseler tekrar analiz edildiğinde 1/3/5/10/20 günlük sonuçları eski kayıtlara işler ve IPE için öğrenme havuzu oluşturur. Demo/random veri üretmez.</div><br>
+      <div class="quickFilters">
+        <button class="btn green" id="imeSaveBtn">Bugünü Hafızaya Kaydet</button>
+        <button class="btn" id="imeUpdateBtn">Sonuçları Güncelle</button>
+        <button class="btn" id="ipeRunBtn">IPE Adaylarını Hesapla</button>
+        <button class="btn gray" id="imeDownloadBtn">Hafıza JSON İndir</button>
+        <label class="btn gray" style="display:inline-block;cursor:pointer">Hafıza JSON Yükle <input id="imeUploadInput" type="file" accept=".json,application/json" style="display:none"></label>
+      </div>
+      <div id="imeStatus" class="comment">Hafıza hazır. Önce genel tarama çalıştırıp sonra günlük snapshot kaydedin.</div>
+    </div></div><br>
+    <div class="grid5">
+      <div class="card metric"><div class="body"><div class="muted">Snapshot</div><div id="imeSnapCount" class="v ok">0</div><div class="muted">günlük kayıt</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Kayıt</div><div id="imeRecCount" class="v ok">0</div><div class="muted">hisse snapshot</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Outcome</div><div id="imeOutcomeCount" class="v warn">0</div><div class="muted">ölçülmüş sonuç</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Pattern</div><div id="imePatternCount" class="v ok">0</div><div class="muted">öğrenilen sinyal</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">IPE</div><div id="imeQuality" class="v warn">-</div><div class="muted">hafıza kalitesi</div></div></div>
+    </div><br>
+    <div class="grid2">
+      <div class="card"><div class="head green">🎯 Yarın İçin IPE Adayları</div><div class="body"><table id="ipeCandidateTable" class="table"></table></div></div>
+      <div class="card"><div class="head cyan">🧩 Öğrenilen Pattern Başarıları</div><div class="body"><table id="imePatternTable" class="table"></table></div></div>
+    </div><br>
+    <div class="card"><div class="head yellow">📚 Snapshot Arşivi</div><div class="body"><table id="imeSnapshotTable" class="table"></table></div></div>
   </section>
 
 </div>
@@ -3816,7 +3844,7 @@ setTimeout(()=>{
 },1200);
 
 
-/* ================= BIST Radar Pro v2.1 Institutional Intelligence ================= */
+/* ================= BIST Radar Pro v3.0 Institutional Memory & Prediction ================= */
 (function(){
   const clamp=(x,a=0,b=100)=>Math.max(a,Math.min(b,Number(x)||0));
   const n=(x,d=0)=>Number.isFinite(Number(x))?Number(x).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';
@@ -4039,6 +4067,95 @@ setTimeout(()=>{
     const scan=$id('v21ScanBtn'); if(scan){ const c=scan.cloneNode(true); scan.parentNode.replaceChild(c,scan); c.addEventListener('click',async()=>{try{await ensureScan(); if(W.renderV21InstitutionalIntelligence) W.renderV21InstitutionalIntelligence(); renderDipScanner(); if(W.setStatus) W.setStatus('v2.1 Fırsatlar + Dip Scanner PRO güncellendi.');}catch(e){if(W.setStatus) W.setStatus('v2.1 tarama hatası: '+e.message);}}); }
     const tab=document.querySelector('[data-page="institutionalIntelligence"]'); if(tab) tab.addEventListener('click',()=>setTimeout(renderDipScanner,250));
   },1200);
+})();
+</script>
+
+
+<script>
+(function(){
+  const KEY='bistRadarInstitutionalMemory_v1';
+  const HORIZONS=[1,3,5,10,20];
+  const todayISO=()=>new Date().toISOString().slice(0,10);
+  const dayDiff=(a,b)=>Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/86400000);
+  const n=(v,d=0)=>Number.isFinite(Number(v))?Number(v):d;
+  const symOf=x=>String(x?.symbol||x?.code||x?.ticker||x?.hisse||x?.kod||x?.master?.symbol||x?.analysis?.symbol||'').trim().toUpperCase().replace('.IS','');
+  const priceOf=x=>n(x?.price??x?.close??x?.lastPrice??x?.son??x?.master?.price??x?.analysis?.price??x?.quote?.price,0);
+  const scoreOf=x=>n(x?.ios??x?.IOS??x?.finalScore??x?.ai??x?.score??x?.master?.scores?.ios??x?.analysis?.finalScore,0);
+  const decisionOf=x=>String(x?.decision||x?.karar||x?.master?.decision||x?.analysis?.decision||'TUT').toUpperCase();
+  const riskOf=x=>n(x?.risk??x?.riskScore??x?.master?.risk??x?.analysis?.risk,50);
+  const confOf=x=>n(x?.confidence??x?.confidencePct??x?.guven??x?.master?.confidence??x?.analysis?.confidence,0);
+  const indOf=x=>x?.indicators||x?.master?.indicators||x?.analysis?.indicators||{};
+  function loadMemory(){try{const m=JSON.parse(localStorage.getItem(KEY)||'{}');return {version:1,snapshots:Array.isArray(m.snapshots)?m.snapshots:[],patterns:m.patterns||{},updatedAt:m.updatedAt||null};}catch(_){return {version:1,snapshots:[],patterns:{},updatedAt:null};}}
+  function saveMemory(m){m.updatedAt=new Date().toISOString();localStorage.setItem(KEY,JSON.stringify(m));return m;}
+  function rowsPoolIME(){try{return (Array.isArray(scanCache)&&scanCache.length?scanCache:[]).filter(x=>symOf(x));}catch(_){return [];}}
+  function factorKeys(x){
+    const ind=indOf(x); const rvol=n(x?.rvol??x?.rvol20??ind.rvol20??ind.rvol,0), cmf=n(x?.cmf??x?.cmf20??ind.cmf20??ind.cmf,0), mfi=n(x?.mfi??x?.mfi14??ind.mfi14??ind.mfi,0), rsi=n(x?.rsi??x?.rsi14??ind.rsi14??ind.rsi,0);
+    const ai=scoreOf(x), risk=riskOf(x); const macd=n(x?.macd??ind.macd,0), macds=n(x?.macdSignal??ind.macdSignal,0);
+    const flags=[];
+    if(ai>=75)flags.push('AI>=75'); if(ai>=85)flags.push('AI>=85');
+    if(risk<=35)flags.push('Risk<=35'); if(risk<=50)flags.push('Risk<=50');
+    if(rvol>=1.5)flags.push('RVOL>=1.5'); if(rvol>=2)flags.push('RVOL>=2');
+    if(cmf>0)flags.push('CMF>0'); if(cmf>-0.05)flags.push('CMF toparlama');
+    if(mfi>=50&&mfi<=80)flags.push('MFI sağlıklı'); if(mfi>80)flags.push('MFI aşırı');
+    if(rsi>=45&&rsi<=70)flags.push('RSI ideal'); if(rsi>75)flags.push('RSI aşırı');
+    if(macd>macds)flags.push('MACD pozitif');
+    const dec=decisionOf(x); if(dec.includes('AL'))flags.push('Karar AL'); if(dec.includes('TUT')||dec.includes('İZLE'))flags.push('Karar TUT/İZLE');
+    return flags;
+  }
+  function normalizeRecord(x,date){
+    const s=symOf(x), p=priceOf(x), ind=indOf(x);
+    return {symbol:s,date,price:p,decision:decisionOf(x),ai:scoreOf(x),ios:n(x?.ios??x?.IOS??scoreOf(x),0),risk:riskOf(x),confidence:confOf(x),rvol:n(x?.rvol??x?.rvol20??ind.rvol20??ind.rvol,0),cmf:n(x?.cmf??x?.cmf20??ind.cmf20??ind.cmf,0),mfi:n(x?.mfi??x?.mfi14??ind.mfi14??ind.mfi,0),rsi:n(x?.rsi??x?.rsi14??ind.rsi14??ind.rsi,0),vwap:n(x?.vwap??ind.vwap??ind.vwap20,0),factors:factorKeys(x),outcomes:{}};
+  }
+  function currentMap(){const mp=new Map(); rowsPoolIME().forEach(x=>{const s=symOf(x); if(s)mp.set(s,x);}); return mp;}
+  function saveDailySnapshot(){
+    const rows=rowsPoolIME(); if(!rows.length){imeMsg('Önce genel tarama çalıştırın; kaydedilecek analiz verisi yok.'); return null;}
+    const date=todayISO(), m=loadMemory();
+    const records=rows.map(x=>normalizeRecord(x,date)).filter(r=>r.symbol&&r.price>0);
+    const idx=m.snapshots.findIndex(s=>s.date===date);
+    const snap={id:'snapshot_'+date,date,createdAt:new Date().toISOString(),count:records.length,records};
+    if(idx>=0)m.snapshots[idx]=snap; else m.snapshots.push(snap);
+    saveMemory(m); updateOutcomes(false); renderIME(); imeMsg(`${date} snapshot kaydedildi: ${records.length} hisse.`); return snap;
+  }
+  function updateOutcomes(show=true){
+    const m=loadMemory(), date=todayISO(), cmap=currentMap(); let changed=0;
+    m.snapshots.forEach(snap=>{const dd=dayDiff(snap.date,date); if(dd<=0)return; const horizon=HORIZONS.find(h=>h===dd); if(!horizon)return;
+      snap.records.forEach(r=>{const cur=cmap.get(r.symbol); if(!cur)return; const cp=priceOf(cur); if(!cp||!r.price)return; const ret=(cp-r.price)/r.price*100; r.outcomes=r.outcomes||{}; r.outcomes[horizon+'d']={date,price:cp,returnPct:ret,success:successByDecision(r.decision,ret)}; changed++;});
+    });
+    saveMemory(m); rebuildPatterns(); if(show)imeMsg(`${changed} outcome güncellendi. Ufuklar: ${HORIZONS.join('/')} gün.`); renderIME(); return changed;
+  }
+  function successByDecision(dec,ret){dec=String(dec||'').toUpperCase(); if(dec.includes('SAT')||dec.includes('KAÇ'))return ret<0; if(dec.includes('TUT')||dec.includes('İZLE')||dec.includes('BEKLE'))return ret>=-2; return ret>0;}
+  function rebuildPatterns(){
+    const m=loadMemory(), stats={};
+    m.snapshots.forEach(s=>s.records.forEach(r=>{const oc=r.outcomes||{}; const o=oc['5d']||oc['3d']||oc['1d']; if(!o)return; (r.factors||[]).forEach(f=>{stats[f]=stats[f]||{n:0,ok:0,sum:0}; stats[f].n++; if(o.success)stats[f].ok++; stats[f].sum+=n(o.returnPct,0);});}));
+    m.patterns=stats; saveMemory(m); return stats;
+  }
+  function predictionRows(){
+    const m=loadMemory(); const stats=m.patterns||{}; const rows=rowsPoolIME().map(x=>{const fs=factorKeys(x); let nsum=0, ok=0, ret=0, used=[]; fs.forEach(f=>{const st=stats[f]; if(st&&st.n>=2){nsum+=st.n; ok+=st.ok; ret+=st.sum; used.push(f);}});
+      const hist=nsum?ok/nsum*100:0, avg=nsum?ret/nsum:0; const ai=scoreOf(x), risk=riskOf(x); const ips=Math.max(0,Math.min(100,(hist?hist*.45:50*.25)+ai*.35+(100-risk)*.20));
+      return {symbol:symOf(x),ips,prob:hist||null,avg,examples:nsum,ai,risk,decision:decisionOf(x),factors:used.slice(0,4).join(' • ')||'Yeterli geçmiş pattern yok'};
+    }).filter(x=>x.symbol).sort((a,b)=>b.ips-a.ips).slice(0,25);
+    return rows;
+  }
+  function imeMsg(t){const el=document.getElementById('imeStatus'); if(el)el.innerHTML=t; if(typeof setStatus==='function')setStatus(t);}
+  function renderIME(){
+    const m=loadMemory(); const recs=m.snapshots.reduce((s,x)=>s+(x.records?.length||0),0); let outs=0; m.snapshots.forEach(s=>s.records.forEach(r=>outs+=Object.keys(r.outcomes||{}).length)); const pats=Object.keys(m.patterns||{}).length;
+    const q=recs?Math.min(100,Math.round((outs/Math.max(1,recs))*35 + Math.min(65,pats*2))):0;
+    const set=(id,v)=>{const e=document.getElementById(id); if(e)e.textContent=v;}; set('imeSnapCount',m.snapshots.length); set('imeRecCount',recs); set('imeOutcomeCount',outs); set('imePatternCount',pats); set('imeQuality',q?String(q):'-');
+    const st=document.getElementById('imeSnapshotTable'); if(st)st.innerHTML=m.snapshots.length?'<tr><th>Tarih</th><th>Kayıt</th><th>Outcome</th><th>Oluşturma</th></tr>'+m.snapshots.slice().reverse().map(s=>{let oc=0;(s.records||[]).forEach(r=>oc+=Object.keys(r.outcomes||{}).length);return `<tr><td><b>${s.date}</b></td><td>${s.records?.length||0}</td><td>${oc}</td><td>${(s.createdAt||'').replace('T',' ').slice(0,19)}</td></tr>`}).join(''):'<tr><td>Henüz snapshot yok.</td></tr>';
+    const pt=document.getElementById('imePatternTable'); const parr=Object.entries(m.patterns||{}).map(([k,v])=>({k,...v,rate:v.n?v.ok/v.n*100:0,avg:v.n?v.sum/v.n:0})).sort((a,b)=>b.rate-a.rate||b.n-a.n).slice(0,20);
+    if(pt)pt.innerHTML=parr.length?'<tr><th>Pattern</th><th>Örnek</th><th>Başarı</th><th>Ort. Getiri</th><th>Öneri</th></tr>'+parr.map(p=>`<tr><td><b>${p.k}</b></td><td>${p.n}</td><td>%${fmt(p.rate,0)}</td><td>%${fmt(p.avg,2)}</td><td>${p.rate>=70?'Ağırlık ↑':p.rate<50?'Ağırlık ↓':'Nötr'}</td></tr>`).join(''):'<tr><td>Pattern için outcome verisi bekleniyor.</td></tr>';
+  }
+  function renderPredictions(){const rows=predictionRows(); const t=document.getElementById('ipeCandidateTable'); if(t)t.innerHTML=rows.length?'<tr><th>#</th><th>Hisse</th><th>IPS</th><th>Olasılık</th><th>Örnek</th><th>Ort. Getiri</th><th>AI</th><th>Risk</th><th>Neden?</th></tr>'+rows.map((r,i)=>`<tr onclick="openSymbol&&openSymbol('${r.symbol}')"><td>${i+1}</td><td><b>${r.symbol}</b></td><td>${badge?badge(r.ips):fmt(r.ips,0)}</td><td>${r.prob?('%'+fmt(r.prob,0)):'Yetersiz'}</td><td>${r.examples}</td><td>${r.examples?('%'+fmt(r.avg,2)):'-'}</td><td>${fmt(r.ai,0)}</td><td>${fmt(r.risk,0)}</td><td>${r.factors}</td></tr>`).join(''):'<tr><td>IPE için önce snapshot/outcome verisi birikmeli.</td></tr>'; renderIME(); imeMsg(rows.length?`IPE ${rows.length} aday hesapladı. Olasılık geçmiş snapshot pattern başarılarından üretilir; garanti değildir.`:'IPE için önce geçmiş snapshot ve outcome verisi gerekir.');}
+  function downloadMemory(){const m=loadMemory(); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(m,null,2)],{type:'application/json'})); a.download='bist_radar_institutional_memory_'+todayISO()+'.json'; a.click(); URL.revokeObjectURL(a.href);}
+  function uploadMemory(file){const fr=new FileReader(); fr.onload=()=>{try{const m=JSON.parse(fr.result); if(!Array.isArray(m.snapshots))throw new Error('Geçerli memory JSON değil'); saveMemory(m); rebuildPatterns(); renderIME(); imeMsg('Hafıza JSON yüklendi.');}catch(e){imeMsg('Hafıza yükleme hatası: '+e.message);}}; fr.readAsText(file);}
+  window.saveInstitutionalMemorySnapshot=saveDailySnapshot; window.updateInstitutionalMemoryOutcomes=updateOutcomes; window.runInstitutionalPredictionEngine=renderPredictions;
+  setTimeout(()=>{
+    const bind=(id,fn)=>{const e=document.getElementById(id); if(e)e.addEventListener('click',fn);};
+    bind('imeSaveBtn',saveDailySnapshot); bind('imeUpdateBtn',()=>updateOutcomes(true)); bind('ipeRunBtn',renderPredictions); bind('imeDownloadBtn',downloadMemory);
+    const up=document.getElementById('imeUploadInput'); if(up)up.addEventListener('change',e=>{const f=e.target.files&&e.target.files[0]; if(f)uploadMemory(f);});
+    const tab=document.querySelector('[data-page="institutionalMemory"]'); if(tab)tab.addEventListener('click',()=>setTimeout(()=>{renderIME(); renderPredictions();},120));
+    renderIME();
+  },800);
 })();
 </script>
 
