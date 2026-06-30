@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro v3.0 Institutional Memory & Prediction</title>
+<title>BIST Radar Pro v3.1 Tomorrow Opportunity Engine</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/r10-runtime.js"></script>
 <script>
@@ -120,7 +120,7 @@ body.v2-terminal .wrap>section.v2-active{display:block;}
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro v3.0 Institutional Memory & Prediction</div><div class="pill">%100 Gerçek OHLCV • v3.0 Institutional Memory • IPE • Snapshot Learning</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro v3.1 Tomorrow Opportunity Engine</div><div class="pill">%100 Gerçek OHLCV • v3.1 TOE • Institutional Memory • Probability Engine</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -129,6 +129,7 @@ body.v2-terminal .wrap>section.v2-active{display:block;}
   </div>
   <div class="tabs simplified-tabs v2-tabs">
     <button class="tab active" data-page="dashboard">📡 Radar</button>
+    <button class="tab" data-page="tomorrowOpportunity">🚀 Tomorrow</button>
     <button class="tab" data-page="institutionalIntelligence">🏛️ v2.1 Intelligence</button>
     <button class="tab" data-page="analysis">📈 Analiz</button>
     <button class="tab" data-page="tradingCockpit">🚀 Cockpit</button>
@@ -188,7 +189,7 @@ body.v2-terminal .wrap>section.v2-active{display:block;}
 
 
   <section id="institutionalIntelligence" class="hidden">
-    <div class="card"><div class="head dark">🏛️ BIST Radar Pro v3.0 Institutional Memory & Prediction</div><div class="body">
+    <div class="card"><div class="head dark">🏛️ BIST Radar Pro v3.1 Tomorrow Opportunity Engine</div><div class="body">
       <div class="quickFilters">
         <button class="btn green" id="v21RefreshBtn">v2.1 Intelligence Güncelle</button>
         <button class="btn" id="v21ScanBtn">Tara + Fırsatları Güncelle</button>
@@ -1001,6 +1002,35 @@ body.v2-terminal .wrap>section.v2-active{display:block;}
     </div><br>
     <div class="card"><div class="head dark">📋 Production+ Tüm Karşılaştırma Listesi</div><div class="body"><table id="prodPlusAllTable" class="table"></table></div></div>
 
+  </section>
+
+
+  <section id="tomorrowOpportunity" class="hidden">
+    <div class="card"><div class="head dark">🚀 v3.1 Tomorrow Opportunity Engine</div><div class="body">
+      <div class="comment"><b>Tomorrow Opportunity Engine (TOE)</b>, günlük analiz sonuçlarını Institutional Memory ve mevcut gerçek OHLCV/indikatör verileriyle birleştirerek yarın için olasılık temelli aday listesi üretir. Kesin tahmin değildir; geçmiş benzer pattern başarıları, IOS, risk, para akışı ve trend kalitesi birlikte değerlendirilir.</div><br>
+      <div class="quickFilters">
+        <button class="btn green" id="toeRunBtn">🚀 TOE Adaylarını Hesapla</button>
+        <button class="btn" id="toeFullScanBtn">Tara + TOE Güncelle</button>
+        <button class="btn" id="toeSaveMemoryBtn">Bugünü Hafızaya Kaydet + TOE</button>
+        <button class="btn gray" id="toeCsvBtn">TOE CSV</button>
+      </div>
+      <div id="toeStatus" class="comment">TOE hazır. Önce genel tarama çalıştırın veya mevcut scan sonuçlarıyla hesaplayın.</div>
+    </div></div><br>
+    <div class="grid5">
+      <div class="card metric"><div class="body"><div class="muted">Aday</div><div id="toeCandidateCount" class="v ok">0</div><div class="muted">yarın için</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Ortalama TS</div><div id="toeAvgScore" class="v ok">-</div><div class="muted">Tomorrow Score</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Olasılık</div><div id="toeAvgProb" class="v warn">-</div><div class="muted">ortalama</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Risk</div><div id="toeAvgRisk" class="v bad">-</div><div class="muted">düşük iyi</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Hafıza</div><div id="toeMemoryQuality" class="v ok">-</div><div class="muted">pattern gücü</div></div></div>
+    </div><br>
+    <div class="grid2">
+      <div class="card"><div class="head green">🏆 Yarının En Güçlü Adayları</div><div class="body"><table id="toeTopTable" class="table"></table></div></div>
+      <div class="card"><div class="head red">🚫 Yarın Uzak Dur / Riskli Liste</div><div class="body"><table id="toeAvoidTable" class="table"></table></div></div>
+    </div><br>
+    <div class="grid2">
+      <div class="card"><div class="head cyan">🧠 Prediction Explanation</div><div class="body"><div id="toeExplainBox" class="comment">Tablodan bir aday seçin. TOE neden önerdiğini, geçmiş pattern sayısını, riskleri ve trade planını burada açıklar.</div></div></div>
+      <div class="card"><div class="head yellow">📊 Pattern / Learning Özeti</div><div class="body"><table id="toePatternTable" class="table"></table></div></div>
+    </div>
   </section>
 
   <section id="institutionalMemory" class="hidden">
@@ -3844,7 +3874,7 @@ setTimeout(()=>{
 },1200);
 
 
-/* ================= BIST Radar Pro v3.0 Institutional Memory & Prediction ================= */
+/* ================= BIST Radar Pro v3.1 Tomorrow Opportunity Engine ================= */
 (function(){
   const clamp=(x,a=0,b=100)=>Math.max(a,Math.min(b,Number(x)||0));
   const n=(x,d=0)=>Number.isFinite(Number(x))?Number(x).toLocaleString('tr-TR',{maximumFractionDigits:d,minimumFractionDigits:d}):'-';
@@ -4157,6 +4187,82 @@ setTimeout(()=>{
     renderIME();
   },800);
 })();
+
+/* v3.1 Tomorrow Opportunity Engine (TOE) */
+(function(){
+  const TOE_KEY='bistRadarInstitutionalMemoryV1';
+  let toeRows=[];
+  const nf=(v,d=0)=>Number.isFinite(Number(v))?Number(v):d;
+  const clamp=(v,a=0,b=100)=>Math.max(a,Math.min(b,nf(v)));
+  const sym=x=>String(x?.symbol||x?.code||x?.ticker||x?.hisse||x?.kod||x?.master?.symbol||x?.analysis?.symbol||'').toUpperCase().replace('.IS','').trim();
+  const ind=x=>x?.indicators||x?.master?.indicators||x?.analysis?.indicators||{};
+  const score=x=>nf(x?.tomorrowScore??x?.ios??x?.IOS??x?.finalScore??x?.ai??x?.score??x?.analysis?.finalScore,50);
+  const price=x=>nf(x?.price??x?.close??x?.lastPrice??x?.analysis?.close??x?.analysis?.price??x?.quote?.price,0);
+  const risk=x=>nf(x?.risk??x?.riskScore??x?.analysis?.risk,50);
+  const conf=x=>nf(x?.confidence??x?.confidencePct??x?.analysis?.confidence,60);
+  const money=x=>{const i=ind(x); return nf(x?.money??x?.moneyScore??x?.smartMoney??x?.analysis?.money??i.volumeQuality??i.smartMoneyScore,50)};
+  const trend=x=>{const i=ind(x); return nf(x?.trend??x?.trendScore??x?.analysis?.trend??i.trendQuality,50)};
+  const dip=x=>nf(x?.dipScore??x?.analysis?.dipScore??ind(x).meanReversionScore,0);
+  const rvol=x=>{const i=ind(x); return nf(x?.rvol??x?.rvol20??i.rvol20??i.rvol,0)};
+  const cmf=x=>{const i=ind(x); return nf(x?.cmf??x?.cmf20??i.cmf20??i.cmf,0)};
+  const mfi=x=>{const i=ind(x); return nf(x?.mfi??x?.mfi14??i.mfi14??i.mfi,0)};
+  const rsi=x=>{const i=ind(x); return nf(x?.rsi??x?.rsi14??i.rsi14??i.rsi,0)};
+  const atr=x=>{const i=ind(x); return nf(x?.atr??i.atr14??i.atr20,0)};
+  const macdPos=x=>{const i=ind(x); return nf(x?.macd??i.macd,0)>nf(x?.macdSignal??i.macdSignal,0)};
+  function loadMemory(){try{const m=JSON.parse(localStorage.getItem(TOE_KEY)||'{}');return {snapshots:Array.isArray(m.snapshots)?m.snapshots:[],patterns:m.patterns||{}};}catch(_){return {snapshots:[],patterns:{}}}}
+  function pool(){return (Array.isArray(scanCache)&&scanCache.length?scanCache:(window.lastStock?[window.lastStock]:[])).filter(x=>sym(x));}
+  function factors(x){
+    const f=[]; const ai=score(x), rv=rvol(x), c=cmf(x), mf=mfi(x), rs=rsi(x), rk=risk(x);
+    if(ai>=75)f.push('AI>=75'); if(ai>=85)f.push('AI>=85');
+    if(rk<=35)f.push('Risk<=35'); if(rk<=50)f.push('Risk<=50');
+    if(rv>=1.5)f.push('RVOL>=1.5'); if(rv>=2)f.push('RVOL>=2');
+    if(c>0)f.push('CMF>0'); if(c>-0.05)f.push('CMF toparlama');
+    if(mf>=50&&mf<=80)f.push('MFI sağlıklı'); if(mf>80)f.push('MFI aşırı');
+    if(rs>=45&&rs<=70)f.push('RSI ideal'); if(rs>75)f.push('RSI aşırı');
+    if(macdPos(x))f.push('MACD pozitif');
+    if(trend(x)>=70)f.push('Trend güçlü'); if(money(x)>=70)f.push('Para girişi');
+    if(dip(x)>=75)f.push('Dip dönüş');
+    return f;
+  }
+  function patternStatsFor(x){
+    const m=loadMemory(), st=m.patterns||{}; let n=0, ok=0, sum=0, used=[];
+    factors(x).forEach(f=>{const p=st[f]; if(p&&p.n>=2){n+=p.n; ok+=p.ok||0; sum+=p.sum||0; used.push(f);}});
+    return {examples:n, probability:n?ok/n*100:null, avgReturn:n?sum/n:0, used};
+  }
+  function computeTOE(x){
+    const s=sym(x), p=price(x), rk=risk(x), ai=score(x), ios=nf(x?.ios??x?.IOS??ai,ai), sm=money(x), tr=trend(x), dp=dip(x);
+    const ps=patternStatsFor(x); const hist=ps.probability==null?55:ps.probability;
+    const fin=nf(x?.financialScore??x?.financial??x?.analysis?.financial,60), news=nf(x?.kapScore??x?.newsScore??x?.analysis?.kap,55);
+    const ts=clamp(hist*.30 + ios*.20 + (100-rk)*.15 + sm*.15 + tr*.10 + fin*.05 + news*.05);
+    const probability=clamp(ps.probability==null ? (45+(ts-50)*0.55) : (ps.probability*.70 + ts*.30));
+    const confidenceScore=clamp(conf(x)*.35 + Math.min(100, ps.examples/4)*.25 + (100-rk)*.20 + (p>0?100:40)*.20);
+    const scenario=dp>=80?'Dipten dönüş':sm>=75?'Kurumsal para girişi':tr>=75?'Trend devam':ai>=75?'Momentum':'İzle';
+    const stopDist=Math.max(p*0.035, atr(x)*1.2, p*(rk/1000));
+    const stop=p?Math.max(0,p-stopDist):0, target1=p? p+stopDist*2:0, target2=p? p+stopDist*3.2:0;
+    const entryLow=p?p*0.995:0, entryHigh=p?p*1.01:0;
+    const why=[]; if(ps.examples)why.push(`${ps.examples} geçmiş pattern`); if(tr>=70)why.push('trend güçlü'); if(sm>=70)why.push('para girişi'); if(rk<=35)why.push('risk düşük'); if(rvol(x)>=1.5)why.push('RVOL güçlü'); if(cmf(x)>0)why.push('CMF pozitif'); if(dp>=75)why.push('dip dönüş');
+    return {symbol:s, price:p, ts, probability, confidence:confidenceScore, risk:rk, ai, ios, smartMoney:sm, trend:tr, dip:dp, examples:ps.examples, avgReturn:ps.avgReturn, factors:ps.used, scenario, entryLow, entryHigh, stop, target1, target2, why:why.join(' • ')||'mevcut skorlar yeterli, hafıza verisi sınırlı'};
+  }
+  function avoidReason(x){
+    const rr=[]; if(risk(x)>=70)rr.push('Risk yüksek'); if(rvol(x)>=3&&cmf(x)<0)rr.push('Yüksek hacim + negatif CMF'); if(rsi(x)>=85&&mfi(x)>=85)rr.push('Aşırı alım'); if(atr(x)>0&&price(x)>0&&atr(x)/price(x)>0.06)rr.push('ATR oynaklığı yüksek'); if(score(x)<45)rr.push('AI zayıf'); return rr.join(' • ');
+  }
+  function buildTOE(){toeRows=pool().map(computeTOE).filter(x=>x.symbol&&x.price>0).sort((a,b)=>b.ts-a.ts).slice(0,30); return toeRows;}
+  function topTable(rows){return rows.length?'<tr><th>#</th><th>Hisse</th><th>TS</th><th>Olasılık</th><th>Güven</th><th>Risk</th><th>Senaryo</th><th>Plan</th><th>Neden?</th></tr>'+rows.slice(0,15).map((r,i)=>`<tr onclick="toeExplain('${r.symbol}')"><td>${i+1}</td><td><b>${r.symbol}</b></td><td>${badge?badge(r.ts):fmt(r.ts,0)}</td><td>%${fmt(r.probability,0)}</td><td>%${fmt(r.confidence,0)}</td><td>${fmt(r.risk,0)}</td><td>${r.scenario}</td><td>${tl(r.entryLow)}-${tl(r.entryHigh)} / Stop ${tl(r.stop)} / H1 ${tl(r.target1)}</td><td>${r.why}</td></tr>`).join(''):'<tr><td>Önce genel tarama yapın veya analiz verisi üretin.</td></tr>'}
+  function renderAvoid(){const rows=pool().map(x=>({symbol:sym(x),score:score(x),risk:risk(x),reason:avoidReason(x)})).filter(x=>x.symbol&&x.reason).sort((a,b)=>b.risk-a.risk).slice(0,12); const t=$('toeAvoidTable'); if(t)t.innerHTML=rows.length?'<tr><th>Hisse</th><th>AI</th><th>Risk</th><th>Sebep</th></tr>'+rows.map(r=>`<tr onclick="openSymbol&&openSymbol('${r.symbol}')"><td><b>${r.symbol}</b></td><td>${fmt(r.score,0)}</td><td>${fmt(r.risk,0)}</td><td>${r.reason}</td></tr>`).join(''):'<tr><td>Belirgin kaçınma sinyali yok.</td></tr>'; }
+  function renderPatterns(){const m=loadMemory(), arr=Object.entries(m.patterns||{}).map(([k,v])=>({k,...v,rate:v.n?v.ok/v.n*100:0,avg:v.n?v.sum/v.n:0})).sort((a,b)=>b.rate-a.rate||b.n-a.n).slice(0,12); const t=$('toePatternTable'); if(t)t.innerHTML=arr.length?'<tr><th>Pattern</th><th>Örnek</th><th>Başarı</th><th>Ort. Getiri</th><th>TOE Etkisi</th></tr>'+arr.map(p=>`<tr><td><b>${p.k}</b></td><td>${p.n}</td><td>%${fmt(p.rate,0)}</td><td>%${fmt(p.avg,2)}</td><td>${p.rate>=70?'Ağırlık ↑':p.rate<50?'Ağırlık ↓':'Nötr'}</td></tr>`).join(''):'<tr><td>Pattern için snapshot/outcome verisi bekleniyor.</td></tr>'; }
+  function renderTOE(){
+    const rows=buildTOE(); const t=$('toeTopTable'); if(t)t.innerHTML=topTable(rows); renderAvoid(); renderPatterns();
+    const avg=(arr,k)=>arr.length?arr.reduce((s,x)=>s+nf(x[k],0),0)/arr.length:0; const mem=loadMemory(); const recs=mem.snapshots.reduce((s,x)=>s+(x.records?.length||0),0); const pats=Object.keys(mem.patterns||{}).length;
+    if($('toeCandidateCount'))$('toeCandidateCount').textContent=rows.length; if($('toeAvgScore'))$('toeAvgScore').textContent=rows.length?fmt(avg(rows,'ts'),0):'-'; if($('toeAvgProb'))$('toeAvgProb').textContent=rows.length?'%'+fmt(avg(rows,'probability'),0):'-'; if($('toeAvgRisk'))$('toeAvgRisk').textContent=rows.length?fmt(avg(rows,'risk'),0):'-'; if($('toeMemoryQuality'))$('toeMemoryQuality').textContent=(recs||pats)?`${pats} pattern`:'yetersiz';
+    const msg=rows.length?`TOE ${rows.length} aday hesapladı. Tomorrow Score geçmiş pattern + IOS + risk + para akışı + trend birleşimidir; kesin tahmin değildir.`:'TOE için önce tarama/analiz verisi gerekir.'; if($('toeStatus'))$('toeStatus').innerHTML=msg; if(typeof setStatus==='function')setStatus(msg); return rows;
+  }
+  window.toeExplain=function(symbol){const r=(toeRows.length?toeRows:buildTOE()).find(x=>x.symbol===symbol); const el=$('toeExplainBox'); if(!el||!r)return; el.innerHTML=`<b>${r.symbol} TOE Açıklaması</b><br>Tomorrow Score: <b>${fmt(r.ts,0)}/100</b> • Olasılık: <b>%${fmt(r.probability,0)}</b> • Güven: <b>%${fmt(r.confidence,0)}</b> • Risk: <b>${fmt(r.risk,0)}</b><br><br><b>Senaryo:</b> ${r.scenario}<br><b>Geçmiş benzer pattern:</b> ${r.examples||'yetersiz'} örnek${r.examples?`, ortalama getiri %${fmt(r.avgReturn,2)}`:''}<br><b>Neden:</b> ${r.why}<br><br><b>Trade Plan:</b> Giriş ${tl(r.entryLow)} - ${tl(r.entryHigh)}, Stop ${tl(r.stop)}, Hedef1 ${tl(r.target1)}, Hedef2 ${tl(r.target2)}.<br><br><span class="mini">TOE bir olasılık motorudur; piyasa rejimi, haber akışı ve kişisel risk yönetimi ayrıca kontrol edilmelidir.</span>`; };
+  function exportCsv(){const rows=toeRows.length?toeRows:buildTOE(); if(!rows.length){alert('Önce TOE hesaplayın.');return;} downloadCSV([['Hisse','TomorrowScore','Olasilik','Guven','Risk','AI','IOS','Money','Trend','Dip','Ornek','OrtGetiri','Senaryo','GirisAlt','GirisUst','Stop','Hedef1','Hedef2','Neden'],...rows.map(r=>[r.symbol,r.ts,r.probability,r.confidence,r.risk,r.ai,r.ios,r.smartMoney,r.trend,r.dip,r.examples,r.avgReturn,r.scenario,r.entryLow,r.entryHigh,r.stop,r.target1,r.target2,r.why])],'v31_tomorrow_opportunity_engine.csv');}
+  async function scanAndToe(){showPage('tomorrowOpportunity',document.querySelector('[data-page="tomorrowOpportunity"]')); if(typeof scanAll==='function')await scanAll(false); renderTOE();}
+  function saveAndToe(){try{ if(typeof window.saveInstitutionalMemorySnapshot==='function') window.saveInstitutionalMemorySnapshot(); if(typeof window.updateInstitutionalMemoryOutcomes==='function') window.updateInstitutionalMemoryOutcomes(false); }catch(e){console.warn(e);} renderTOE();}
+  setTimeout(()=>{const bind=(id,fn)=>{const e=$(id); if(e)e.addEventListener('click',fn);}; bind('toeRunBtn',renderTOE); bind('toeFullScanBtn',()=>scanAndToe().catch(e=>{if($('toeStatus'))$('toeStatus').textContent='TOE tarama hatası: '+e.message; setStatus('TOE tarama hatası: '+e.message);})); bind('toeSaveMemoryBtn',saveAndToe); bind('toeCsvBtn',exportCsv); const tab=document.querySelector('[data-page="tomorrowOpportunity"]'); if(tab)tab.addEventListener('click',()=>setTimeout(renderTOE,120));},900);
+})();
+
 </script>
 
 </body>
