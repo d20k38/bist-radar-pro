@@ -1,6 +1,6 @@
 {
-  "name": "bist-radar-pro-v2-production",
-  "version": "2.0.0",
+  "name": "bist-radar-pro-v4-hybrid-memory",
+  "version": "4.0.0",
   "private": true,
   "type": "commonjs",
   "dependencies": {

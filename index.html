@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIST Radar Pro v3.1 Tomorrow Opportunity Engine</title>
+<title>BIST Radar Pro v4.0 Hybrid Memory Architecture</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/r10-runtime.js"></script>
 <script>
@@ -120,7 +120,7 @@ body.v2-terminal .wrap>section.v2-active{display:block;}
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">📈 BIST Radar Pro v3.1 Tomorrow Opportunity Engine</div><div class="pill">%100 Gerçek OHLCV • v3.1 TOE • Institutional Memory • Probability Engine</div></div>
+  <div class="top"><div class="brand">📈 BIST Radar Pro v4.0 Hybrid Memory Architecture</div><div class="pill">%100 Gerçek OHLCV • Supabase Aktif Hafıza • Local Archive • IPE/TOE</div></div>
   <div class="controls">
     <input id="search" placeholder="Hisse kodu: PAPIL" value="PAPIL">
     <select id="symbol"></select>
@@ -138,6 +138,7 @@ body.v2-terminal .wrap>section.v2-active{display:block;}
     <button class="tab" data-page="explainableAI">🧠 AI Açıklama</button>
     <button class="tab" data-page="snapshotCompare">🧪 Karşılaştırma</button>
     <button class="tab" data-page="institutionalMemory">🧠 Hafıza / IPE</button>
+    <button class="tab" data-page="hybridMemory">🗄️ Hybrid Memory</button>
   </div>
   <div id="status" class="status">Hazır.</div>
   <div class="barw" style="margin:8px 0 14px"><div id="scanProgressBar" class="bar" style="width:0%;background:var(--blue)"></div></div>
@@ -1032,6 +1033,32 @@ body.v2-terminal .wrap>section.v2-active{display:block;}
       <div class="card"><div class="head yellow">📊 Pattern / Learning Özeti</div><div class="body"><table id="toePatternTable" class="table"></table></div></div>
     </div>
   </section>
+
+  <section id="hybridMemory" class="hidden">
+    <div class="card"><div class="head dark">🚀 v4.0 Hybrid Memory Architecture</div><div class="body">
+      <div class="comment"><b>Hybrid Memory</b>, öğrenme sürecini 7 günle sınırlamaz. Supabase yalnızca aktif çalışma hafızası olarak kullanılır; tam öğrenme geçmişi yerel arşiv / JSON yedeklerinde saklanır. Sistem kota ve 7 gün geçiş riskini uyarı paneliyle izler.</div><br>
+      <div class="quickFilters">
+        <button class="btn green" id="hmSaveBtn">Bugünkü Snapshot'ı Hibrit Hafızaya Kaydet</button>
+        <button class="btn" id="hmSyncBtn">Supabase Senkron Kontrol</button>
+        <button class="btn" id="hmArchiveBtn">Yerel Arşiv JSON İndir</button>
+        <button class="btn gray" id="hmLoadBtn">Yerel Hafızayı Oku</button>
+      </div>
+      <div id="hmStatus" class="comment">Hybrid Memory hazır. Supabase bağlantısı varsa aktif hafızaya da yazar; yoksa yerel Institutional Memory arşiviyle çalışır.</div>
+    </div></div><br>
+    <div class="grid5">
+      <div class="card metric"><div class="body"><div class="muted">Aktif Hafıza</div><div id="hmActiveCount" class="v ok">-</div><div class="muted">Supabase / son kayıt</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Yerel Arşiv</div><div id="hmArchiveCount" class="v ok">-</div><div class="muted">snapshot kaydı</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Kota Uyarısı</div><div id="hmQuota" class="v warn">-</div><div class="muted">7 gün / kapasite izle</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Öğrenme</div><div id="hmLearning" class="v ok">-</div><div class="muted">pattern sayısı</div></div></div>
+      <div class="card metric"><div class="body"><div class="muted">Durum</div><div id="hmMode" class="v ok">-</div><div class="muted">hybrid mode</div></div></div>
+    </div><br>
+    <div class="grid2">
+      <div class="card"><div class="head cyan">📊 Hafıza Sağlığı</div><div class="body"><table id="hmHealthTable" class="table"></table></div></div>
+      <div class="card"><div class="head yellow">⚠️ Uyarı ve Arşiv Önerileri</div><div class="body"><div id="hmWarningBox" class="comment">Henüz kontrol yapılmadı.</div></div></div>
+    </div><br>
+    <div class="card"><div class="head green">🧠 Öğrenme Süreci</div><div class="body"><div id="hmLearningBox" class="comment">7 günlük aktif hafıza yalnızca günlük çalışma içindir. Uzun dönem öğrenme yerel arşiv ve öğrenilmiş pattern tablolarından beslenir.</div><br><table id="hmPatternTable" class="table"></table></div></div>
+  </section>
+
 
   <section id="institutionalMemory" class="hidden">
     <div class="card"><div class="head dark">🧠 Institutional Memory Engine / IPE</div><div class="body">
@@ -4263,6 +4290,30 @@ setTimeout(()=>{
   setTimeout(()=>{const bind=(id,fn)=>{const e=$(id); if(e)e.addEventListener('click',fn);}; bind('toeRunBtn',renderTOE); bind('toeFullScanBtn',()=>scanAndToe().catch(e=>{if($('toeStatus'))$('toeStatus').textContent='TOE tarama hatası: '+e.message; setStatus('TOE tarama hatası: '+e.message);})); bind('toeSaveMemoryBtn',saveAndToe); bind('toeCsvBtn',exportCsv); const tab=document.querySelector('[data-page="tomorrowOpportunity"]'); if(tab)tab.addEventListener('click',()=>setTimeout(renderTOE,120));},900);
 })();
 
+</script>
+
+
+
+<script>
+// v4.0 Hybrid Memory Architecture
+(function(){
+  const LS_KEY='bistHybridMemoryV40';
+  const $hm=(id)=>document.getElementById(id);
+  const n=(v,d=0)=>{v=Number(v);return Number.isFinite(v)?v:d};
+  const f=(v,d=0)=>Number.isFinite(Number(v))?Number(v).toLocaleString('tr-TR',{maximumFractionDigits:d}):'-';
+  function readIme(){try{return (typeof loadMemory==='function')?loadMemory():JSON.parse(localStorage.getItem('bistInstitutionalMemoryV3')||'{"snapshots":[],"patterns":{}}')}catch(e){return {snapshots:[],patterns:{}}}}
+  function readHybrid(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'{"createdAt":null,"snapshots":[],"patterns":{},"warnings":[]}')}catch(e){return {snapshots:[],patterns:{},warnings:[]}}}
+  function saveHybrid(m){localStorage.setItem(LS_KEY,JSON.stringify(m));}
+  function pool(){const a=[]; if(Array.isArray(window.scanCache))a.push(...window.scanCache); if(window.lastStock)a.push(window.lastStock.master||window.lastStock); const map=new Map(); a.forEach(x=>{const s=String(x?.symbol||'').toUpperCase(); if(s&&!map.has(s))map.set(s,x)}); return [...map.values()];}
+  function norm(x){const ind=x.indicators||{}, sc=x.scores||{}; return {symbol:String(x.symbol||'').toUpperCase(), date:new Date().toISOString().slice(0,10), price:n(x.price??x.lastPrice??x.close), ai:n(x.score??x.aiScore??x.finalScore,50), ios:n(x.ios??x.institutionalScore??sc.iqs??x.score,50), risk:n(x.risk??x.riskScore,50), confidence:n(x.confidencePct??x.confidence??x.confidenceScore,50), decision:x.decision||x.action||'TUT', rvol:n(x.rvol20??x.rvol??ind.rvol20), cmf:n(x.cmf??ind.cmf), mfi:n(x.mfi??ind.mfi), vwap:n(x.vwap??ind.vwap), ema20:n(x.ema20??ind.ema20), ema50:n(x.ema50??ind.ema50), ema200:n(x.ema200??ind.ema200), raw:x};}
+  function mergePatterns(target, src){target=target||{}; for(const [k,v] of Object.entries(src||{})){const t=target[k]||{n:0,ok:0,sum:0}; target[k]={n:n(t.n)+n(v.n),ok:n(t.ok)+n(v.ok),sum:n(t.sum)+n(v.sum)};} return target;}
+  function refresh(){const ime=readIme(), hm=readHybrid(); const recs=(hm.snapshots||[]).reduce((s,x)=>s+(x.records?.length||0),0); const imeRecs=(ime.snapshots||[]).reduce((s,x)=>s+(x.records?.length||0),0); const patterns=Object.keys({...ime.patterns,...hm.patterns}).length; if($hm('hmArchiveCount'))$hm('hmArchiveCount').textContent=f(recs+imeRecs); if($hm('hmLearning'))$hm('hmLearning').textContent=f(patterns); if($hm('hmMode'))$hm('hmMode').textContent='Hybrid'; if($hm('hmQuota'))$hm('hmQuota').textContent=(recs+imeRecs>50000?'Arşivle':'Normal'); const last=(hm.snapshots||[]).slice(-1)[0]; if($hm('hmActiveCount'))$hm('hmActiveCount').textContent=last?last.date:'-'; const rows=[['Katman','Durum','Kullanım'],['Supabase Aktif Hafıza','Bağlantı kontrolü gerekli','Son 30-90 gün, hızlı sorgu'],['Yerel Arşiv','Aktif','Tüm geçmiş / JSON yedek'],['Learning Tables',patterns?'Aktif':'Veri bekliyor','Pattern başarıları'],['7 Gün Uyarısı','İzleniyor','Süre geçmeden dışa aktarım hatırlatması']]; if($hm('hmHealthTable'))$hm('hmHealthTable').innerHTML=rows.map((r,i)=>i?`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`:`<tr><th>${r[0]}</th><th>${r[1]}</th><th>${r[2]}</th></tr>`).join(''); const warn=[]; if(recs+imeRecs>50000)warn.push('Yerel arşiv büyüdü; aylık/çeyreklik JSON yedek alın.'); if(!(hm.supabase&&hm.supabase.ok))warn.push('Supabase aktif hafıza bağlı görünmüyor; uzun dönem öğrenme yerel arşivde devam eder.'); warn.push('7 günlük süreç öğrenmeyi sınırlandırmaz; yalnızca aktif hafıza / kota uyarısı olarak takip edilir.'); if($hm('hmWarningBox'))$hm('hmWarningBox').innerHTML=warn.map(x=>'• '+x).join('<br>'); const pats=Object.entries({...ime.patterns,...hm.patterns}).map(([k,v])=>({k,...v,rate:n(v.n)?n(v.ok)/n(v.n)*100:0,avg:n(v.n)?n(v.sum)/n(v.n):0})).sort((a,b)=>b.rate-a.rate).slice(0,12); if($hm('hmPatternTable'))$hm('hmPatternTable').innerHTML=pats.length?'<tr><th>Pattern</th><th>Örnek</th><th>Başarı</th><th>Ort. Getiri</th></tr>'+pats.map(p=>`<tr><td><b>${p.k}</b></td><td>${f(p.n)}</td><td>%${f(p.rate,0)}</td><td>%${f(p.avg,2)}</td></tr>`).join(''):'<tr><td>Pattern verisi bekleniyor.</td></tr>'; }
+  async function saveSnapshot(){const data=pool().map(norm).filter(x=>x.symbol); const hm=readHybrid(); const today=new Date().toISOString().slice(0,10); const snap={date:today,createdAt:new Date().toISOString(),records:data}; hm.snapshots=(hm.snapshots||[]).filter(x=>x.date!==today).concat([snap]).slice(-500); const ime=readIme(); hm.patterns=mergePatterns(hm.patterns, ime.patterns||{}); hm.updatedAt=new Date().toISOString(); saveHybrid(hm); try{await fetch('/api/core?action=memory_save',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({date:today,records:data,source:'v4-hybrid'})}).then(r=>r.json()).then(j=>{hm.supabase={ok:!!j.success,message:j.message||j.error||'',checkedAt:new Date().toISOString()}; saveHybrid(hm);});}catch(e){hm.supabase={ok:false,message:e.message,checkedAt:new Date().toISOString()}; saveHybrid(hm);} refresh(); if($hm('hmStatus'))$hm('hmStatus').innerHTML=`${data.length} kayıt hibrit hafızaya yazıldı. Supabase: ${hm.supabase?.ok?'bağlı':'yerel arşiv'}; öğrenme geçmişi korunur.`;}
+  async function syncStatus(){let j={}; try{j=await fetch('/api/core?action=memory_status').then(r=>r.json());}catch(e){j={success:false,error:e.message};} const hm=readHybrid(); hm.supabase={ok:!!j.success, message:j.message||j.error||'', stats:j.stats||null, checkedAt:new Date().toISOString()}; saveHybrid(hm); refresh(); if($hm('hmStatus'))$hm('hmStatus').innerHTML=j.success?`Supabase aktif hafıza kontrol edildi. ${j.message||''}`:`Supabase bağlı değil: ${j.error||'env eksik olabilir'}. Yerel arşivle devam edilir.`;}
+  function downloadArchive(){const hm=readHybrid(), ime=readIme(); const out={version:'v4.0 Hybrid Memory', exportedAt:new Date().toISOString(), hybrid:hm, institutionalMemory:ime}; const blob=new Blob([JSON.stringify(out,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='BIST_Radar_HybridMemory_'+new Date().toISOString().slice(0,10)+'.json'; a.click(); URL.revokeObjectURL(a.href);}
+  setTimeout(()=>{const bind=(id,fn)=>{const e=$hm(id); if(e)e.addEventListener('click',fn);}; bind('hmSaveBtn',saveSnapshot); bind('hmSyncBtn',syncStatus); bind('hmArchiveBtn',downloadArchive); bind('hmLoadBtn',refresh); const tab=document.querySelector('[data-page="hybridMemory"]'); if(tab)tab.addEventListener('click',()=>setTimeout(refresh,80)); refresh();},1000);
+  window.renderHybridMemory=refresh;
+})();
 </script>
 
 </body>

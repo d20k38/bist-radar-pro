@@ -452,6 +452,84 @@ async function handleProvider(req,res){
   }catch(e){ return send(res,{success:false,error:e.message||String(e),source:'R27 provider-status'}, 'no-store'); }
 }
 
+
+// v4.0 Hybrid Memory Architecture - Supabase active memory + local archive compatible API
+async function sbRequest(path, opts={}){
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+  if(!url || !key) throw new Error('Supabase ENV eksik: SUPABASE_URL ve SUPABASE_SERVICE_ROLE_KEY/SUPABASE_ANON_KEY gerekli');
+  const endpoint = url.replace(/\/$/,'') + '/rest/v1/' + path.replace(/^\//,'');
+  const r = await fetch(endpoint, {
+    ...opts,
+    headers:{
+      apikey:key,
+      Authorization:'Bearer '+key,
+      'Content-Type':'application/json',
+      Prefer:'return=representation',
+      ...(opts.headers||{})
+    }
+  });
+  const text = await r.text();
+  let data=null; try{ data=text?JSON.parse(text):null; }catch(_){ data={raw:text}; }
+  if(!r.ok) throw new Error('Supabase '+r.status+': '+(data?.message||data?.error||text||'istek başarısız'));
+  return data;
+}
+async function handleMemoryStatus(req,res){
+  try{
+    const envOk = !!(process.env.SUPABASE_URL && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY));
+    if(!envOk) return send(res,{success:false,mode:'local-archive',error:'Supabase ortam değişkenleri tanımlı değil. Yerel arşiv öğrenmeyi sürdürür.',stats:null},'no-store');
+    let rows=[];
+    try{ rows = await sbRequest('bist_memory_stats?select=*&limit=1', {method:'GET', headers:{Prefer:''}}); }
+    catch(_){ rows = await sbRequest('bist_snapshots?select=id,snapshot_date,created_at&order=created_at.desc&limit=1', {method:'GET', headers:{Prefer:''}}); }
+    send(res,{success:true,mode:'supabase-active-memory',message:'Supabase aktif hafıza erişilebilir. Uzun dönem öğrenme yerel/harici arşivle sınırlanmaz.',stats:{last:rows&&rows[0]||null,checkedAt:new Date().toISOString()}},'no-store');
+  }catch(e){ send(res,{success:false,mode:'local-archive',error:e.message||String(e)},'no-store'); }
+}
+function memoryShapeRecord(r, snapshot_date){
+  return {
+    snapshot_date: snapshot_date || r.date || new Date().toISOString().slice(0,10),
+    symbol: String(r.symbol||'').toUpperCase(),
+    close: Number.isFinite(Number(r.price ?? r.close)) ? Number(r.price ?? r.close) : null,
+    volume: Number.isFinite(Number(r.volume)) ? Number(r.volume) : null,
+    ai_score: Number.isFinite(Number(r.ai ?? r.aiScore ?? r.score)) ? Number(r.ai ?? r.aiScore ?? r.score) : null,
+    ios: Number.isFinite(Number(r.ios)) ? Number(r.ios) : null,
+    risk: Number.isFinite(Number(r.risk)) ? Number(r.risk) : null,
+    confidence: Number.isFinite(Number(r.confidence)) ? Number(r.confidence) : null,
+    rvol: Number.isFinite(Number(r.rvol)) ? Number(r.rvol) : null,
+    cmf: Number.isFinite(Number(r.cmf)) ? Number(r.cmf) : null,
+    mfi: Number.isFinite(Number(r.mfi)) ? Number(r.mfi) : null,
+    vwap: Number.isFinite(Number(r.vwap)) ? Number(r.vwap) : null,
+    decision: r.decision || null,
+    raw: r,
+    created_at: new Date().toISOString()
+  };
+}
+async function readBody(req){
+  if(req.body) return typeof req.body==='string'?JSON.parse(req.body):req.body;
+  return await new Promise(resolve=>{let b=''; req.on('data',c=>b+=c); req.on('end',()=>{try{resolve(b?JSON.parse(b):{})}catch(_){resolve({})}});});
+}
+async function handleMemorySave(req,res){
+  try{
+    const body = await readBody(req);
+    const date = body.date || new Date().toISOString().slice(0,10);
+    const records = Array.isArray(body.records) ? body.records : [];
+    if(!records.length) return send(res,{success:false,error:'Kaydedilecek snapshot kaydı yok.'},'no-store');
+    const envOk = !!(process.env.SUPABASE_URL && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY));
+    if(!envOk) return send(res,{success:false,mode:'local-archive',error:'Supabase ENV yok; frontend yerel arşivde sakladı.',count:records.length},'no-store');
+    const shaped = records.filter(r=>r&&r.symbol).slice(0,1000).map(r=>memoryShapeRecord(r,date));
+    const chunks=[]; for(let i=0;i<shaped.length;i+=200) chunks.push(shaped.slice(i,i+200));
+    let inserted=0;
+    for(const c of chunks){ await sbRequest('bist_snapshots', {method:'POST', body:JSON.stringify(c)}); inserted+=c.length; }
+    return send(res,{success:true,mode:'supabase-active-memory',message:'Snapshot Supabase aktif hafızaya yazıldı. Uzun dönem öğrenme için yerel arşiv de korunmalıdır.',inserted,count:records.length},'no-store');
+  }catch(e){ return send(res,{success:false,mode:'local-archive',error:e.message||String(e)},'no-store'); }
+}
+async function handleMemoryList(req,res){
+  try{
+    const limit=Math.max(1,Math.min(500,Number(req.query.limit||100)));
+    const rows = await sbRequest('bist_snapshots?select=snapshot_date,symbol,close,ai_score,ios,risk,confidence,decision,created_at&order=created_at.desc&limit='+limit, {method:'GET', headers:{Prefer:''}});
+    return send(res,{success:true,mode:'supabase-active-memory',count:rows.length,data:rows},'no-store');
+  }catch(e){ return send(res,{success:false,mode:'local-archive',error:e.message||String(e),data:[]},'no-store'); }
+}
+
 async function handleCommittee(req,res){
   const s=String(req.query.symbol||'').toUpperCase().trim();
   if(!s) return bad(res,'symbol gerekli');
@@ -465,7 +543,7 @@ module.exports = async function handler(req,res){
       symbols:handleSymbols, stock:handleStock, quote:handleStock, decision:handleDecision, explain:handleExplain, xai:handleExplain, schema:handleSchema,
       dip:handleDip, scan:handleScan, 'institutional-scan':handleScan, institutional:handleScan,
       'portfolio-advice':handlePortfolio, portfolio:handlePortfolio,
-      kap:handleKap, news:handleKap, diagnostic:handleDiagnostic, diagnose:handleDiagnostic, health:handleDiagnostic, stabilize:handleDiagnostic, validate:handleValidate, validator:handleValidate, corevalidator:handleValidate, learning:handleLearning, backtest:handleBacktest, committee:handleCommittee, provider:handleProvider, dataprovider:handleProvider, status:handleProvider
+      kap:handleKap, news:handleKap, diagnostic:handleDiagnostic, diagnose:handleDiagnostic, health:handleDiagnostic, stabilize:handleDiagnostic, validate:handleValidate, validator:handleValidate, corevalidator:handleValidate, learning:handleLearning, backtest:handleBacktest, committee:handleCommittee, provider:handleProvider, memory_status:handleMemoryStatus, memorystatus:handleMemoryStatus, memory_save:handleMemorySave, memorysave:handleMemorySave, memory_list:handleMemoryList, memorylist:handleMemoryList, dataprovider:handleProvider, status:handleProvider
     };
     const fn = map[action];
     if(!fn) return bad(res,'Bilinmeyen core action: '+(action||'-'));
