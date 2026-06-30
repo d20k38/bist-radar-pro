@@ -1,55 +1,31 @@
-# BIST Radar Pro v4.0 Hybrid Memory Architecture
+# BIST Radar Pro Professional Edition
 
-Bu sürüm, v3.1 Tomorrow Opportunity Engine üzerine **Hybrid Memory Architecture** ekler.
+Bu paket, BIST Radar Pro v4 Hybrid Memory tabanı üzerine hazırlanmış daha kurumsal kullanım sürümüdür.
 
-## Mantık
+## İçerik
 
-- **Supabase Aktif Hafıza:** Günlük kullanım, hızlı sorgu, son dönem snapshot verileri.
-- **Yerel / Harici Arşiv:** Uzun dönem öğrenme hafızası. 7 gün ile sınırlanmaz.
-- **Learning Tables:** Pattern başarıları ve istatistikler uzun vadeli öğrenmeyi taşır.
+- Tek API mimarisi: `api/core.js`
+- Unified provider + decision engine
+- Institutional Memory / IPE / TOE
+- Hybrid Memory ekranı
+- Supabase aktif hafıza ayar alanları
+- Yerel uzun dönem arşiv JSON yedeği
+- 7 gün / kota uyarı mantığı
 
-## Yeni bölüm
+## Kurulum
 
-Üst menüde **🗄️ Hybrid Memory** sekmesi eklendi.
+1. ZIP içeriğini GitHub projenize yükleyin.
+2. `api/` içinde yalnızca `core.js` kalsın.
+3. Supabase SQL Editor içinde `SUPABASE_SCHEMA.sql` dosyasını çalıştırın.
+4. İki kullanım seçeneğiniz var:
+   - Önerilen: Vercel Environment Variables içine `SUPABASE_URL` ve `SUPABASE_SERVICE_ROLE_KEY` ekleyin.
+   - Alternatif: Uygulamadaki Hybrid Memory bölümünden Supabase URL + anon key girin. Bu bilgiler yalnızca tarayıcı localStorage içinde saklanır.
+5. Hybrid Memory ekranında bağlantıyı test edin ve snapshot kaydedin.
 
-Buradan:
+## Önemli
 
-- Bugünkü snapshot hibrit hafızaya kaydedilir.
-- Supabase bağlantısı kontrol edilir.
-- Yerel arşiv JSON indirilebilir.
-- 7 gün/kota uyarıları izlenir.
+Service role key kesinlikle uygulamadaki anon key alanına yazılmamalıdır. Service role yalnızca Vercel ENV tarafında kullanılmalıdır.
 
-## Supabase ENV
+## Tek API
 
-Vercel ortam değişkenleri:
-
-```txt
-SUPABASE_URL=https://xxxx.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=...
-```
-
-Service role key güvenli şekilde sadece serverless API içinde kullanılır. Frontend'e yazılmaz.
-
-## SQL
-
-`SUPABASE_SCHEMA.sql` dosyasını Supabase SQL Editor'da çalıştırın.
-
-## API
-
-Tek function korunur:
-
-```txt
-api/core.js
-```
-
-Yeni action'lar:
-
-```txt
-/api/core?action=memory_status
-/api/core?action=memory_save
-/api/core?action=memory_list
-```
-
-## 7 gün konusu
-
-7 günlük süre öğrenmeyi sınırlamaz. Sistem uzun dönem öğrenmeyi yerel/harici arşivde korur; Supabase sadece aktif çalışma hafızasıdır.
+Vercel Hobby sınırına takılmamak için eski `api/stock.js`, `api/scan.js`, `api/symbols.js` gibi dosyaları silin.
